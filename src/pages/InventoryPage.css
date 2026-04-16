@@ -1,0 +1,117 @@
+.inventory-page .page-header { margin-bottom: var(--space-lg); }
+
+/* Stats */
+.inventory-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+@media (max-width: 900px) {
+  .inventory-stats { grid-template-columns: repeat(2, 1fr); }
+}
+
+.inv-stat-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  animation: fadeInUp 0.4s ease both;
+}
+
+.inv-stat-card:nth-child(2) { animation-delay: 60ms; }
+.inv-stat-card:nth-child(3) { animation-delay: 120ms; }
+.inv-stat-card:nth-child(4) { animation-delay: 180ms; }
+
+.inv-stat-value {
+  display: block;
+  font-size: var(--font-size-xl);
+  font-weight: 800;
+}
+
+.inv-stat-label {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+}
+
+/* Filters */
+.inventory-filters {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.inventory-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  max-width: 400px;
+}
+
+.inventory-search svg {
+  position: absolute;
+  left: 12px;
+  color: var(--color-text-tertiary);
+  pointer-events: none;
+}
+
+.inventory-search .input {
+  width: 100%;
+  padding-left: 36px;
+}
+
+.inventory-categories {
+  display: flex;
+  gap: var(--space-xs);
+  flex-wrap: wrap;
+}
+
+.inv-cat-btn {
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.inv-cat-btn:hover {
+  color: var(--color-text-primary);
+  border-color: var(--color-border-hover);
+}
+
+.inv-cat-btn.active {
+  background: rgba(0, 212, 255, 0.1);
+  color: var(--color-accent-primary);
+  border-color: rgba(0, 212, 255, 0.3);
+}
+
+/* Table */
+.inventory-page .table-container {
+  animation: fadeInUp 0.5s ease 0.2s both;
+}
+
+.sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: color var(--transition-fast);
+}
+
+.sortable:hover {
+  color: var(--color-accent-primary);
+}
+
+.sortable svg {
+  display: inline;
+  vertical-align: middle;
+  margin-left: 4px;
+  opacity: 0.4;
+}
