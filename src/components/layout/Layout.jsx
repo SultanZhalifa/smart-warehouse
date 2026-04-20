@@ -2,6 +2,7 @@ import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Header from './Header';
 import ToastContainer from '../common/ToastContainer';
+import LiveEventSimulator from '../common/LiveEventSimulator';
 import { useWarehouse } from '../../context/WarehouseContext';
 import './Layout.css';
 
@@ -18,6 +19,7 @@ export default function Layout() {
         </main>
       </div>
       <ToastContainer />
+      <LiveEventSimulator />
     </div>
   );
 }

@@ -113,4 +113,119 @@
 
 ---
 
+# Daily Standup Log — Sprint 2
+
+**Project:** Smart Warehouse (Object Detection)  
+**Sprint:** Sprint 2 (Week 2)  
+**Facilitator:** Sultan Zhalifunnas Musyaffa (Scrum Master)
+
+---
+
+## Day 5 — Friday, April 18, 2026
+
+### Risly Maria Theresia Worung (Product Owner)
+- **Yesterday:** Completed Sprint 1 review and approved all deliverables.
+- **Today:** Define Sprint 2 acceptance criteria. Plan RBAC requirements — which pages each role can access.
+- **Blockers:** None
+
+### Sultan Zhalifunnas Musyaffa (Scrum Master)
+- **Yesterday:** Compiled Sprint 1 documentation. Pushed codebase to GitHub.
+- **Today:** Design Settings page UI — tabs for Profile, Notifications, Appearance, Security. Create wireframes.
+- **Blockers:** GitHub push required PAT token setup — resolved during sprint planning.
+
+### Misha Andalusia (Developer)
+- **Yesterday:** Completed Sprint 1 analytics page.
+- **Today:** Begin export utility module — CSV, JSON, and PDF export functions. Research browser Blob API.
+- **Blockers:** None
+
+### Fathir Barhouti Awlya (Developer)
+- **Yesterday:** Completed Activity Log page.
+- **Today:** Design real-time notification architecture. Research event simulation patterns using setInterval with randomized timing.
+- **Blockers:** None
+
+---
+
+## Day 6 — Saturday, April 19, 2026
+
+### Risly Maria Theresia Worung (Product Owner)
+- **Yesterday:** RBAC requirements defined — Admin (full), Manager (no user management), Operator (basic views only).
+- **Today:** Implement RoleRoute component. Add role-based sidebar filtering logic.
+- **Blockers:** None
+
+### Sultan Zhalifunnas Musyaffa (Scrum Master)
+- **Yesterday:** Completed Settings page wireframes.
+- **Today:** Implement Settings page — Profile tab with avatar card, form fields, and save functionality.
+- **Blockers:** None
+
+### Misha Andalusia (Developer)
+- **Yesterday:** Export utility module completed with CSV, JSON, and PDF support.
+- **Today:** Wire export buttons into Inventory page (Export CSV) and Activity Log page (Export Log).
+- **Blockers:** None
+
+### Fathir Barhouti Awlya (Developer)
+- **Yesterday:** Designed event simulation architecture.
+- **Today:** Build LiveEventSimulator component — headless component that generates detection, alert, and system events with random intervals.
+- **Blockers:** Need to ensure useCallback memoization to prevent infinite re-render loops.
+
+---
+
+## Day 7 — Sunday, April 20, 2026
+
+### Risly Maria Theresia Worung (Product Owner)
+- **Yesterday:** RBAC implementation completed and tested with all 4 user roles.
+- **Today:** Final review of all Sprint 2 features. Test Settings page, export buttons, and notification system.
+- **Blockers:** None
+
+### Sultan Zhalifunnas Musyaffa (Scrum Master)
+- **Yesterday:** Settings page Profile tab completed.
+- **Today:** Complete remaining Settings tabs — Notifications (toggle switches), Appearance (theme/accent picker), Security (password/sessions).
+- **Blockers:** None
+
+### Misha Andalusia (Developer)
+- **Yesterday:** Export buttons wired into Inventory and Activity Log.
+- **Today:** Add zone filter dropdown to Inventory page. Ensure filtered export works correctly.
+- **Blockers:** None
+
+### Fathir Barhouti Awlya (Developer)
+- **Yesterday:** LiveEventSimulator component completed and integrated into Layout.
+- **Today:** Fine-tune notification timing (25-45s intervals). Test toast notifications across all pages.
+- **Blockers:** None
+
+---
+
+## Day 8 — Monday, April 21, 2026
+
+### Risly Maria Theresia Worung (Product Owner)
+- **Yesterday:** All Sprint 2 features reviewed and approved.
+- **Today:** Final acceptance testing. Approve Sprint 2 deliverables. Prepare for sprint review session.
+- **Blockers:** None
+
+### Sultan Zhalifunnas Musyaffa (Scrum Master)
+- **Yesterday:** All 4 Settings tabs completed.
+- **Today:** Compile Sprint 2 Report and update documentation. Git commit and push all Sprint 2 changes.
+- **Blockers:** None
+
+### Misha Andalusia (Developer)
+- **Yesterday:** Zone filter and export integration completed.
+- **Today:** Bug fixes and code cleanup. Help prepare Sprint 2 demo.
+- **Blockers:** None
+
+### Fathir Barhouti Awlya (Developer)
+- **Yesterday:** Notification system polished — events now include emojis and descriptive messages.
+- **Today:** Cross-page testing. Verify all real-time events appear in Activity Log. Help with documentation.
+- **Blockers:** None
+
+---
+
+## Sprint 2 Standup Summary
+
+| Metric | Value |
+|--------|-------|
+| Total Standups Held | 4 |
+| Blockers Reported | 2 (PAT token, useCallback memoization) |
+| Blockers Resolved | 2 (100% resolution rate) |
+| Average Standup Duration | ~10 minutes |
+
+---
+
 *Log maintained by: Sultan Zhalifunnas Musyaffa (Scrum Master)*

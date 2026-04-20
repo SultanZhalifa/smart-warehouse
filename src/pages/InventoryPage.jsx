@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useWarehouse } from '../context/WarehouseContext';
 import { ZONES } from '../data/mockData';
+import { exportToCSV } from '../utils/exportUtils';
 import {
   Package, Plus, Search, Filter, Edit3, Trash2, X,
-  AlertTriangle, CheckCircle, XCircle, ArrowUpDown
+  AlertTriangle, CheckCircle, XCircle, ArrowUpDown, Download
 } from 'lucide-react';
 import './InventoryPage.css';
 
@@ -28,6 +29,7 @@ export default function InventoryPage() {
   const { state, dispatch, addToast } = useWarehouse();
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('All');
+  const [zoneFilter, setZoneFilter] = useState('All');
   const [showModal, setShowModal] = useState(false);
   const [editItem, setEditItem] = useState(null);
   const [sortField, setSortField] = useState('id');
@@ -40,7 +42,8 @@ export default function InventoryPage() {
     .filter((item) => {
       const matchSearch = item.name.toLowerCase().includes(search.toLowerCase()) || item.id.toLowerCase().includes(search.toLowerCase());
       const matchCategory = category === 'All' || item.category === category;
-      return matchSearch && matchCategory;
+      const matchZone = zoneFilter === 'All' || item.zone === zoneFilter;
+      return matchSearch && matchCategory && matchZone;
     })
     .sort((a, b) => {
       const aVal = a[sortField];
@@ -105,9 +108,22 @@ export default function InventoryPage() {
           <h1>Inventory Management</h1>
           <p>Track and manage warehouse inventory items</p>
         </div>
-        <button className="btn btn-primary" onClick={openCreate}>
-          <Plus size={16} /> Add Item
-        </button>
+        <div style={{ display: 'flex', gap: 'var(--space-sm)' }}>
+          <button className="btn btn-secondary" onClick={() => {
+            exportToCSV(filteredItems, 'inventory_export', [
+              { key: 'id', label: 'ID' }, { key: 'name', label: 'Name' },
+              { key: 'category', label: 'Category' }, { key: 'zone', label: 'Zone' },
+              { key: 'quantity', label: 'Quantity' }, { key: 'minStock', label: 'Min Stock' },
+              { key: 'status', label: 'Status' }, { key: 'weight', label: 'Weight (kg)' },
+            ]);
+            addToast({ type: 'success', message: `Exported ${filteredItems.length} items to CSV` });
+          }}>
+            <Download size={16} /> Export CSV
+          </button>
+          <button className="btn btn-primary" onClick={openCreate}>
+            <Plus size={16} /> Add Item
+          </button>
+        </div>
       </div>
 
       {/* Stats */}
@@ -154,6 +170,13 @@ export default function InventoryPage() {
               {cat}
             </button>
           ))}
+        </div>
+        <div className="inventory-zone-filter">
+          <Filter size={14} />
+          <select className="input" value={zoneFilter} onChange={(e) => setZoneFilter(e.target.value)} style={{ width: 150 }}>
+            <option value="All">All Zones</option>
+            {ZONES.map((z) => <option key={z.id} value={z.id}>{z.name.split('—')[0].trim()}</option>)}
+          </select>
         </div>
       </div>
 

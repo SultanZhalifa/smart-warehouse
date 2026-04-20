@@ -1,0 +1,115 @@
+# Sprint 2 Report — Smart Warehouse (Object Detection)
+
+**Sprint Period:** April 17 – April 21, 2026  
+**Sprint Goal:** Enhance user experience with settings management, data export, real-time notifications, role-based access control, and advanced inventory filtering.
+
+---
+
+## 📋 Sprint Goal
+
+Deliver key enhancements to the Smart Warehouse system that improve usability, security, and data management capabilities. Focus on features that enable production-readiness and user-facing polish.
+
+---
+
+## ✅ Progress Completed
+
+### Feature 1: Settings & Profile Page
+- **Profile Management** — Users can view and edit their profile information (name, email, phone, bio)
+- **Notification Preferences** — 8 configurable notification toggles (critical alerts, warnings, detection events, email digest, sound alerts, etc.)
+- **Appearance Customization** — Theme selection (Dark, Midnight, Ocean) with accent color picker (7 colors)
+- **Security Tab** — Password change form, active session management with revoke capability
+- **Assignee:** Sultan Musyaffa
+- **Status:** ✅ Complete
+
+### Feature 2: Export Functionality
+- **CSV Export** — Inventory data can be exported to CSV with all columns
+- **Activity Log Export** — Full audit trail can be exported to CSV
+- **PDF Report Generation** — Print-friendly report layout with dark/light mode support
+- **JSON Export** — Raw data export for technical users
+- **Assignee:** Misha Andalusia
+- **Status:** ✅ Complete
+
+### Feature 3: Real-Time Notification System
+- **Live Event Simulator** — Headless component that fires detection events, camera updates, zone warnings, and inventory updates every 25-45 seconds
+- **Toast Notifications** — Non-intrusive popup notifications with auto-dismiss (4 seconds)
+- **Activity Log Integration** — All live events are automatically appended to the activity log
+- **Assignee:** Fathir Barhouti Awlya
+- **Status:** ✅ Complete
+
+### Feature 4: Role-Based Access Control (RBAC)
+- **Route Guards** — `RoleRoute` component restricts page access based on user role
+- **Sidebar Filtering** — Navigation items hidden based on user role (Operators can't see Analytics or Activity Log)
+- **Role Hierarchy:** Admin > Manager > Operator
+- **Protected Routes:** Analytics (admin/manager), Activity Log (admin/manager)
+- **Assignee:** Risly Maria Theresia Worung
+- **Status:** ✅ Complete
+
+### Feature 5: Advanced Inventory Filters
+- **Zone Filter** — Dropdown filter to view inventory by warehouse zone
+- **Combined Filtering** — Search + Category + Zone filters work together
+- **Export Integration** — Filtered results can be exported (exports only visible items)
+- **Assignee:** Sultan Musyaffa
+- **Status:** ✅ Complete
+
+---
+
+## 📊 Task Distribution
+
+| Team Member | Role | Sprint 2 Tasks | Story Points |
+|-------------|------|----------------|:---:|
+| Risly Maria Theresia Worung | Product Owner | RBAC implementation, route guards, sidebar filtering | 5 |
+| Misha Andalusia | Scrum Master | Export utilities (CSV/JSON/PDF), analytics export | 5 |
+| Fathir Barhouti Awlya | Developer | Real-time notification system, live event simulator | 5 |
+| Sultan Zhalifunnas Musyaffa | Developer | Settings page (4 tabs), inventory zone filter | 8 |
+
+**Total Story Points Completed:** 23/23
+
+---
+
+## 🚧 Challenges
+
+| Challenge | Impact | Root Cause |
+|-----------|--------|------------|
+| GitHub push authentication failure | Delayed deployment | Password auth deprecated; needed PAT token |
+| Real-time events causing performance lag | Minor UI jank | Multiple re-renders from rapid state updates |
+| RBAC sidebar visibility edge case | Navigation confusion | Role check needed for route + sidebar sync |
+| CSV export encoding for special characters | Corrupted exports | Missing quote escaping in CSV generator |
+
+---
+
+## 💡 Solutions
+
+| Challenge | Solution Implemented |
+|-----------|---------------------|
+| GitHub authentication | Generated Personal Access Token with repo scope |
+| Performance optimization | Used `useCallback` with memoized event simulator, throttled to 25-45s intervals |
+| RBAC consistency | Unified role check in both `RoleRoute` component and `Sidebar` nav filter |
+| CSV encoding | Added proper quote escaping and UTF-8 BOM in export utility |
+
+---
+
+## 📅 Plan for Sprint 3 (Week 3)
+
+1. **Backend Integration** — Replace mock data with REST API (Node.js + Express)
+2. **Database Setup** — MongoDB for persistent data storage
+3. **WebSocket Real-Time** — Replace simulator with actual WebSocket events
+4. **Unit Testing** — Vitest + React Testing Library for core components
+5. **CI/CD Pipeline** — GitHub Actions for automated testing and deployment
+6. **Deployment** — Deploy to Vercel/Netlify with production build
+
+---
+
+## 📈 Sprint Metrics
+
+| Metric | Value |
+|--------|-------|
+| Sprint Velocity | 23 story points |
+| Features Delivered | 5/5 (100%) |
+| Bug Fixes | 3 |
+| New Files Created | 4 |
+| Files Modified | 6 |
+| Total Commits | 2 |
+
+---
+
+*Generated by Smart Warehouse Team — Group 5, President University*

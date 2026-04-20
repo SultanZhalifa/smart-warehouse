@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useWarehouse } from '../context/WarehouseContext';
+import { exportToCSV } from '../utils/exportUtils';
 import {
   ClipboardList, Search, Filter, Download, RefreshCw,
   Eye, Edit3, Trash2, Plus, Upload, Shield, AlertTriangle,
@@ -47,7 +48,13 @@ export default function ActivityPage() {
           <h1>Activity Log</h1>
           <p>Complete audit trail of all system activities</p>
         </div>
-        <button className="btn btn-secondary">
+        <button className="btn btn-secondary" onClick={() => {
+          exportToCSV(filtered, 'activity_log_export', [
+            { key: 'id', label: 'ID' }, { key: 'user', label: 'User' },
+            { key: 'action', label: 'Action' }, { key: 'target', label: 'Target' },
+            { key: 'timestamp', label: 'Timestamp' }, { key: 'type', label: 'Type' },
+          ]);
+        }}>
           <Download size={16} /> Export Log
         </button>
       </div>

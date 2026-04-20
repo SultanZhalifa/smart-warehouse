@@ -94,6 +94,14 @@
   border-color: rgba(0, 212, 255, 0.3);
 }
 
+.inventory-zone-filter {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  color: var(--color-text-tertiary);
+}
+.inventory-zone-filter .input { height: 34px; font-size: var(--font-size-xs); }
+
 /* Table */
 .inventory-page .table-container {
   animation: fadeInUp 0.5s ease 0.2s both;
