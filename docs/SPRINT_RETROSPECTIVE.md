@@ -82,5 +82,5 @@ Sprint 1 went really well in terms of how much we delivered. We basically finish
 
 ---
 
-Documented by: Sultan Zhalifunnas Musyaffa (Scrum Master)  
+  
 Date: April 17, 2026

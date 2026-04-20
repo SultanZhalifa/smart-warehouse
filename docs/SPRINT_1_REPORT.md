@@ -175,5 +175,5 @@ Since we finished all 8 backlog items early, Sprint 2 is going to focus on enhan
 
 ---
 
-Report prepared by: Sultan Zhalifunnas Musyaffa (Scrum Master)  
+  
 Date: April 17, 2026

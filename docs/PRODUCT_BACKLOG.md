@@ -344,5 +344,5 @@ Logging system that records everything that happens in the app, displayed in a t
 
 ---
 
-Maintained by: Risly Maria Theresia Worung (Product Owner)  
 Last Updated: April 21, 2026
+

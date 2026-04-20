@@ -105,5 +105,5 @@ For the next sprint we want to focus on making the app more production-ready:
 
 ---
 
-Report prepared by: Sultan Zhalifunnas Musyaffa (Scrum Master)  
+ 
 Date: April 21, 2026

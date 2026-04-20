@@ -228,4 +228,4 @@
 
 ---
 
-Log maintained by: Sultan Zhalifunnas Musyaffa (Scrum Master)
+
