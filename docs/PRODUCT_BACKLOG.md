@@ -1,341 +1,348 @@
-# Product Backlog — Smart Warehouse (Object Detection)
+# Product Backlog -- Smart Warehouse (Object Detection)
 
 **Product Owner:** Risly Maria Theresia Worung  
-**Last Updated:** April 17, 2026
+**Last Updated:** April 21, 2026
 
 ---
 
-## Backlog #1 — Dashboard Overview
+## Backlog #1 -- Dashboard Overview
 
 | Field | Detail |
 |-------|--------|
 | **ID** | PBI-001 |
-| **Priority** | ⭐ HIGH |
+| **Priority** | HIGH |
 | **Story Points** | 8 |
 | **Sprint** | Sprint 1 |
-| **Status** | ✅ Done |
+| **Status** | Done |
 
 **User Story:**  
 > As a warehouse manager, I want to see a real-time dashboard so I can monitor operations at a glance.
 
 **Goal:**  
-Create the main dashboard showing warehouse KPIs, live stats, camera feeds, and system health indicators.
+Create the main dashboard that shows warehouse KPIs, live camera feeds, and system health at a glance.
 
 **Features:**
-- 4 KPI cards: Detections Today, Total Inventory, Active Alerts, Cameras Online
-- Stats pill row: Accuracy, Processing Time, Weekly/Monthly counts
+- 4 KPI cards showing Detections Today, Total Inventory, Active Alerts, Cameras Online
+- Stats row with Accuracy, Processing Time, Weekly and Monthly counts
 - Live camera feed grid (8 cameras) with detection overlays
 - Recent activity timeline
-- System health bars (CPU, Memory, GPU, Storage)
+- System health bars for CPU, Memory, GPU, Storage
 
 **Acceptance Criteria:**
-- [ ] Dashboard loads in under 2 seconds
-- [ ] All KPI cards show accurate data with trend indicators
-- [ ] Camera feeds display detection bounding boxes
-- [ ] Activity feed shows the latest 8 events
-- [ ] Responsive on tablet and desktop viewports
+- Dashboard loads in under 2 seconds
+- All KPI cards display accurate data with trend indicators
+- Camera feeds show detection bounding boxes
+- Activity feed shows the latest 8 events
+- Layout works on both tablet and desktop screens
 
-**Bug Risks:**
-- Data not refreshing in real-time
-- Layout breaking on smaller screens
-- Camera feed grid misalignment
+**Known Risks:**
+- Data might not refresh in real-time without WebSocket
+- Layout could break on smaller screens
+- Camera feed grid alignment issues
 
 ---
 
-## Backlog #2 — Object Detection Interface
+## Backlog #2 -- Object Detection Interface
 
 | Field | Detail |
 |-------|--------|
 | **ID** | PBI-002 |
-| **Priority** | ⭐ HIGH |
+| **Priority** | HIGH |
 | **Story Points** | 13 |
-| **Sprint** | Sprint 2 (delivered Sprint 1) |
-| **Status** | ✅ Done |
+| **Sprint** | Sprint 2 (delivered in Sprint 1) |
+| **Status** | Done |
 
 **User Story:**  
 > As a warehouse operator, I want to see detected objects with bounding boxes so I can verify inventory placement.
 
 **Goal:**  
-Build the core object detection visualization with camera feed simulation using HTML5 Canvas.
+Build the object detection visualization using HTML5 Canvas to simulate a live camera feed with detected objects.
 
 **Features:**
-- Simulated camera feed with animated objects
+- Simulated camera feed with animated objects moving around
 - Bounding box overlays with corner markers
-- Object labels with confidence scores (YOLOv8 style)
-- Detection log sidebar with real-time entries
+- Labels showing object class and confidence score (like YOLOv8)
+- Detection log sidebar that updates in real time
 - Camera selection dropdown
 - Play/Pause and Grid toggle controls
-- Model statistics (accuracy, inference time, FPS)
+- Model statistics panel (accuracy, inference time, FPS)
 
 **Acceptance Criteria:**
-- [ ] Detection simulation runs at 30fps smoothly
-- [ ] Objects labeled with class name and confidence percentage
-- [ ] Detection log updates in real-time
-- [ ] Camera can be switched via dropdown
-- [ ] Play/Pause controls work correctly
+- Simulation runs smoothly at 30fps
+- Each detected object has a label and confidence percentage
+- Detection log updates as new objects appear
+- Camera switching works via dropdown
+- Play/Pause toggle functions correctly
 
-**Bug Risks:**
-- Canvas rendering performance issues with many objects
-- Bounding boxes misaligned with animated objects
-- Memory leak if animation frame not properly cleaned up
+**Known Risks:**
+- Canvas rendering could slow down with too many objects
+- Bounding boxes might drift from animated object positions
+- Potential memory leak if animation frames arent cleaned up
 
 ---
 
-## Backlog #3 — Inventory Management
+## Backlog #3 -- Inventory Management
 
 | Field | Detail |
 |-------|--------|
 | **ID** | PBI-003 |
-| **Priority** | ⭐ HIGH |
+| **Priority** | HIGH |
 | **Story Points** | 8 |
-| **Sprint** | Sprint 2 (delivered Sprint 1) |
-| **Status** | ✅ Done |
+| **Sprint** | Sprint 2 (delivered in Sprint 1) |
+| **Status** | Done |
 
 **User Story:**  
 > As a warehouse staff member, I want to manage inventory items so I can keep track of stock levels.
 
 **Goal:**  
-Full CRUD system for warehouse inventory with search, filtering, and sorting capabilities.
+Full CRUD system for warehouse inventory with search, filtering, sorting, and export.
 
 **Features:**
-- Stats row: Unique Items, Total Units, Low Stock, Out of Stock
-- Search by name or ID
+- Summary row: Unique Items, Total Units, Low Stock, Out of Stock counts
+- Search bar (by name or ID)
 - Category filter pills (9 categories)
-- Sortable columns (ID, Name, Quantity)
-- Add/Edit items via modal form
-- Delete with confirmation
-- Status badges (In Stock, Low Stock, Out of Stock)
-- Toast notifications for all actions
+- Zone filter dropdown (6 zones)
+- Sortable table columns (ID, Name, Quantity)
+- Add and Edit items via modal form
+- Delete with toast confirmation
+- Status badges that update automatically based on quantity vs minimum
+- Export to CSV
 
 **Acceptance Criteria:**
-- [ ] All CRUD operations work correctly
-- [ ] Search returns results in under 500ms
-- [ ] Status auto-updates based on quantity vs minimum stock
-- [ ] Toast notification appears for every action
-- [ ] Table is sortable by multiple columns
+- All CRUD operations work without errors
+- Search responds quickly (under 500ms)
+- Status recalculates automatically when quantity changes
+- Toast notification appears for every action
+- Table sorting works on multiple columns
+- CSV export includes only the currently filtered items
 
-**Bug Risks:**
-- Race conditions on concurrent state updates
-- Search not filtering correctly with special characters
-- Status not recalculating after quantity edit
+**Known Risks:**
+- Possible race conditions if multiple state updates happen at once
+- Search might not handle special characters well
+- Status calculation could be wrong after editing quantity
 
 ---
 
-## Backlog #4 — Real-Time Alert System
+## Backlog #4 -- Real-Time Alert System
 
 | Field | Detail |
 |-------|--------|
 | **ID** | PBI-004 |
-| **Priority** | 🟡 MEDIUM |
+| **Priority** | MEDIUM |
 | **Story Points** | 5 |
-| **Sprint** | Sprint 3 (delivered Sprint 1) |
-| **Status** | ✅ Done |
+| **Sprint** | Sprint 3 (delivered in Sprint 1) |
+| **Status** | Done |
 
 **User Story:**  
-> As a manager, I want to receive alerts when unusual objects are detected or thresholds are exceeded so I can take immediate action.
+> As a manager, I want to receive alerts when unusual things are detected or thresholds are exceeded so I can take action.
 
 **Goal:**  
-Notification system for detection events, stock alerts, and warehouse anomalies.
+Alert system for detection events, stock warnings, and warehouse anomalies.
 
 **Features:**
-- Severity stats cards (Critical, Warnings, Unread, Resolved)
+- Summary cards for Critical, Warnings, Unread, and Resolved counts
 - Filter tabs: All, Critical, Warning, Info
-- Alert cards with severity left border and icons
-- Mark as Read / Mark All Read functionality
-- Show/Hide read alerts toggle
-- Zone-linked alert details with timestamps
-- Severity badges (Critical, Warning, Info)
+- Alert cards with severity color on the left border
+- Mark as Read for individual alerts
+- Mark All Read button
+- Toggle to show or hide read alerts
+- Zone information and timestamps on each alert
+- Unread count badge in sidebar
 
 **Acceptance Criteria:**
-- [ ] Alerts display with correct severity color coding
-- [ ] Unread alerts show blue dot indicator
-- [ ] Mark as Read works on individual and bulk
-- [ ] Filter tabs correctly filter by severity
-- [ ] Alert count badge appears in sidebar navigation
+- Alerts show correct severity colors (red for critical, yellow for warning, blue for info)
+- Unread alerts have a dot indicator
+- Mark as Read works for single and bulk operations
+- Filter tabs correctly show only the selected severity
+- Sidebar badge reflects the actual unread count
 
-**Bug Risks:**
-- Alert flooding when many detections occur simultaneously
-- Notifications not dismissed properly
-- Badge count not syncing with actual unread count
+**Known Risks:**
+- Too many alerts at once could flood the UI
+- Notification dismissal might not work consistently
+- Badge count could desync from the actual unread count
 
 ---
 
-## Backlog #5 — Analytics and Reporting
+## Backlog #5 -- Analytics and Reporting
 
 | Field | Detail |
 |-------|--------|
 | **ID** | PBI-005 |
-| **Priority** | 🟡 MEDIUM |
+| **Priority** | MEDIUM |
 | **Story Points** | 8 |
-| **Sprint** | Sprint 3 (delivered Sprint 1) |
-| **Status** | ✅ Done |
+| **Sprint** | Sprint 3 (delivered in Sprint 1) |
+| **Status** | Done |
 
 **User Story:**  
 > As a manager, I want to view analytics so I can make data-driven decisions about warehouse operations.
 
 **Goal:**  
-Charts and reports for detection patterns, inventory trends, and operational efficiency using Chart.js.
+Charts and reports for detection patterns, inventory trends, and zone activity using Chart.js.
 
 **Features:**
-- Detection trend line chart (hourly)
-- Weekly distribution bar chart (color-coded)
-- Object classification doughnut chart
-- Zone activity bar chart
-- Inventory flow line chart (items in vs items out)
+- Hourly detection trend (line chart)
+- Weekly distribution (bar chart with color coding)
+- Object classification breakdown (doughnut chart)
+- Zone activity comparison (bar chart)
+- Inventory flow over time (line chart -- items in vs items out)
 - Date range tabs (Day / Week / Month / Year)
 - Export button
 
 **Acceptance Criteria:**
-- [ ] All 5 charts render correctly with sample data
-- [ ] Date range tabs switch data context
-- [ ] Charts are responsive and resize properly
-- [ ] Tooltips show detailed data on hover
-- [ ] Export button is present and styled
+- All 5 charts render with sample data
+- Date range tabs switch the data context
+- Charts resize properly on different screen sizes
+- Tooltips show detailed values on hover
+- Export button is visible and styled correctly
 
-**Bug Risks:**
-- Charts not rendering with large datasets
-- Incorrect aggregation calculations
-- Chart.js module registration errors
+**Known Risks:**
+- Charts could be slow with large datasets
+- Aggregation calculations might be off
+- Chart.js module registration errors (v4+ requires explicit registration)
 
 ---
 
-## Backlog #6 — Zone Management
+## Backlog #6 -- Zone Management
 
 | Field | Detail |
 |-------|--------|
 | **ID** | PBI-006 |
-| **Priority** | 🟡 MEDIUM |
+| **Priority** | MEDIUM |
 | **Story Points** | 8 |
-| **Sprint** | Sprint 4 (delivered Sprint 1) |
-| **Status** | ✅ Done |
+| **Sprint** | Sprint 4 (delivered in Sprint 1) |
+| **Status** | Done |
 
 **User Story:**  
-> As a warehouse planner, I want to define and monitor zones so objects are tracked in their correct locations.
+> As a warehouse planner, I want to define and monitor zones so objects get tracked in the right locations.
 
 **Goal:**  
-Define and manage warehouse zones with detection rules and utilization tracking per zone.
+Interactive zone management with a visual floor plan and utilization tracking.
 
 **Features:**
-- Interactive warehouse floor plan with labeled zones
-- 6 zones: Receiving, Storage, Processing, Shipping, Hazardous, Cold Storage
-- Animated activity dots showing simulated movement
-- Utilization percentage per zone
-- Zone detail cards with capacity/used/available stats
-- Color-coded zones with status indicators (Active, Warning)
-- Utilization progress bars
+- Warehouse floor plan with 6 labeled zones
+- Zones: Receiving, Storage, Processing, Shipping, Hazardous, Cold Storage
+- Animated dots showing simulated activity in each zone
+- Utilization percentage displayed inside each zone
+- Detail cards below the map with capacity, used, and available stats
+- Color-coded zones with active/warning status indicators
+- Progress bars for utilization
 
 **Acceptance Criteria:**
-- [ ] Floor plan renders all 6 zones correctly
-- [ ] Zones show accurate utilization percentages
-- [ ] Hover effect highlights zones
-- [ ] Zone cards match floor plan data
-- [ ] Warning status displays for zones exceeding thresholds
+- Floor plan renders all 6 zones with labels
+- Utilization percentages are accurate
+- Hovering over a zone highlights it
+- Zone cards match the data shown on the floor plan
+- Warning indicator shows for zones above threshold
 
-**Bug Risks:**
-- Zone boundaries overlapping on the map
-- Map not scaling properly on different screen sizes
+**Known Risks:**
+- Zone boundaries could overlap on the map
+- Map might not scale well on different screen sizes
 - Utilization calculation errors
 
 ---
 
-## Backlog #7 — User Authentication and Roles
+## Backlog #7 -- User Authentication and Roles
 
 | Field | Detail |
 |-------|--------|
 | **ID** | PBI-007 |
-| **Priority** | 🔵 LOW |
+| **Priority** | LOW |
 | **Story Points** | 5 |
 | **Sprint** | Sprint 1 |
-| **Status** | ✅ Done |
+| **Status** | Done |
 
 **User Story:**  
-> As an admin, I want to manage user access so only authorized personnel can modify settings.
+> As an admin, I want to manage user access so only authorized people can modify settings.
 
 **Goal:**  
-Login system with role-based access control for different user types.
+Login system with role-based access control for three user types.
 
 **Features:**
-- Login page with email/password form
+- Login page with email and password fields
 - Show/hide password toggle
 - Form validation with error messages
-- Loading state with spinner animation
-- Quick-access demo buttons for all 4 team members
-- Role-based user context (Admin, Manager, Operator)
-- Protected routes — redirect to login if not authenticated
+- Loading spinner during authentication
+- Quick-access buttons for all 4 team members (demo mode)
+- Three roles: Admin, Manager, Operator
+- Protected routes that redirect to login if not authenticated
+- Role-based route guards (added in Sprint 2)
 - Logout functionality
-- Session state in React context
+- Session state stored in React context
 
 **Acceptance Criteria:**
-- [ ] Login works with correct credentials
-- [ ] Invalid credentials show error message
-- [ ] Protected routes redirect to login when not authenticated
-- [ ] User avatar and role display in sidebar
-- [ ] Logout clears session and redirects to login
+- Login works with valid credentials
+- Wrong credentials show an error message
+- Unauthenticated users get redirected to the login page
+- User avatar and role display in the sidebar
+- Logout clears the session and goes back to login
+- Operators cannot access Analytics or Activity Log pages
 
-**Bug Risks:**
-- Session token expiry not handled
-- Unauthorized access to admin-only routes
-- Login form not clearing on error
+**Known Risks:**
+- No token expiry handling (since theres no real backend)
+- Users could bypass route guards by typing URLs directly (fixed in Sprint 2)
+- Login form might not clear properly after an error
 
 ---
 
-## Backlog #8 — Activity Log and Audit Trail
+## Backlog #8 -- Activity Log and Audit Trail
 
 | Field | Detail |
 |-------|--------|
 | **ID** | PBI-008 |
-| **Priority** | 🔵 LOW |
+| **Priority** | LOW |
 | **Story Points** | 5 |
-| **Sprint** | Sprint 4 (delivered Sprint 1) |
-| **Status** | ✅ Done |
+| **Sprint** | Sprint 4 (delivered in Sprint 1) |
+| **Status** | Done |
 
 **User Story:**  
-> As an auditor, I want to review all system activities so I can ensure compliance and trace actions.
+> As an auditor, I want to review all system activities so I can ensure compliance and trace actions back to users.
 
 **Goal:**  
-Complete logging of all system activities in a timeline format for audit purposes.
+Logging system that records everything that happens in the app, displayed in a timeline format.
 
 **Features:**
-- Timeline view with type-based icons and colors
+- Timeline view with different icons and colors per action type
 - Search by user, action, or target
-- Type filter pills (Detection, Create, Update, Delete, Alert, Export, System, Approval)
-- Activity count summary at bottom
-- Automatic logging on CRUD operations (via WarehouseContext reducer)
+- Filter pills for types: Detection, Create, Update, Delete, Alert, Export, System, Approval
+- Activity count summary
+- Automatic logging whenever someone does a CRUD operation (handled in the reducer)
 - Timestamp formatting
+- Export to CSV
 
 **Acceptance Criteria:**
-- [ ] All user actions are logged automatically
-- [ ] Search returns matching activities
-- [ ] Type filters correctly filter the timeline
-- [ ] New CRUD actions appear in the log immediately
-- [ ] Timestamps are formatted correctly
+- All user actions get logged automatically
+- Search finds matching activities
+- Type filters work correctly
+- New actions show up in the log right away
+- Timestamps are formatted in a readable way
+- Export button downloads the filtered log as CSV
 
-**Bug Risks:**
-- Log entries missing for some action types
-- Performance degradation with very large log volumes
-- Search not matching partial strings
+**Known Risks:**
+- Some action types might not get logged
+- Performance could drop with a very large log
+- Search might miss partial string matches
 
 ---
 
-## Backlog Priority Matrix
+## Priority Matrix
 
 ```
            HIGH IMPACT
-              │
-    ┌─────────┼─────────┐
-    │  PBI-001 │ PBI-002 │
-    │  PBI-003 │         │  HIGH PRIORITY
-    ├─────────┼─────────┤
-    │  PBI-004 │ PBI-005 │
-    │  PBI-006 │         │  MEDIUM PRIORITY
-    ├─────────┼─────────┤
-    │  PBI-007 │ PBI-008 │  LOW PRIORITY
-    └─────────┼─────────┘
-              │
+               |
+     +---------+---------+
+     |  PBI-001 | PBI-002 |
+     |  PBI-003 |         |  HIGH PRIORITY
+     +---------+---------+
+     |  PBI-004 | PBI-005 |
+     |  PBI-006 |         |  MEDIUM PRIORITY
+     +---------+---------+
+     |  PBI-007 | PBI-008 |  LOW PRIORITY
+     +---------+---------+
+               |
            LOW IMPACT
 ```
 
 ---
 
-*Maintained by: Risly Maria Theresia Worung (Product Owner)*  
-*Last Updated: April 17, 2026*
+Maintained by: Risly Maria Theresia Worung (Product Owner)  
+Last Updated: April 21, 2026

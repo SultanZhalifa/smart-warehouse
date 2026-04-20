@@ -1,9 +1,9 @@
-# SMART WAREHOUSE (Object Detection) — Sprint 1 Report
+# Sprint 1 Report -- Smart Warehouse (Object Detection)
 
-**Project:** Smart Warehouse — AI-Powered Object Detection & Inventory Management System  
+**Project:** Smart Warehouse -- AI-Powered Object Detection & Inventory Management  
 **Team:** Group 5  
 **Sprint:** Sprint 1 (Week 1)  
-**Sprint Duration:** April 14 – April 17, 2026  
+**Duration:** April 14 - April 17, 2026  
 
 ---
 
@@ -20,166 +20,145 @@
 
 ## 1. Sprint Goal
 
-The primary goal of Sprint 1 was to **establish the project foundation and deliver the core user-facing infrastructure**, including:
+Our main goal for Sprint 1 was to get the entire project foundation in place and deliver the core features that users will interact with. Specifically, we aimed to:
 
-- Set up the complete project architecture (Vite + React)
-- Implement the design system with a premium dark cyber-themed UI
-- Build the authentication system (Login page with role-based access)
-- Develop the main Dashboard with KPI cards, live camera feed previews, and activity feed
-- Create the application layout (Sidebar navigation, Header, Toast notification system)
-- Define and document all 8 Product Backlogs with detailed user stories
+- Set up the project architecture using Vite and React
+- Build a custom dark themed UI with a consistent design system
+- Implement user authentication with login page and role-based access
+- Develop the main Dashboard with live stats and camera previews
+- Create the app layout including sidebar navigation, header, and toast notifications
+- Write out all 8 Product Backlog items with proper user stories
 
-**Sprint Backlog Items:**
+**Sprint Backlog:**
 | # | Backlog Item | Story Points | Priority |
 |---|-------------|-------------|----------|
-| 1 | Dashboard Overview | 8 | ⭐ High |
-| 7 | User Authentication & Roles | 5 | 🔵 Low (but foundational) |
-| — | Project Setup & Architecture | 3 | ⭐ High |
-| — | Design System & Layout | 5 | ⭐ High |
+| 1 | Dashboard Overview | 8 | High |
+| 7 | User Authentication & Roles | 5 | Low (but needed first) |
+| -- | Project Setup & Architecture | 3 | High |
+| -- | Design System & Layout | 5 | High |
 
-**Total Story Points Committed:** 21
+**Total Committed:** 21 story points
 
 ---
 
 ## 2. Progress Completed
 
-### ✅ All Sprint 1 items were completed successfully.
+All Sprint 1 items were completed on time. No items were carried over.
 
-| Task | Status | Details |
-|------|--------|---------|
-| Project Scaffolding | ✅ Done | Vite + React initialized, dependencies installed (react-router-dom, chart.js, lucide-react) |
-| Design System | ✅ Done | Complete CSS design tokens — 50+ custom properties for colors, gradients, spacing, typography, animations |
-| Login Page | ✅ Done | Glassmorphism design, form validation, quick-access demo users for all 4 team members |
-| Dashboard Page | ✅ Done | 4 animated KPI cards, stats pill row, 8-camera live feed grid with detection overlays, recent activity timeline, system health bars |
-| Sidebar Navigation | ✅ Done | Collapsible sidebar with active indicators, alert badge counter, user profile section, logout button |
-| Header Component | ✅ Done | Dynamic page titles, search bar, notification bell with unread count, system status indicator |
-| Toast Notification System | ✅ Done | Success/warning/error/info toasts with auto-dismiss and severity icons |
-| Auth Context | ✅ Done | Login/logout flow, role-based user management (Admin, Manager, Operator) |
-| Warehouse Context | ✅ Done | Global state management with useReducer for inventory, alerts, activity log, zones |
-| Mock Data Layer | ✅ Done | Comprehensive mock data for inventory (12 items), zones (6), alerts (8), cameras (8), users (4) |
-| Routing Setup | ✅ Done | Protected routes, public routes, React Router v6 configuration |
+| Task | Status | Notes |
+|------|--------|-------|
+| Project Scaffolding | Done | Vite + React setup, installed react-router-dom, chart.js, lucide-react |
+| Design System | Done | Created 50+ CSS custom properties for colors, spacing, typography, and animations |
+| Login Page | Done | Glassmorphism design, form validation, 4 quick-access demo buttons |
+| Dashboard Page | Done | 4 KPI cards with animations, stats row, 8-camera grid with detection overlays, activity timeline, system health section |
+| Sidebar | Done | Collapsible with active state indicators, alert badge, user profile, logout |
+| Header | Done | Page titles, search bar, notification bell, system status indicator |
+| Toast System | Done | Success/warning/error/info toasts with auto-dismiss |
+| Auth Context | Done | Login/logout, role management (Admin, Manager, Operator) |
+| Warehouse Context | Done | useReducer-based state for inventory, alerts, activity log, zones |
+| Mock Data | Done | 12 inventory items, 6 zones, 8 alerts, 8 cameras, 4 users |
+| Routing | Done | Protected and public routes with React Router v6 |
 
-### Additional pages completed ahead of schedule:
+### Extra -- Delivered Ahead of Schedule
 
-Since the foundation was set up efficiently, the team pushed ahead and completed Sprint 2–4 backlog items:
+The foundation went up quicker than expected so we kept going and finished the remaining backlog items too:
 
-| Task | Original Sprint | Status |
+| Task | Was Planned For | Status |
 |------|----------------|--------|
-| Object Detection Page (canvas simulation) | Sprint 2 | ✅ Done |
-| Inventory Management (full CRUD) | Sprint 2 | ✅ Done |
-| Alert Center | Sprint 3 | ✅ Done |
-| Analytics & Reporting (5 charts) | Sprint 3 | ✅ Done |
-| Zone Management (floor plan) | Sprint 4 | ✅ Done |
-| Activity Log (timeline view) | Sprint 4 | ✅ Done |
+| Object Detection Page (canvas simulation) | Sprint 2 | Done |
+| Inventory Management (full CRUD) | Sprint 2 | Done |
+| Alert Center | Sprint 3 | Done |
+| Analytics & Reporting (5 charts) | Sprint 3 | Done |
+| Zone Management (floor plan) | Sprint 4 | Done |
+| Activity Log (timeline view) | Sprint 4 | Done |
 
-**Total Story Points Completed:** 60 / 21 committed (285% velocity)
+**Total Delivered:** 60 story points out of 21 committed (285% velocity)
 
 ---
 
 ## 3. Task Distribution
 
-### Risly Maria Theresia Worung — Product Owner
-| Task | Description |
+### Risly Maria Theresia Worung -- Product Owner
+| Task | What She Did |
 |------|-------------|
-| Product Backlog Definition | Defined all 8 product backlogs with user stories, goals, bugs, features, and acceptance criteria |
-| Priority Assignment | Ranked backlog items into High / Medium / Low priority tiers |
-| Sprint Review | Reviewed and accepted all completed features against acceptance criteria |
-| Stakeholder Communication | Documented sprint reports and prepared presentation materials |
+| Product Backlogs | Wrote all 8 backlogs with user stories, acceptance criteria, goals, and risk assessments |
+| Prioritization | Ranked items into High, Medium, and Low priority tiers |
+| Sprint Review | Tested every feature against the acceptance criteria and signed off |
+| Documentation | Helped prepare sprint report materials |
 
-### Sultan Zhalifunnas Musyaffa — Scrum Master
-| Task | Description |
+### Sultan Zhalifunnas Musyaffa -- Scrum Master
+| Task | What He Did |
 |------|-------------|
-| Sprint Planning | Facilitated sprint planning session, committed to 21 story points |
-| Daily Standup Coordination | Ensured team alignment and removed blockers |
-| Project Architecture | Set up Vite + React project, routing, and folder structure |
-| Design System | Created the complete CSS design system with 50+ design tokens |
-| Layout Components | Built Sidebar, Header, and Layout wrapper with responsive design |
+| Sprint Planning | Ran the planning session, decided on 21 story points |
+| Standup Coordination | Made sure everyone was aligned and unblocked |
+| Project Setup | Initialized Vite + React, set up folder structure and routing |
+| Design System | Built the entire CSS design system with 50+ tokens |
+| Layout Components | Created Sidebar, Header, and the main Layout wrapper |
 
-### Misha Andalusia — Developer
-| Task | Description |
+### Misha Andalusia -- Developer
+| Task | What She Did |
 |------|-------------|
-| Login Page | Implemented login UI with animated background, form validation, quick-access buttons |
-| Dashboard Page | Built KPI cards, live camera feed grid with detection overlays, activity feed |
-| Alert Center | Developed alert system with severity filtering, read/unread state, and alert cards |
-| Zone Management | Created interactive warehouse floor plan and zone detail cards |
+| Login Page | Built the login UI with animated background, form validation, quick-access buttons |
+| Dashboard | Developed KPI cards, camera feed grid with detection overlays, activity feed |
+| Alert Center | Built the alert system with severity filtering and read/unread functionality |
+| Zone Management | Created the interactive floor plan and zone detail cards |
 
-### Fathir Barhouti Awlya — Developer
-| Task | Description |
+### Fathir Barhouti Awlya -- Developer
+| Task | What He Did |
 |------|-------------|
-| Auth System | Implemented AuthContext with login/logout and role-based access control |
-| Object Detection Page | Built canvas simulation with animated bounding boxes, detection log, model stats |
-| Inventory Management | Developed full CRUD system with search, category filters, sortable table, modal forms |
-| Analytics Page | Integrated Chart.js with 5 visualizations (line, bar, doughnut charts) |
-| Activity Log | Created timeline view with type-based filtering and search |
+| Auth System | Built AuthContext with login/logout and role-based user handling |
+| Object Detection | Created the canvas simulation with moving bounding boxes and detection log |
+| Inventory | Developed the CRUD interface with search, filters, sorting, and modal forms |
+| Analytics | Integrated Chart.js with 5 different chart types |
+| Activity Log | Built the timeline view with type filtering and search |
 
 ---
 
 ## 4. Challenges
 
-| # | Challenge | Impact | Severity |
-|---|-----------|--------|----------|
-| 1 | **PowerShell execution policy blocked npm/npx commands** | Could not run project scaffolding or install dependencies initially | High |
-| 2 | **Relative import paths incorrect** | Pages using `../../context/` instead of `../context/` caused module resolution failures | High |
-| 3 | **Canvas performance for object detection simulation** | requestAnimationFrame + multiple animated objects caused potential memory leaks if not cleaned up properly | Medium |
-| 4 | **Chart.js module registration** | Chart.js v4+ requires explicit registration of scales, elements, and plugins — initial renders failed | Medium |
-| 5 | **State management complexity** | Managing inventory CRUD, alerts, activity log, and toast notifications in a single context required careful reducer design | Medium |
-| 6 | **Responsive layout with collapsible sidebar** | CSS transitions for sidebar width + main content margin needed precise coordination | Low |
-| 7 | **Glassmorphism + dark theme contrast** | Ensuring text readability on glass-effect backgrounds with varying opacity levels | Low |
+| # | Problem | Impact | Severity |
+|---|---------|--------|----------|
+| 1 | PowerShell blocked npm commands because of execution policy | Couldnt run anything at the start | High |
+| 2 | Some pages had wrong import paths (../../ instead of ../) | Pages crashed on load | High |
+| 3 | Canvas performance with many animated objects | Could cause memory leaks if cleanup wasnt done right | Medium |
+| 4 | Chart.js v4 needs you to register every module manually | Charts didnt render at first | Medium |
+| 5 | Putting inventory, alerts, activity log, and toasts all in one context | Complex reducer, easy to introduce bugs | Medium |
+| 6 | Sidebar collapse animation needed to sync with main content area | Visual glitch during transition | Low |
+| 7 | Text readability on glass-effect backgrounds | Some text was hard to read on certain backgrounds | Low |
 
 ---
 
 ## 5. Solutions
 
-| # | Challenge | Solution Applied |
-|---|-----------|-----------------|
-| 1 | PowerShell execution policy | Applied `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass` to enable script execution within the current session without modifying system-wide policy |
-| 2 | Incorrect import paths | Systematically audited all page files and corrected paths from `../../context/` to `../context/` and `../../data/` to `../data/` to match the actual directory structure |
-| 3 | Canvas performance | Used `useRef` for animation frame IDs and proper cleanup in `useEffect` return function; used `useCallback` for event handlers to prevent unnecessary re-renders |
-| 4 | Chart.js registration | Explicitly registered all required components: `CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Filler, Tooltip, Legend` at the top of the Analytics page |
-| 5 | State management | Designed a centralized `warehouseReducer` with clearly defined action types (`ADD_INVENTORY_ITEM`, `UPDATE_INVENTORY_ITEM`, etc.) and derived state (auto-logging activities on CRUD operations) |
-| 6 | Responsive sidebar | Used CSS custom properties (`--sidebar-width`, `--sidebar-collapsed`) with CSS `transition` on both sidebar width and main content `margin-left` for smooth coordination |
-| 7 | Dark theme contrast | Implemented a multi-layer approach: dark solid backgrounds (`#0a0e1a`), semi-transparent card backgrounds (`rgba(17,24,39,0.7)`), and bright accent colors (`#00d4ff`) with sufficient contrast ratios |
+| # | Problem | How We Fixed It |
+|---|---------|----------------|
+| 1 | PowerShell policy | Ran `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass` to allow scripts in the current session |
+| 2 | Wrong import paths | Went through every page file and fixed the relative paths manually |
+| 3 | Canvas memory | Used useRef for animation frame IDs and cleaned up in useEffect return. Used useCallback for handlers |
+| 4 | Chart.js registration | Explicitly registered CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Filler, Tooltip, Legend |
+| 5 | Complex state | Designed the reducer with clear action types and auto-logging -- whenever you add or delete an item, it automatically creates an activity log entry |
+| 6 | Sidebar animation | Used CSS transition on both the sidebar width and the main content margin-left so they move together |
+| 7 | Text contrast | Used solid dark backgrounds behind text areas, semi-transparent card backgrounds, and bright accent colors to keep everything readable |
 
 ---
 
 ## 6. Plan for Week 2
 
-### Sprint 2 Goals
+Since we finished all 8 backlog items early, Sprint 2 is going to focus on enhancements and polish:
 
-Since all 8 backlog items were completed ahead of schedule in Sprint 1, Sprint 2 will focus on **enhancement, polish, and advanced features**:
+| # | Task | Priority | Assigned To | Points |
+|---|------|----------|-------------|--------|
+| 1 | Settings & Profile Page | Medium | Sultan | 8 |
+| 2 | Export Functionality (CSV/PDF) | High | Misha | 5 |
+| 3 | Real-time Notification System | High | Fathir | 5 |
+| 4 | Role-Based Access Control | High | Risly | 5 |
+| 5 | Advanced Inventory Filters | Medium | Sultan | 3 |
 
-| # | Task | Priority | Assigned To | Story Points |
-|---|------|----------|-------------|-------------|
-| 1 | **Real-time WebSocket Integration** | ⭐ High | Fathir | 8 |
-|   | Replace mock data polling with simulated WebSocket events for live detection updates | | | |
-| 2 | **Export Functionality** | ⭐ High | Misha | 5 |
-|   | Implement CSV/PDF export for analytics reports, inventory lists, and activity logs | | | |
-| 3 | **Dark/Light Theme Toggle** | 🟡 Medium | Sultan | 5 |
-|   | Add theme switcher with persistent preference in localStorage | | | |
-| 4 | **Advanced Inventory Filters** | 🟡 Medium | Fathir | 3 |
-|   | Add date range filtering, multi-select zone filter, and stock level slider | | | |
-| 5 | **Notification Sound System** | 🟡 Medium | Misha | 3 |
-|   | Add audio alerts for critical notifications with volume control | | | |
-| 6 | **User Profile Page** | 🔵 Low | Sultan | 3 |
-|   | Build user profile editing page with avatar, settings, and activity history | | | |
-| 7 | **Unit Testing Setup** | 🔵 Low | Fathir | 5 |
-|   | Set up Vitest + React Testing Library with tests for critical components | | | |
-| 8 | **Documentation & README** | 🔵 Low | Risly | 3 |
-|   | Complete README.md with setup instructions, architecture diagram, and screenshots | | | |
-
-**Total Sprint 2 Story Points:** 35
-
-### Sprint 2 Schedule
-
-| Day | Activity |
-|-----|----------|
-| Monday | Sprint Planning + Task assignment |
-| Tue–Thu | Development (Daily standups at 9:00 AM) |
-| Friday | Sprint Review + Sprint Retrospective |
+**Total Sprint 2 Points:** 23 (estimated)
 
 ---
 
-## Sprint 1 Metrics Summary
+## Sprint 1 Metrics
 
 | Metric | Value |
 |--------|-------|
@@ -187,14 +166,14 @@ Since all 8 backlog items were completed ahead of schedule in Sprint 1, Sprint 2
 | Story Points Completed | 60 |
 | Sprint Velocity | 285% |
 | Total Files Created | 22 |
-| Total Lines of Code | ~3,500+ |
+| Lines of Code | ~3,500+ |
 | Pages Delivered | 8 (Login + 7 app pages) |
 | Components Built | 15+ |
-| Bugs Found | 2 (import paths, PowerShell policy) |
+| Bugs Found | 2 |
 | Bugs Fixed | 2 |
 | Unresolved Issues | 0 |
 
 ---
 
-*Report prepared by: Sultan Zhalifunnas Musyaffa (Scrum Master)*  
-*Date: April 17, 2026*
+Report prepared by: Sultan Zhalifunnas Musyaffa (Scrum Master)  
+Date: April 17, 2026

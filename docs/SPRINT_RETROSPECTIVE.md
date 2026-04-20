@@ -1,4 +1,4 @@
-# Sprint 1 Retrospective — Smart Warehouse
+# Sprint 1 Retrospective -- Smart Warehouse
 
 **Sprint:** Sprint 1 (Week 1)  
 **Date:** April 17, 2026  
@@ -7,80 +7,80 @@
 
 ---
 
-## 🟢 What Went Well
+## What Went Well
 
-1. **Rapid Project Setup**
-   - Vite + React scaffolding was completed in under 10 minutes, allowing the team to focus on feature development quickly.
+1. **Project setup was fast**  
+   We got Vite + React running in under 10 minutes which gave us a head start on the actual feature work.
 
-2. **Design System First Approach**
-   - Creating the CSS design system with 50+ tokens before building any components ensured visual consistency across all pages. Every component uses the shared tokens, resulting in a cohesive premium look.
+2. **Starting with the design system paid off**  
+   We created all the CSS design tokens (colors, spacing, typography, etc) before writing any components. This meant every page ended up looking consistent without us having to go back and fix styling later.
 
-3. **Exceeded Sprint Commitment**
-   - The team committed to 21 story points but delivered 60 — all 8 product backlog items were completed in a single sprint. This shows strong team collaboration and efficient task distribution.
+3. **We delivered way more than planned**  
+   The commitment was 21 story points but we ended up completing all 60. Basically all 8 product backlog items got done in one sprint. Everyone was working efficiently and we divided the work well.
 
-4. **Clear Role Separation**
-   - Product Owner (Risly) focused on defining acceptance criteria and priorities while developers focused purely on implementation. Scrum Master (Sultan) kept the process running smoothly.
+4. **Roles were clear from the start**  
+   Risly handled all the backlog definitions and acceptance criteria. The developers just focused on building. Sultan kept track of the schedule and blockers. There was no confusion about who should do what.
 
-5. **Component Reusability**
-   - The shared component library (Toast, Badge, Card, Modal) was used across multiple pages, reducing code duplication and speeding up development.
+5. **Reusable components saved time**  
+   We built shared components early on (Toast, Badge, Card, Modal) and used them across multiple pages. This cut down on duplicate code and sped things up.
 
-6. **Real-Time Detection Simulation**
-   - The canvas-based object detection simulation exceeded expectations — animated bounding boxes with confidence scores, scanlines, and corner markers created a convincing demo.
-
----
-
-## 🔴 What Didn't Go Well
-
-1. **Environment Configuration Issues**
-   - PowerShell execution policy blocked npm commands at the start, causing a 15-minute delay. This was unexpected and could have been prevented with a pre-setup checklist.
-
-2. **Import Path Errors**
-   - Multiple files had incorrect relative import paths (`../../` vs `../`). These were caught during runtime but could have been prevented with a path alias configuration in Vite (`@/` prefix).
-
-3. **No Automated Testing**
-   - Due to the aggressive timeline, no unit tests or integration tests were written. All testing was manual, which is not sustainable for future sprints.
-
-4. **Mock Data Only**
-   - The application uses only mock data with no persistence. Data resets on page refresh, which limits the demo experience.
-
-5. **Limited Mobile Responsiveness**
-   - While the sidebar collapses, some pages (especially the Detection canvas and Zone floor plan) are not fully optimized for mobile viewports.
+6. **The detection simulation turned out better than expected**  
+   The canvas-based object detection with animated bounding boxes, confidence scores, and scanlines looked pretty convincing. It was originally planned for Sprint 2 but we pulled it into Sprint 1.
 
 ---
 
-## 🔵 What to Improve
+## What Didnt Go Well
 
-| Improvement | Action Item | Owner | Target Sprint |
-|-------------|------------|-------|---------------|
-| **Path Aliases** | Configure `@/` alias in vite.config.js to prevent import path errors | Sultan | Sprint 2 |
-| **Automated Testing** | Set up Vitest + React Testing Library, write tests for core components | Fathir | Sprint 2 |
-| **Data Persistence** | Implement localStorage or IndexedDB to persist state across refreshes | Fathir | Sprint 2 |
-| **Pre-Setup Checklist** | Create developer setup guide with environment requirements | Sultan | Sprint 2 |
-| **Mobile Responsiveness** | Add responsive breakpoints for detection canvas and zone map | Misha | Sprint 2 |
-| **Code Review Process** | Require PR reviews before merging to main branch | All | Sprint 2 |
+1. **Environment issues at the start**  
+   PowerShell blocked npm commands because of the execution policy. It only took about 15 minutes to fix but it was annoying and we could have avoided it if we had a setup checklist ready.
+
+2. **Import path mistakes**  
+   A few files had the wrong relative paths for imports (using `../../` instead of `../`). These only showed up at runtime. We probably should have configured path aliases in Vite so this kind of mistake cant happen.
+
+3. **No automated tests**  
+   We were moving fast and didnt write any tests. All testing was done manually by clicking through the app. This works for now but its going to be a problem if we keep adding features.
+
+4. **Everything resets on refresh**  
+   The app only uses mock data with no persistence layer. When you refresh the page, any changes you made are gone. Its fine for a demo but not ideal.
+
+5. **Mobile responsiveness is limited**  
+   The sidebar collapses on smaller screens but some pages like the Detection canvas and the Zone floor plan dont look great on mobile. We need to add better breakpoints.
 
 ---
 
-## 📊 Sprint 1 Satisfaction Score
+## What to Improve
 
-Each team member rated their satisfaction (1-5):
+| What | Action | Who | When |
+|------|--------|-----|------|
+| Path aliases | Configure `@/` alias in vite.config.js so imports are cleaner | Sultan | Sprint 2 |
+| Testing | Set up Vitest and React Testing Library, write tests for the main components | Fathir | Sprint 2 |
+| Data persistence | Use localStorage or IndexedDB so state survives page refresh | Fathir | Sprint 2 |
+| Setup documentation | Write a developer setup guide so new members dont run into the same env issues | Sultan | Sprint 2 |
+| Mobile support | Add responsive breakpoints for detection canvas and zone map | Misha | Sprint 2 |
+| Code reviews | Start doing PR reviews before merging to main | Everyone | Sprint 2 |
+
+---
+
+## Satisfaction Scores
+
+Each person rated how they felt about the sprint on a scale of 1-5:
 
 | Member | Score | Comment |
 |--------|-------|---------|
-| Risly | ⭐⭐⭐⭐⭐ (5) | "All backlog items delivered with premium quality — exceeded expectations" |
-| Misha | ⭐⭐⭐⭐ (4) | "Great velocity but wish we had more time for testing" |
-| Fathir | ⭐⭐⭐⭐ (4) | "Code quality is high but no tests makes me nervous for future sprints" |
-| Sultan | ⭐⭐⭐⭐⭐ (5) | "Process ran smoothly, team collaboration was excellent" |
+| Risly | 5/5 | "Everything got delivered and the quality is really good, honestly exceeded my expectations" |
+| Misha | 4/5 | "We moved fast which was great, but I wish we had time to write tests" |
+| Fathir | 4/5 | "Happy with the code quality but no tests makes me a bit worried going forward" |
+| Sultan | 5/5 | "The process worked well and the team communicated clearly throughout" |
 
 **Average:** 4.5 / 5.0
 
 ---
 
-## 🎯 Key Takeaway
+## Takeaway
 
-> Sprint 1 was a resounding success in terms of delivery velocity and feature completeness. However, the team needs to invest in quality infrastructure (testing, CI/CD, code reviews) in Sprint 2 to maintain this momentum sustainably. Speed without quality assurance is a technical debt risk.
+Sprint 1 went really well in terms of how much we delivered. We basically finished the entire application in one week. But we need to be honest that we skipped some important things like testing and code reviews. If we want to maintain this pace without accumulating technical debt, Sprint 2 needs to include some investment in quality infrastructure.
 
 ---
 
-*Documented by: Sultan Zhalifunnas Musyaffa (Scrum Master)*  
-*Date: April 17, 2026*
+Documented by: Sultan Zhalifunnas Musyaffa (Scrum Master)  
+Date: April 17, 2026

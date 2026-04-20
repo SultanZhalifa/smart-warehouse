@@ -1,115 +1,109 @@
-# Sprint 2 Report — Smart Warehouse (Object Detection)
+# Sprint 2 Report -- Smart Warehouse (Object Detection)
 
-**Sprint Period:** April 17 – April 21, 2026  
-**Sprint Goal:** Enhance user experience with settings management, data export, real-time notifications, role-based access control, and advanced inventory filtering.
-
----
-
-## 📋 Sprint Goal
-
-Deliver key enhancements to the Smart Warehouse system that improve usability, security, and data management capabilities. Focus on features that enable production-readiness and user-facing polish.
+**Sprint Period:** April 18 - April 21, 2026  
+**Sprint Goal:** Add settings management, data export, real-time notifications, role-based access, and better inventory filtering.
 
 ---
 
-## ✅ Progress Completed
+## 1. Sprint Goal
 
-### Feature 1: Settings & Profile Page
-- **Profile Management** — Users can view and edit their profile information (name, email, phone, bio)
-- **Notification Preferences** — 8 configurable notification toggles (critical alerts, warnings, detection events, email digest, sound alerts, etc.)
-- **Appearance Customization** — Theme selection (Dark, Midnight, Ocean) with accent color picker (7 colors)
-- **Security Tab** — Password change form, active session management with revoke capability
-- **Assignee:** Sultan Musyaffa
-- **Status:** ✅ Complete
-
-### Feature 2: Export Functionality
-- **CSV Export** — Inventory data can be exported to CSV with all columns
-- **Activity Log Export** — Full audit trail can be exported to CSV
-- **PDF Report Generation** — Print-friendly report layout with dark/light mode support
-- **JSON Export** — Raw data export for technical users
-- **Assignee:** Misha Andalusia
-- **Status:** ✅ Complete
-
-### Feature 3: Real-Time Notification System
-- **Live Event Simulator** — Headless component that fires detection events, camera updates, zone warnings, and inventory updates every 25-45 seconds
-- **Toast Notifications** — Non-intrusive popup notifications with auto-dismiss (4 seconds)
-- **Activity Log Integration** — All live events are automatically appended to the activity log
-- **Assignee:** Fathir Barhouti Awlya
-- **Status:** ✅ Complete
-
-### Feature 4: Role-Based Access Control (RBAC)
-- **Route Guards** — `RoleRoute` component restricts page access based on user role
-- **Sidebar Filtering** — Navigation items hidden based on user role (Operators can't see Analytics or Activity Log)
-- **Role Hierarchy:** Admin > Manager > Operator
-- **Protected Routes:** Analytics (admin/manager), Activity Log (admin/manager)
-- **Assignee:** Risly Maria Theresia Worung
-- **Status:** ✅ Complete
-
-### Feature 5: Advanced Inventory Filters
-- **Zone Filter** — Dropdown filter to view inventory by warehouse zone
-- **Combined Filtering** — Search + Category + Zone filters work together
-- **Export Integration** — Filtered results can be exported (exports only visible items)
-- **Assignee:** Sultan Musyaffa
-- **Status:** ✅ Complete
+The focus for Sprint 2 was to build on top of what we delivered in Sprint 1. Since all 8 core pages were already done, this sprint was about polishing the app and adding features that make it feel more complete -- things like a proper settings page, the ability to export data, live notifications, and restricting access based on user roles.
 
 ---
 
-## 📊 Task Distribution
+## 2. Progress Completed
 
-| Team Member | Role | Sprint 2 Tasks | Story Points |
-|-------------|------|----------------|:---:|
-| Risly Maria Theresia Worung | Product Owner | RBAC implementation, route guards, sidebar filtering | 5 |
-| Misha Andalusia | Scrum Master | Export utilities (CSV/JSON/PDF), analytics export | 5 |
-| Fathir Barhouti Awlya | Developer | Real-time notification system, live event simulator | 5 |
-| Sultan Zhalifunnas Musyaffa | Developer | Settings page (4 tabs), inventory zone filter | 8 |
+### Settings and Profile Page
+We added a full settings page with four tabs. The Profile tab lets users view and edit their info (name, email, phone). The Notifications tab has toggle switches for controlling which alerts you want to receive. Appearance lets you pick a theme and accent color. And the Security tab has a password change form plus a list of active sessions.
 
-**Total Story Points Completed:** 23/23
+Assigned to: Sultan  
+Status: Done
+
+### Export Functionality
+Built a utility module that handles exporting data to CSV, JSON, and PDF formats. We wired the CSV export into the Inventory page (there's an "Export CSV" button now) and the Activity Log page (the "Export Log" button). The export respects whatever filters are currently active, so if you filter by zone, only those items get exported.
+
+Assigned to: Misha  
+Status: Done
+
+### Real-Time Notification System
+We created a LiveEventSimulator component that runs in the background and randomly generates detection events, camera status updates, zone warnings, and inventory notifications. It fires a toast notification every 25 to 45 seconds and also logs the event into the Activity Log automatically. The timing is randomized so it feels more natural.
+
+Assigned to: Fathir  
+Status: Done
+
+### Role-Based Access Control (RBAC)
+Added a RoleRoute component that checks the user's role before allowing access to a page. Also updated the sidebar so it only shows navigation items that the logged-in user is allowed to access. Admins can see everything. Managers can see most things but not user management. Operators only get the basic pages -- they cant access Analytics or Activity Log.
+
+Assigned to: Risly  
+Status: Done
+
+### Advanced Inventory Filters
+Added a zone filter dropdown to the Inventory page so you can filter items by warehouse zone. This works together with the existing search bar and category pills, so you can combine all three filters at once.
+
+Assigned to: Sultan  
+Status: Done
 
 ---
 
-## 🚧 Challenges
+## 3. Task Distribution
+
+| Team Member | Role | Tasks | Story Points |
+|-------------|------|-------|:---:|
+| Risly Maria Theresia Worung | Product Owner | RBAC, route guards, sidebar filtering | 5 |
+| Misha Andalusia | Scrum Master | Export utilities (CSV/JSON/PDF), export integration | 5 |
+| Fathir Barhouti Awlya | Developer | Real-time notification system, event simulator | 5 |
+| Sultan Zhalifunnas Musyaffa | Developer | Settings page (4 tabs), zone filter | 8 |
+
+Total Completed: 23 out of 23 story points
+
+---
+
+## 4. Challenges
 
 | Challenge | Impact | Root Cause |
 |-----------|--------|------------|
-| GitHub push authentication failure | Delayed deployment | Password auth deprecated; needed PAT token |
-| Real-time events causing performance lag | Minor UI jank | Multiple re-renders from rapid state updates |
-| RBAC sidebar visibility edge case | Navigation confusion | Role check needed for route + sidebar sync |
-| CSV export encoding for special characters | Corrupted exports | Missing quote escaping in CSV generator |
+| GitHub push kept failing with authentication error | Couldnt deploy code to remote repo | GitHub deprecated password auth, we needed a PAT token instead |
+| Real-time events were causing too many re-renders | Slight UI lag when notifications fire | The event handler wasnt memoized properly |
+| Operator users could still navigate to restricted pages via URL | Security gap | We only hid the sidebar links but didnt guard the routes themselves |
+| Special characters in item names broke CSV export | Corrupted CSV output | Commas and quotes inside field values werent escaped |
 
 ---
 
-## 💡 Solutions
+## 5. Solutions
 
-| Challenge | Solution Implemented |
-|-----------|---------------------|
-| GitHub authentication | Generated Personal Access Token with repo scope |
-| Performance optimization | Used `useCallback` with memoized event simulator, throttled to 25-45s intervals |
-| RBAC consistency | Unified role check in both `RoleRoute` component and `Sidebar` nav filter |
-| CSV encoding | Added proper quote escaping and UTF-8 BOM in export utility |
-
----
-
-## 📅 Plan for Sprint 3 (Week 3)
-
-1. **Backend Integration** — Replace mock data with REST API (Node.js + Express)
-2. **Database Setup** — MongoDB for persistent data storage
-3. **WebSocket Real-Time** — Replace simulator with actual WebSocket events
-4. **Unit Testing** — Vitest + React Testing Library for core components
-5. **CI/CD Pipeline** — GitHub Actions for automated testing and deployment
-6. **Deployment** — Deploy to Vercel/Netlify with production build
+| Challenge | What We Did |
+|-----------|-------------|
+| GitHub authentication | Generated a Personal Access Token with repo scope and used that for pushing |
+| Re-render issue | Wrapped the event simulator callback in useCallback so React doesnt recreate it every render |
+| RBAC route bypass | Created a RoleRoute wrapper component that checks the user role and redirects unauthorized users back to dashboard |
+| CSV encoding | Added proper escaping -- wrapping values in double quotes and escaping any existing quotes inside the value |
 
 ---
 
-## 📈 Sprint Metrics
+## 6. Plan for Sprint 3
+
+For the next sprint we want to focus on making the app more production-ready:
+
+1. Replace the mock data with a proper REST API using Node.js and Express
+2. Set up MongoDB for data persistence so things dont reset on refresh
+3. Swap out the event simulator with actual WebSocket connections for real-time updates
+4. Write unit tests using Vitest and React Testing Library for the core components
+5. Set up a CI/CD pipeline with GitHub Actions
+6. Deploy the app to Vercel or Netlify
+
+---
+
+## Sprint Metrics
 
 | Metric | Value |
 |--------|-------|
 | Sprint Velocity | 23 story points |
-| Features Delivered | 5/5 (100%) |
+| Features Delivered | 5 out of 5 |
 | Bug Fixes | 3 |
 | New Files Created | 4 |
 | Files Modified | 6 |
-| Total Commits | 2 |
 
 ---
 
-*Generated by Smart Warehouse Team — Group 5, President University*
+Report prepared by: Sultan Zhalifunnas Musyaffa (Scrum Master)  
+Date: April 21, 2026
