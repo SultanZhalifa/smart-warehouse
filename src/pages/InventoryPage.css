@@ -93,9 +93,9 @@
 }
 
 .inv-cat-btn.active {
-  background: rgba(94, 173, 255, 0.1);
+  background: rgba(74, 144, 217, 0.1);
   color: var(--color-accent-primary);
-  border-color: rgba(94, 173, 255, 0.25);
+  border-color: rgba(74, 144, 217, 0.25);
 }
 
 .inventory-zone-filter {

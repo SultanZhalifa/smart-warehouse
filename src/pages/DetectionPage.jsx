@@ -120,7 +120,7 @@ export default function DetectionPage() {
         const textW = ctx.measureText(label).width;
         ctx.fillStyle = cls.color;
         ctx.fillRect(obj.x, obj.y - 18, textW + 10, 18);
-        ctx.fillStyle = '#0a0e1a';
+        ctx.fillStyle = '#1a2332';
         ctx.fillText(label, obj.x + 5, obj.y - 5);
 
         // Log every 120 frames
@@ -133,7 +133,7 @@ export default function DetectionPage() {
       ctx.strokeStyle = 'var(--color-accent-primary)';
       ctx.lineWidth = 2;
       const cl2 = 30;
-      ctx.strokeStyle = '#5eadff';
+      ctx.strokeStyle = '#4a90d9';
       // TL
       ctx.beginPath(); ctx.moveTo(10, 10 + cl2); ctx.lineTo(10, 10); ctx.lineTo(10 + cl2, 10); ctx.stroke();
       // TR
@@ -145,7 +145,7 @@ export default function DetectionPage() {
 
       // Timestamp overlay
       ctx.font = '600 11px Inter, monospace';
-      ctx.fillStyle = '#5eadff';
+      ctx.fillStyle = '#4a90d9';
       ctx.fillText(new Date().toLocaleTimeString() + '  |  ' + selectedCamera.name + '  |  ' + selectedCamera.resolution, 20, H - 18);
 
       // FPS & Detection count

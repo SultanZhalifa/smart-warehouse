@@ -190,7 +190,7 @@
 
 .camera-feed-display {
   aspect-ratio: 16/10;
-  background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+  background: linear-gradient(135deg, #e8ecf1 0%, #f0f3f7 100%);
   position: relative;
   overflow: hidden;
 }
@@ -201,7 +201,7 @@
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(94, 173, 255, 0.2), transparent);
+  background: linear-gradient(90deg, transparent, rgba(74, 144, 217, 0.2), transparent);
   animation: scanLine 3s linear infinite;
   z-index: 2;
 }
@@ -210,8 +210,8 @@
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(94, 173, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(94, 173, 255, 0.03) 1px, transparent 1px);
+    linear-gradient(rgba(74, 144, 217, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(74, 144, 217, 0.03) 1px, transparent 1px);
   background-size: 20px 20px;
   z-index: 1;
 }
@@ -250,7 +250,7 @@
   left: 0;
   font-size: 9px;
   font-weight: 700;
-  color: #0a0e1a;
+  color: #1a2332;
   background: var(--color-accent-primary);
   padding: 1px 5px;
   border-radius: 2px;
@@ -404,7 +404,7 @@
 .health-bar {
   height: 6px;
   border-radius: var(--radius-full);
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.03);
   overflow: hidden;
 }
 
@@ -412,5 +412,5 @@
   height: 100%;
   border-radius: var(--radius-full);
   transition: width 1s ease;
-  box-shadow: 0 0 8px rgba(94, 173, 255, 0.2);
+  box-shadow: 0 0 8px rgba(74, 144, 217, 0.2);
 }

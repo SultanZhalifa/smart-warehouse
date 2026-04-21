@@ -52,11 +52,11 @@ export function exportToPDF(title, data, columns) {
     <head>
       <title>${title}</title>
       <style>
-        body { font-family: 'Inter', sans-serif; padding: 40px; background: #0a0e1a; color: #e2e8f0; }
-        h1 { color: #5eadff; font-size: 24px; margin-bottom: 4px; }
+        body { font-family: 'Inter', sans-serif; padding: 40px; background: #1a2332; color: #e2e8f0; }
+        h1 { color: #4a90d9; font-size: 24px; margin-bottom: 4px; }
         p { color: #64748b; font-size: 12px; margin-bottom: 20px; }
         table { border-collapse: collapse; width: 100%; }
-        th { padding: 10px 8px; text-align: left; background: #1f2937; color: #5eadff; font-size: 12px; font-weight: 700; border: 1px solid #333; }
+        th { padding: 10px 8px; text-align: left; background: #1f2937; color: #4a90d9; font-size: 12px; font-weight: 700; border: 1px solid #333; }
         td { padding: 8px; border: 1px solid #333; font-size: 12px; }
         tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
         .footer { margin-top: 20px; font-size: 10px; color: #475569; }
