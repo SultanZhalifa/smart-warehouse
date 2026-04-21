@@ -8,12 +8,12 @@
 
 /* ---- CSS Custom Properties (Design Tokens) ---- */
 :root {
-  /* Primary palette — clean, bright, modern */
-  --color-bg-primary: #f5f7fa;
+  /* Primary palette — clean, bright, minimalist */
+  --color-bg-primary: #f8fafc;
   --color-bg-secondary: #ffffff;
-  --color-bg-tertiary: #eef1f6;
-  --color-bg-card: rgba(255, 255, 255, 0.85);
-  --color-bg-card-hover: rgba(255, 255, 255, 1);
+  --color-bg-tertiary: #f1f5f9;
+  --color-bg-card: #ffffff;
+  --color-bg-card-hover: #ffffff;
   --color-bg-glass: rgba(255, 255, 255, 0.7);
 
   /* Accent colors — slightly deeper for light bg contrast */
@@ -40,9 +40,9 @@
   --color-text-accent: #4a90d9;
 
   /* Borders — subtle light gray */
-  --color-border: rgba(0, 0, 0, 0.08);
-  --color-border-hover: rgba(74, 144, 217, 0.3);
-  --color-border-active: rgba(74, 144, 217, 0.5);
+  --color-border: rgba(0, 0, 0, 0.05);
+  --color-border-hover: rgba(0, 0, 0, 0.1);
+  --color-border-active: rgba(0, 0, 0, 0.15);
 
   /* Glows — very subtle on light */
   --glow-primary: 0 2px 12px rgba(74, 144, 217, 0.1);
@@ -52,10 +52,10 @@
   --glow-intense: 0 4px 20px rgba(74, 144, 217, 0.15), 0 0 40px rgba(74, 144, 217, 0.05);
 
   /* Shadows — soft, layered, modern */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.06);
-  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.04);
-  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.08), 0 8px 32px rgba(0, 0, 0, 0.04);
-  --shadow-xl: 0 8px 32px rgba(0, 0, 0, 0.1), 0 16px 48px rgba(0, 0, 0, 0.06);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.03), 0 1px 3px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.04), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
 
   /* Spacing */
   --space-xs: 4px;
@@ -90,10 +90,10 @@
   --header-height: 60px;
 
   /* Transitions */
-  --transition-fast: 150ms ease;
-  --transition-base: 250ms ease;
-  --transition-slow: 400ms ease;
-  --transition-spring: 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  --transition-fast: 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-base: 300ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-slow: 500ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-spring: 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 /* ---- Reset & Base ---- */
@@ -267,11 +267,10 @@ img {
 /* ---- Card ---- */
 .card {
   background: var(--color-bg-card);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: var(--space-lg);
+  box-shadow: var(--shadow-sm);
   transition: all var(--transition-base);
   position: relative;
   overflow: hidden;
@@ -290,9 +289,9 @@ img {
 }
 
 .card:hover {
-  border-color: var(--color-border-hover);
-  box-shadow: var(--glow-primary);
-  transform: translateY(-2px);
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
 }
 
 .card:hover::before {
@@ -305,11 +304,11 @@ img {
   align-items: center;
   justify-content: center;
   gap: var(--space-sm);
-  padding: 10px 20px;
+  padding: 8px 16px;
   border-radius: var(--radius-md);
   font-size: var(--font-size-sm);
-  font-weight: 600;
-  transition: all var(--transition-base);
+  font-weight: 500;
+  transition: all var(--transition-fast);
   white-space: nowrap;
   position: relative;
   overflow: hidden;
@@ -335,7 +334,7 @@ img {
 }
 
 .btn-primary:hover {
-  box-shadow: var(--glow-intense);
+  box-shadow: var(--shadow-md);
   transform: translateY(-1px);
 }
 
@@ -346,8 +345,9 @@ img {
 }
 
 .btn-secondary:hover {
-  border-color: var(--color-border-hover);
-  box-shadow: var(--glow-primary);
+  border-color: rgba(0, 0, 0, 0.15);
+  background: var(--color-bg-secondary);
+  box-shadow: var(--shadow-sm);
 }
 
 .btn-danger {
@@ -356,7 +356,7 @@ img {
 }
 
 .btn-danger:hover {
-  box-shadow: var(--glow-danger);
+  box-shadow: var(--shadow-md);
   transform: translateY(-1px);
 }
 
@@ -476,14 +476,14 @@ img {
 }
 
 .table th {
-  padding: 12px 16px;
+  padding: 14px 16px;
   text-align: left;
-  font-size: var(--font-size-xs);
-  font-weight: 600;
+  font-size: 0.7rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
   color: var(--color-text-tertiary);
-  background: var(--color-bg-tertiary);
+  background: var(--color-bg-secondary);
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -599,7 +599,8 @@ img {
 .page-header h1 {
   font-size: var(--font-size-2xl);
   font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
+  color: #0f172a;
 }
 
 .page-header p {
