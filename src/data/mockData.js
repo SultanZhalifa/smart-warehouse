@@ -3,14 +3,14 @@
 // ============================================
 
 export const OBJECT_CLASSES = [
-  { id: 1, name: 'Cardboard Box', color: '#4a90d9', icon: '📦' },
-  { id: 2, name: 'Wooden Pallet', color: '#7c6cf0', icon: '🪵' },
-  { id: 3, name: 'Forklift', color: '#3db8a9', icon: '🚜' },
-  { id: 4, name: 'Worker', color: '#e5a035', icon: '👷' },
-  { id: 5, name: 'Barrel', color: '#d95459', icon: '🛢️' },
-  { id: 6, name: 'Crate', color: '#c86d99', icon: '📥' },
-  { id: 7, name: 'Conveyor Belt', color: '#f97316', icon: '⚙️' },
-  { id: 8, name: 'Shelf Unit', color: '#14b8a6', icon: '🗄️' },
+  { id: 1, name: 'Cardboard Box', color: '#4a90d9', icon: 'Package' },
+  { id: 2, name: 'Wooden Pallet', color: '#7c6cf0', icon: 'Layers' },
+  { id: 3, name: 'Forklift', color: '#3db8a9', icon: 'Truck' },
+  { id: 4, name: 'Worker', color: '#e5a035', icon: 'HardHat' },
+  { id: 5, name: 'Barrel', color: '#d95459', icon: 'Cylinder' },
+  { id: 6, name: 'Crate', color: '#c86d99', icon: 'BoxSelect' },
+  { id: 7, name: 'Conveyor Belt', color: '#f97316', icon: 'Cog' },
+  { id: 8, name: 'Shelf Unit', color: '#14b8a6', icon: 'LayoutGrid' },
 ];
 
 export const ZONES = [

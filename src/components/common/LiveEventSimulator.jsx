@@ -6,20 +6,20 @@ const EVENTS = [
   { type: 'detection', getMessage: () => {
     const obj = OBJECT_CLASSES[Math.floor(Math.random() * OBJECT_CLASSES.length)];
     const zone = ZONES[Math.floor(Math.random() * ZONES.length)];
-    return { title: '🎯 Object Detected', message: `${obj.name} detected in ${zone.name.split('—')[0].trim()}`, toastType: 'info' };
+    return { title: 'Object Detected', message: `${obj.name} detected in ${zone.name.split('—')[0].trim()}`, toastType: 'info' };
   }},
   { type: 'alert', getMessage: () => ({
-    title: '⚠️ Zone Capacity Warning',
+    title: 'Zone Capacity Warning',
     message: `Zone ${['A','B','C','D'][Math.floor(Math.random()*4)]} approaching max capacity`,
     toastType: 'warning',
   })},
   { type: 'system', getMessage: () => ({
-    title: '📡 Camera Update',
+    title: 'Camera Update',
     message: `Camera ${Math.floor(Math.random()*8)+1} stream reconnected`,
     toastType: 'info',
   })},
   { type: 'inventory', getMessage: () => ({
-    title: '📦 Inventory Update',
+    title: 'Inventory Update',
     message: `${Math.floor(Math.random()*50)+5} new items scanned via object detection`,
     toastType: 'success',
   })},

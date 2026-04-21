@@ -69,7 +69,7 @@ export function exportToPDF(title, data, columns) {
       </style>
     </head>
     <body>
-      <h1>📦 ${title}</h1>
+      <h1>${title}</h1>
       <p>Generated on ${new Date().toLocaleString()} — Smart Warehouse System</p>
       <table>
         <thead><tr>${headers.map((h) => `<th>${h}</th>`).join('')}</tr></thead>
