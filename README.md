@@ -39,6 +39,34 @@ Smart Warehouse is a web-based warehouse management system that uses object dete
 
 ---
 
+## Screenshots
+
+### Login Page
+![Login Page](./docs/screenshots/login.png)
+
+### Dashboard
+![Dashboard](./docs/screenshots/dashboard.png)
+
+### Object Detection
+![Object Detection](./docs/screenshots/detection.png)
+
+### Inventory Management
+![Inventory](./docs/screenshots/inventory.png)
+
+### Alert Center
+![Alerts](./docs/screenshots/alerts.png)
+
+### Analytics and Reports
+![Analytics](./docs/screenshots/analytics.png)
+
+### Zone Management
+![Zones](./docs/screenshots/zones.png)
+
+### Settings
+![Settings](./docs/screenshots/settings.png)
+
+---
+
 ## Features
 
 | Feature | Description |
@@ -112,7 +140,14 @@ Smart Warehouse is a web-based warehouse management system that uses object dete
 - **Goal:** Settings page, export system, real-time notifications, RBAC, advanced filters
 - **Committed:** 23 points | **Delivered:** 23 points
 - **Report:** [SPRINT_2_REPORT.md](./SPRINT_2_REPORT.md)
-- **Daily Standups:** [DAILY_STANDUP_LOG.md](./docs/DAILY_STANDUP_LOG.md)
+- **Retrospective:** [SPRINT_2_RETROSPECTIVE.md](./docs/SPRINT_2_RETROSPECTIVE.md)
+
+### Other Documents
+- [Daily Standup Log](./docs/DAILY_STANDUP_LOG.md) -- Standup notes for all 8 days
+- [Sprint Review Notes](./docs/SPRINT_REVIEW_NOTES.md) -- Meeting notes from both sprint reviews
+- [Product Backlog](./docs/PRODUCT_BACKLOG.md) -- All 8 backlog items with user stories
+- [Architecture Overview](./docs/ARCHITECTURE.md) -- System design, state management, routing, use case diagram
+- [Burndown Charts](./docs/BURNDOWN_CHART.md) -- Sprint progress tracking with velocity data
 
 ---
 
