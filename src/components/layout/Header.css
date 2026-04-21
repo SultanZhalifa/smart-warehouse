@@ -70,6 +70,24 @@
 
 .header-search-input::placeholder {
   color: var(--color-text-tertiary);
+  transition: none;
+}
+
+/* Typing cursor */
+.header-search-cursor {
+  position: absolute;
+  left: 36px;
+  color: var(--color-accent-primary);
+  font-weight: 300;
+  font-size: var(--font-size-sm);
+  pointer-events: none;
+  animation: cursorBlink 0.8s ease infinite;
+  opacity: 0.7;
+}
+
+@keyframes cursorBlink {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 0; }
 }
 
 .header-search-kbd {
