@@ -3,22 +3,22 @@
 // ============================================
 
 export const OBJECT_CLASSES = [
-  { id: 1, name: 'Cardboard Box', color: '#00d4ff', icon: '📦' },
-  { id: 2, name: 'Wooden Pallet', color: '#7c3aed', icon: '🪵' },
-  { id: 3, name: 'Forklift', color: '#06d6a0', icon: '🚜' },
-  { id: 4, name: 'Worker', color: '#fbbf24', icon: '👷' },
-  { id: 5, name: 'Barrel', color: '#ef4444', icon: '🛢️' },
-  { id: 6, name: 'Crate', color: '#ec4899', icon: '📥' },
+  { id: 1, name: 'Cardboard Box', color: '#5eadff', icon: '📦' },
+  { id: 2, name: 'Wooden Pallet', color: '#8b7cf8', icon: '🪵' },
+  { id: 3, name: 'Forklift', color: '#4ecdc4', icon: '🚜' },
+  { id: 4, name: 'Worker', color: '#f0b866', icon: '👷' },
+  { id: 5, name: 'Barrel', color: '#e8646a', icon: '🛢️' },
+  { id: 6, name: 'Crate', color: '#d97eab', icon: '📥' },
   { id: 7, name: 'Conveyor Belt', color: '#f97316', icon: '⚙️' },
   { id: 8, name: 'Shelf Unit', color: '#14b8a6', icon: '🗄️' },
 ];
 
 export const ZONES = [
-  { id: 'zone-a', name: 'Zone A — Receiving', color: '#00d4ff', x: 5, y: 5, width: 40, height: 30, capacity: 500, used: 387, status: 'active', description: 'Incoming shipment receiving area' },
-  { id: 'zone-b', name: 'Zone B — Storage', color: '#7c3aed', x: 50, y: 5, width: 45, height: 30, capacity: 1200, used: 940, status: 'active', description: 'Main storage area with shelving units' },
-  { id: 'zone-c', name: 'Zone C — Processing', color: '#06d6a0', x: 5, y: 40, width: 35, height: 30, capacity: 300, used: 210, status: 'active', description: 'Order processing and packaging' },
-  { id: 'zone-d', name: 'Zone D — Shipping', color: '#fbbf24', x: 45, y: 40, width: 50, height: 30, capacity: 400, used: 334, status: 'active', description: 'Outbound shipping and loading docks' },
-  { id: 'zone-e', name: 'Zone E — Hazardous', color: '#ef4444', x: 5, y: 75, width: 25, height: 20, capacity: 100, used: 45, status: 'warning', description: 'Restricted hazardous materials storage' },
+  { id: 'zone-a', name: 'Zone A — Receiving', color: '#5eadff', x: 5, y: 5, width: 40, height: 30, capacity: 500, used: 387, status: 'active', description: 'Incoming shipment receiving area' },
+  { id: 'zone-b', name: 'Zone B — Storage', color: '#8b7cf8', x: 50, y: 5, width: 45, height: 30, capacity: 1200, used: 940, status: 'active', description: 'Main storage area with shelving units' },
+  { id: 'zone-c', name: 'Zone C — Processing', color: '#4ecdc4', x: 5, y: 40, width: 35, height: 30, capacity: 300, used: 210, status: 'active', description: 'Order processing and packaging' },
+  { id: 'zone-d', name: 'Zone D — Shipping', color: '#f0b866', x: 45, y: 40, width: 50, height: 30, capacity: 400, used: 334, status: 'active', description: 'Outbound shipping and loading docks' },
+  { id: 'zone-e', name: 'Zone E — Hazardous', color: '#e8646a', x: 5, y: 75, width: 25, height: 20, capacity: 100, used: 45, status: 'warning', description: 'Restricted hazardous materials storage' },
   { id: 'zone-f', name: 'Zone F — Cold Storage', color: '#3b82f6', x: 35, y: 75, width: 30, height: 20, capacity: 200, used: 178, status: 'active', description: 'Temperature-controlled refrigeration unit' },
 ];
 

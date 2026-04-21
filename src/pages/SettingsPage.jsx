@@ -40,7 +40,7 @@ export default function SettingsPage() {
   // Appearance prefs
   const [appearance, setAppearance] = useState({
     theme: 'dark',
-    accentColor: '#00d4ff',
+    accentColor: '#5eadff',
     compactMode: false,
     animations: true,
     showCameraOverlays: true,
@@ -237,12 +237,12 @@ export default function SettingsPage() {
                 <h3>Accent Color</h3>
                 <div className="accent-colors">
                   {[
-                    { color: '#00d4ff', name: 'Cyan' },
-                    { color: '#7c3aed', name: 'Purple' },
-                    { color: '#06d6a0', name: 'Green' },
+                    { color: '#5eadff', name: 'Blue' },
+                    { color: '#8b7cf8', name: 'Purple' },
+                    { color: '#4ecdc4', name: 'Green' },
                     { color: '#f59e0b', name: 'Amber' },
-                    { color: '#ef4444', name: 'Red' },
-                    { color: '#ec4899', name: 'Pink' },
+                    { color: '#e8646a', name: 'Red' },
+                    { color: '#d97eab', name: 'Pink' },
                     { color: '#3b82f6', name: 'Blue' },
                   ].map((c) => (
                     <button

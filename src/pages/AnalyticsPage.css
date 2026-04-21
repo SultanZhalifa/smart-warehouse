@@ -26,7 +26,7 @@
 .analytics-date-btn:hover { color: var(--color-text-primary); background: rgba(255,255,255,0.03); }
 
 .analytics-date-btn.active {
-  background: rgba(0, 212, 255, 0.1);
+  background: rgba(94, 173, 255, 0.1);
   color: var(--color-accent-primary);
 }
 

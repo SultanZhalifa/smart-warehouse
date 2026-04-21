@@ -133,7 +133,7 @@ export default function DetectionPage() {
       ctx.strokeStyle = 'var(--color-accent-primary)';
       ctx.lineWidth = 2;
       const cl2 = 30;
-      ctx.strokeStyle = '#00d4ff';
+      ctx.strokeStyle = '#5eadff';
       // TL
       ctx.beginPath(); ctx.moveTo(10, 10 + cl2); ctx.lineTo(10, 10); ctx.lineTo(10 + cl2, 10); ctx.stroke();
       // TR
@@ -145,7 +145,7 @@ export default function DetectionPage() {
 
       // Timestamp overlay
       ctx.font = '600 11px Inter, monospace';
-      ctx.fillStyle = '#00d4ff';
+      ctx.fillStyle = '#5eadff';
       ctx.fillText(new Date().toLocaleTimeString() + '  |  ' + selectedCamera.name + '  |  ' + selectedCamera.resolution, 20, H - 18);
 
       // FPS & Detection count

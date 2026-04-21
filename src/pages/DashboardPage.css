@@ -167,6 +167,10 @@
   .camera-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
+@media (max-width: 600px) {
+  .camera-grid { grid-template-columns: 1fr; }
+}
+
 .camera-feed {
   border-radius: var(--radius-md);
   overflow: hidden;
@@ -197,7 +201,7 @@
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.3), transparent);
+  background: linear-gradient(90deg, transparent, rgba(94, 173, 255, 0.2), transparent);
   animation: scanLine 3s linear infinite;
   z-index: 2;
 }
@@ -206,8 +210,8 @@
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(0, 212, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 212, 255, 0.05) 1px, transparent 1px);
+    linear-gradient(rgba(94, 173, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(94, 173, 255, 0.03) 1px, transparent 1px);
   background-size: 20px 20px;
   z-index: 1;
 }
@@ -365,6 +369,13 @@
   .health-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
+@media (max-width: 600px) {
+  .health-grid { grid-template-columns: 1fr; }
+  .dashboard-stats-row { gap: var(--space-sm); }
+  .stat-pill { padding: 6px 12px; font-size: 11px; }
+  .kpi-value { font-size: var(--font-size-2xl); }
+}
+
 .health-card {
   padding: var(--space-md);
   border-radius: var(--radius-md);
@@ -401,5 +412,5 @@
   height: 100%;
   border-radius: var(--radius-full);
   transition: width 1s ease;
-  box-shadow: 0 0 8px rgba(0, 212, 255, 0.3);
+  box-shadow: 0 0 8px rgba(94, 173, 255, 0.2);
 }

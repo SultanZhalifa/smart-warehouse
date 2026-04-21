@@ -68,8 +68,8 @@
 }
 
 .alert-filter-btn.active {
-  background: rgba(0, 212, 255, 0.1);
-  border-color: rgba(0, 212, 255, 0.3);
+  background: rgba(94, 173, 255, 0.1);
+  border-color: rgba(94, 173, 255, 0.3);
   color: var(--color-accent-primary);
 }
 
@@ -81,7 +81,7 @@
 }
 
 .alert-filter-btn.active .alert-filter-count {
-  background: rgba(0, 212, 255, 0.15);
+  background: rgba(94, 173, 255, 0.15);
 }
 
 /* Alert List */

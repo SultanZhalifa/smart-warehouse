@@ -26,7 +26,7 @@
 }
 .settings-tab:hover { color: var(--color-text-primary); background: var(--color-bg-tertiary); }
 .settings-tab.active {
-  color: var(--color-accent-primary); background: rgba(0,212,255,0.08);
+  color: var(--color-accent-primary); background: rgba(94,173,255,0.08);
   border-left: 3px solid var(--color-accent-primary);
 }
 
@@ -184,7 +184,7 @@
   background: var(--color-bg-tertiary); border-radius: var(--radius-md);
   border: 1px solid var(--color-border);
 }
-.session-item.current { border-color: rgba(0,212,255,0.2); }
+.session-item.current { border-color: rgba(94,173,255,0.15); }
 .session-item svg { color: var(--color-text-tertiary); flex-shrink: 0; }
 .session-info { flex: 1; }
 .session-device { display: block; font-size: var(--font-size-sm); font-weight: 600; }

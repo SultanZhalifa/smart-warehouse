@@ -54,9 +54,9 @@
 }
 
 .activity-type-btn.active {
-  background: rgba(0, 212, 255, 0.1);
+  background: rgba(94, 173, 255, 0.1);
   color: var(--color-accent-primary);
-  border-color: rgba(0, 212, 255, 0.3);
+  border-color: rgba(94, 173, 255, 0.3);
 }
 
 /* Timeline */
