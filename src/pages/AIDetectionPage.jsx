@@ -5,9 +5,9 @@ import {
 } from 'lucide-react';
 import './AIDetectionPage.css';
 
-// ----- Roboflow Config (update these after training) -----
-const ROBOFLOW_API_KEY = 'YOUR_API_KEY_HERE';
-const ROBOFLOW_MODEL = 'warehouse-objects-miafr';
+// ----- Roboflow Config -----
+const ROBOFLOW_API_KEY = 'KhJq1P9jOEDJsmxtZddPu';
+const ROBOFLOW_MODEL = 'warehouse-objects-miafr-wamvd';
 const ROBOFLOW_VERSION = '1';
 const API_URL = `https://detect.roboflow.com/${ROBOFLOW_MODEL}/${ROBOFLOW_VERSION}`;
 // ---------------------------------------------------------
