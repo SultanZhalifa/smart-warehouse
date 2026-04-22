@@ -1,4 +1,4 @@
-Smart Warehouse -- Bio-Hazard & Pest Detection System
+# Smart Warehouse: Bio-Hazard & Pest Detection System
 
 <div align="center">
 
