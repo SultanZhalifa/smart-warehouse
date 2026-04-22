@@ -28,14 +28,24 @@
 
 ## About the Project
 
-Smart Warehouse is a web-based warehouse management system that uses object detection to help automate inventory tracking, monitor different warehouse zones, and provide analytics in real time. We built this as our Software Engineering course project at President University, and we followed the Scrum framework throughout the development process.
+Smart Warehouse is a web based system designed to detect bio-hazard and pest presence in warehouse environments using simulated object detection. The system focuses on improving safety by identifying potentially harmful animals and preventing contamination.
+
+In addition to detection, the system also includes warehouse monitoring features such as inventory tracking, zone management, and analytics to support operational efficiency.
+
+This project was developed as part of a Software Engineering course at President University using the Scrum methodology.
+
+## Bio-Hazard Detection Context
+
+This project focuses on detecting animals such as snakes, cats, and geckos that may pose risks in warehouse environments. The system aims to improve safety and prevent contamination through early detection and alert mechanisms.
 
 ### What This Project Does
-- Shows a simulation of real-time object detection with bounding boxes on a live camera feed
-- Lets users manage inventory items (add, edit, delete) with search and filtering
-- Monitors 6 warehouse zones with a visual floor plan
-- Sends alerts when something unusual is detected or a threshold is exceeded
-- Provides analytics charts so managers can make better decisions
+
+- Simulates real-time detection of harmful animals using bounding boxes  
+- Helps identify potential bio-hazards in warehouse environments  
+- Allows users to manage inventory items with search and filtering  
+- Monitors 6 warehouse zones with a visual floor plan  
+- Sends alerts when potential hazards are detected  
+- Provides analytics charts for decision making  
 
 ---
 
