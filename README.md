@@ -1,4 +1,8 @@
+<div align="center">
+
 # Smart Warehouse: Bio-Hazard & Pest Detection System
+
+</div>
 
 <div align="center">
 
