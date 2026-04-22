@@ -1,4 +1,4 @@
-# Smart Warehouse -- Object Detection System
+Smart Warehouse -- Bio-Hazard & Pest Detection System
 
 <div align="center">
 
@@ -37,6 +37,15 @@ This project was developed as part of a Software Engineering course at President
 ## Bio-Hazard Detection Context
 
 This project focuses on detecting animals such as snakes, cats, and geckos that may pose risks in warehouse environments. The system aims to improve safety and prevent contamination through early detection and alert mechanisms.
+
+## Detection Workflow
+
+1. Camera captures real-time footage (simulated)  
+2. System processes the image  
+3. Object detection identifies potential pests (snake, cat, gecko)  
+4. System classifies the risk level  
+5. Alert is triggered for warehouse staff  
+6. Data is stored for monitoring and analysis  
 
 ### What This Project Does
 
