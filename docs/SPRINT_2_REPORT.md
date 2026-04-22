@@ -50,9 +50,9 @@ Status: Done
 | Team Member | Role | Tasks | Story Points |
 |-------------|------|-------|:---:|
 | Risly Maria Theresia Worung | Product Owner | RBAC, route guards, sidebar filtering | 5 |
-| Misha Andalusia | Scrum Master | Export utilities (CSV/JSON/PDF), export integration | 5 |
+| Sultan Zhalifunnas Musyaffa | Scrum Master | Settings page (4 tabs), zone filter | 8 |
+| Misha Andalusia | Developer | Export utilities (CSV/JSON/PDF), export integration | 5 |
 | Fathir Barhouti Awlya | Developer | Real-time notification system, event simulator | 5 |
-| Sultan Zhalifunnas Musyaffa | Developer | Settings page (4 tabs), zone filter | 8 |
 
 Total Completed: 23 out of 23 story points
 

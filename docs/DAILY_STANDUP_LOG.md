@@ -221,11 +221,58 @@
 
 | Metric | Value |
 |--------|-------|
-| Total Standups | 4 |
-| Blockers Reported | 2 (PAT token setup, useCallback memoization) |
-| Blockers Resolved | 2 (100%) |
+| Total Standups | 6 |
+| Blockers Reported | 3 (PAT token setup, useCallback memoization, emoji inconsistency across OS) |
+| Blockers Resolved | 3 (100%) |
 | Average Duration | Around 10 minutes |
 
 ---
 
+## Day 9 -- Tuesday, April 22, 2026
+
+### Risly Maria Theresia Worung (Product Owner)
+- **Yesterday:** Signed off on all Sprint 2 deliverables.
+- **Today:** Reviewing the UI after the theme overhaul. Checking if all pages still look consistent with the new light theme. Also verifying the product backlog documentation matches the dosen's requirements.
+- **Blockers:** None
+
+### Sultan Zhalifunnas Musyaffa (Scrum Master)
+- **Yesterday:** Finished Sprint 2 documentation and pushed everything to GitHub.
+- **Today:** Major UI/UX overhaul -- switching from the old dark theme to a modern light theme (Apple/Linear-inspired). Updating all CSS design tokens, removing decorative blobs, refining shadows and borders. Also replacing all emojis with Lucide SVG icons for a more professional look.
+- **Blockers:** None
+
+### Misha Andalusia (Developer)
+- **Yesterday:** Finished bug fixes and export integration polishing.
+- **Today:** Helping test the new light theme across all pages. Checking if any hardcoded dark-theme colors got missed during the migration.
+- **Blockers:** None
+
+### Fathir Barhouti Awlya (Developer)
+- **Yesterday:** Notification system testing is done.
+- **Today:** Updating the LiveEventSimulator toast titles -- removing emoji characters and replacing with clean text. Also checking that the Detection Page legend renders SVG icons properly instead of the old emoji strings.
+- **Blockers:** Some emojis render differently on Windows vs Mac, which is another reason we decided to switch everything to SVG icons.
+
+---
+
+## Day 10 -- Wednesday, April 23, 2026
+
+### Risly Maria Theresia Worung (Product Owner)
+- **Yesterday:** Reviewed the new light theme on all 8 pages, everything looks clean and professional.
+- **Today:** Final check on all documentation files (product backlog, sprint reports, daily standup logs). Making sure the role assignments are consistent across all docs. Preparing materials for the weekly sprint review session.
+- **Blockers:** None
+
+### Sultan Zhalifunnas Musyaffa (Scrum Master)
+- **Yesterday:** Completed the full UI/UX premium upgrade -- refined typography, softer shadows, removed borders, upgraded micro-interactions. Also created the AI Handoff document.
+- **Today:** Fixing a role inconsistency we found in the Sprint 2 Report (Misha was accidentally listed as Scrum Master). Adding the missing daily standup entries for Days 9 and 10. Pushing final docs to GitHub.
+- **Blockers:** None
+
+### Misha Andalusia (Developer)
+- **Yesterday:** Confirmed all pages look good with the new theme. No missed dark-theme colors.
+- **Today:** Helping prepare the demo for the sprint review. Testing the full user flow from login through all pages on a clean browser.
+- **Blockers:** None
+
+### Fathir Barhouti Awlya (Developer)
+- **Yesterday:** SVG icon migration is confirmed working on Detection Page and toast notifications.
+- **Today:** Final round of cross-page testing. Making sure all interactive elements (hover states, active states, transitions) feel smooth and consistent with the new premium UI.
+- **Blockers:** None
+
+---
 
