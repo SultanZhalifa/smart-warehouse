@@ -5,6 +5,7 @@ import Layout from './components/layout/Layout';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import DetectionPage from './pages/DetectionPage';
+import AIDetectionPage from './pages/AIDetectionPage';
 import InventoryPage from './pages/InventoryPage';
 import AlertsPage from './pages/AlertsPage';
 import AnalyticsPage from './pages/AnalyticsPage';
@@ -53,6 +54,7 @@ function AppRoutes() {
       >
         <Route path="/" element={<DashboardPage />} />
         <Route path="/detection" element={<DetectionPage />} />
+        <Route path="/ai-detection" element={<AIDetectionPage />} />
         <Route path="/inventory" element={<InventoryPage />} />
         <Route path="/alerts" element={<AlertsPage />} />
         <Route path="/analytics" element={

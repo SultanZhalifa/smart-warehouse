@@ -1,0 +1,446 @@
+/* ============================================
+   AI Detection Page — Roboflow + YOLOv8
+   ============================================ */
+
+.ai-detection-page {
+  padding: 0;
+}
+
+/* --- Header --- */
+.ai-det-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 28px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.ai-det-header h1 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 4px 0;
+}
+
+.ai-det-header > div:first-child > p {
+  font-size: 0.82rem;
+  color: var(--color-text-tertiary);
+  margin: 0;
+  font-weight: 450;
+}
+
+.ai-det-badges {
+  display: flex;
+  gap: 8px;
+}
+
+.ai-det-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  border-radius: 20px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.ai-det-badge.roboflow {
+  background: linear-gradient(135deg, #6c3aef10, #a855f710);
+  color: #7c3aed;
+  border: 1px solid rgba(124, 58, 237, 0.15);
+}
+
+.ai-det-badge.ultralytics {
+  background: linear-gradient(135deg, #2563eb10, #3b82f610);
+  color: #2563eb;
+  border: 1px solid rgba(37, 99, 235, 0.15);
+}
+
+/* --- Body Layout --- */
+.ai-det-body {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .ai-det-body {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --- Dropzone --- */
+.ai-det-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  border: 2px dashed rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  background: var(--color-bg-card);
+  text-align: center;
+  padding: 48px 32px;
+}
+
+.ai-det-dropzone:hover {
+  border-color: var(--color-accent-primary);
+  background: rgba(74, 144, 217, 0.02);
+}
+
+.ai-det-dropzone-icon {
+  color: var(--color-text-tertiary);
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.ai-det-dropzone h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0 0 6px 0;
+}
+
+.ai-det-dropzone p {
+  font-size: 0.82rem;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.ai-det-dropzone-hint {
+  margin-top: 8px !important;
+  font-size: 0.72rem !important;
+  color: var(--color-text-tertiary) !important;
+}
+
+/* --- Image Wrapper --- */
+.ai-det-image-wrapper {
+  background: var(--color-bg-card);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.ai-det-image-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.ai-det-image-info {
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.ai-det-image-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.ai-det-image-actions .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.75rem;
+  padding: 6px 14px;
+}
+
+.ai-det-image-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  background: #f0f2f5;
+  min-height: 300px;
+}
+
+.ai-det-image {
+  max-width: 100%;
+  max-height: 600px;
+  display: block;
+  object-fit: contain;
+}
+
+/* --- Bounding Boxes --- */
+.ai-det-bbox {
+  position: absolute;
+  border: 2px solid;
+  border-radius: 3px;
+  pointer-events: none;
+  animation: bboxFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes bboxFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.ai-det-bbox-label {
+  position: absolute;
+  top: -22px;
+  left: -2px;
+  padding: 2px 7px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #fff;
+  border-radius: 3px 3px 3px 0;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  line-height: 1.3;
+}
+
+/* --- Spinner --- */
+.ai-det-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* --- Error --- */
+.ai-det-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  margin-top: 16px;
+  border-radius: 10px;
+  background: rgba(217, 84, 89, 0.06);
+  color: var(--color-accent-danger);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+/* --- Stats Grid --- */
+.ai-det-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.ai-det-stat {
+  background: var(--color-bg-card);
+  border-radius: 12px;
+  padding: 14px 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.ai-det-stat-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.ai-det-stat-value {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--color-text-primary);
+  letter-spacing: -0.03em;
+}
+
+.ai-det-stat-small {
+  font-size: 0.85rem !important;
+}
+
+/* --- Panels --- */
+.ai-det-panel {
+  background: var(--color-bg-card);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 16px;
+}
+
+.ai-det-panel h3 {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 14px 0;
+}
+
+/* --- Empty State --- */
+.ai-det-empty {
+  text-align: center;
+  padding: 20px 0;
+  color: var(--color-text-tertiary);
+}
+
+.ai-det-empty p {
+  font-size: 0.75rem;
+  margin: 8px 0 0 0;
+}
+
+/* --- Class List --- */
+.ai-det-class-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ai-det-class-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--color-bg-tertiary);
+}
+
+.ai-det-class-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ai-det-class-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.ai-det-class-name {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  text-transform: capitalize;
+}
+
+.ai-det-class-meta {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.ai-det-class-count {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.ai-det-class-conf {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--color-text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Detection Log --- */
+.ai-det-log {
+  max-height: 220px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ai-det-log-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  transition: background 0.15s ease;
+}
+
+.ai-det-log-item:hover {
+  background: var(--color-bg-tertiary);
+}
+
+.ai-det-log-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.ai-det-log-class {
+  font-weight: 600;
+  color: var(--color-text-primary);
+  text-transform: capitalize;
+  flex: 1;
+}
+
+.ai-det-log-conf {
+  font-weight: 600;
+  color: var(--color-accent-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.ai-det-log-pos {
+  color: var(--color-text-tertiary);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.68rem;
+}
+
+/* --- Tech Stack --- */
+.ai-det-tech {
+  background: var(--color-bg-card);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.ai-det-tech h4 {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0 0 12px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ai-det-tech-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ai-det-tech-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.72rem;
+}
+
+.ai-det-tech-item strong {
+  color: var(--color-text-secondary);
+  font-weight: 600;
+}
+
+.ai-det-tech-item span {
+  color: var(--color-text-primary);
+  font-weight: 500;
+}

@@ -3,13 +3,14 @@ import { useWarehouse } from '../../context/WarehouseContext';
 import { useAuth } from '../../context/AuthContext';
 import {
   LayoutDashboard, ScanSearch, Package, Bell, BarChart3,
-  Map, ClipboardList, ChevronLeft, ChevronRight, LogOut, Warehouse, Settings
+  Map, ClipboardList, ChevronLeft, ChevronRight, LogOut, Warehouse, Settings, Zap
 } from 'lucide-react';
 import './Sidebar.css';
 
 const navItems = [
   { path: '/', icon: LayoutDashboard, label: 'Dashboard', roles: null },
   { path: '/detection', icon: ScanSearch, label: 'Detection', roles: null },
+  { path: '/ai-detection', icon: Zap, label: 'AI Detection', roles: null },
   { path: '/inventory', icon: Package, label: 'Inventory', roles: null },
   { path: '/alerts', icon: Bell, label: 'Alerts', roles: null },
   { path: '/analytics', icon: BarChart3, label: 'Analytics', roles: ['admin', 'manager'] },
