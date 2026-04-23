@@ -35,17 +35,23 @@ export const INVENTORY_ITEMS = [
   { id: 'INV-010', name: 'Wooden Pallet Stack', category: 'Logistics', zone: 'zone-d', quantity: 890, minStock: 100, status: 'in-stock', lastDetected: '2026-04-16T12:00:00', weight: 22.0 },
   { id: 'INV-011', name: 'LED Panel Lights', category: 'Electronics', zone: 'zone-b', quantity: 156, minStock: 30, status: 'in-stock', lastDetected: '2026-04-16T09:45:00', weight: 1.8 },
   { id: 'INV-012', name: 'Hydraulic Pump Unit', category: 'Mechanical', zone: 'zone-c', quantity: 8, minStock: 5, status: 'in-stock', lastDetected: '2026-04-16T10:15:00', weight: 35.0 },
+  { id: 'INV-013', name: 'Edge AI Inference Module v2', category: 'Electronics', zone: 'zone-b', quantity: 142, minStock: 50, status: 'in-stock', lastDetected: new Date().toISOString(), weight: 1.2 },
+  { id: 'INV-014', name: 'Industrial Grade Catalyst', category: 'Chemicals', zone: 'zone-e', quantity: 15, minStock: 20, status: 'low-stock', lastDetected: new Date().toISOString(), weight: 25.0 },
+  { id: 'INV-015', name: 'Frozen Vaccine Batch #99', category: 'Perishable', zone: 'zone-f', quantity: 2000, minStock: 500, status: 'in-stock', lastDetected: new Date().toISOString(), weight: 0.5 },
+  { id: 'INV-016', name: 'Hydraulic Actuator 500Nm', category: 'Mechanical', zone: 'zone-c', quantity: 8, minStock: 5, status: 'in-stock', lastDetected: new Date().toISOString(), weight: 85.0 },
 ];
 
 export const ALERT_DATA = [
-  { id: 'ALT-001', type: 'critical', title: 'Unauthorized Object Detected', message: 'Unknown object detected in Zone E (Hazardous area). Immediate inspection required.', timestamp: '2026-04-16T12:30:00', zone: 'zone-e', read: false },
-  { id: 'ALT-002', type: 'warning', title: 'Low Stock Alert', message: 'Industrial Lubricant 5L (INV-002) has fallen below minimum stock level.', timestamp: '2026-04-16T11:45:00', zone: 'zone-e', read: false },
-  { id: 'ALT-003', type: 'info', title: 'Detection Model Updated', message: 'Object detection model v2.4.1 has been deployed successfully across all cameras.', timestamp: '2026-04-16T11:00:00', zone: null, read: true },
-  { id: 'ALT-004', type: 'warning', title: 'Zone Capacity Warning', message: 'Zone B — Storage is approaching maximum capacity (78% utilized).', timestamp: '2026-04-16T10:30:00', zone: 'zone-b', read: true },
-  { id: 'ALT-005', type: 'critical', title: 'Camera 4 Offline', message: 'Camera 4 in Zone C has gone offline. Object detection coverage gap detected.', timestamp: '2026-04-16T09:15:00', zone: 'zone-c', read: false },
-  { id: 'ALT-006', type: 'info', title: 'Scheduled Maintenance', message: 'System maintenance scheduled for April 17 at 02:00 AM — 04:00 AM UTC.', timestamp: '2026-04-16T08:00:00', zone: null, read: true },
-  { id: 'ALT-007', type: 'warning', title: 'Temperature Anomaly', message: 'Cold Storage (Zone F) temperature rose to -12°C. Expected range: -18°C to -15°C.', timestamp: '2026-04-16T07:30:00', zone: 'zone-f', read: false },
-  { id: 'ALT-008', type: 'info', title: 'New Items Registered', message: '45 new items have been registered through object detection in the past hour.', timestamp: '2026-04-16T07:00:00', zone: null, read: true },
+  { id: 'ALT-001', type: 'critical', title: 'Unauthorized Object Detected', message: 'Unknown object detected in Zone E. Immediate inspection required.', timestamp: new Date(Date.now() - 1000 * 60 * 5).toISOString(), zone: 'zone-e', read: false },
+  { id: 'ALT-002', type: 'warning', title: 'Low Stock Alert', message: 'Industrial Lubricant 5L (INV-002) has fallen below minimum stock level.', timestamp: new Date(Date.now() - 1000 * 60 * 15).toISOString(), zone: 'zone-e', read: false },
+  { id: 'ALT-003', type: 'info', title: 'Detection Model Updated', message: 'Object detection model v2.4.1 deployed successfully.', timestamp: new Date(Date.now() - 1000 * 60 * 60).toISOString(), zone: null, read: true },
+  { id: 'ALT-004', type: 'warning', title: 'Zone Capacity Warning', message: 'Zone B — Storage is approaching maximum capacity (78% utilized).', timestamp: new Date(Date.now() - 1000 * 60 * 120).toISOString(), zone: 'zone-b', read: true },
+  { id: 'ALT-005', type: 'critical', title: 'Camera 4 Offline', message: 'Camera 4 in Zone C has gone offline. Coverage gap detected.', timestamp: new Date(Date.now() - 1000 * 60 * 180).toISOString(), zone: 'zone-c', read: false },
+  { id: 'ALT-006', type: 'info', title: 'Scheduled Maintenance', message: 'System maintenance scheduled for April 17 at 02:00 AM UTC.', timestamp: new Date(Date.now() - 1000 * 60 * 240).toISOString(), zone: null, read: true },
+  { id: 'ALT-007', type: 'warning', title: 'Temperature Anomaly', message: 'Cold Storage (Zone F) rose to -12°C. Expected: -18°C to -15°C.', timestamp: new Date(Date.now() - 1000 * 60 * 300).toISOString(), zone: 'zone-f', read: false },
+  { id: 'ALT-008', type: 'info', title: 'New Items Registered', message: '45 new items registered through detection in the past hour.', timestamp: new Date(Date.now() - 1000 * 60 * 360).toISOString(), zone: null, read: true },
+  { id: 'ALT-009', type: 'critical', title: 'Security Breach: Wild Boar', message: 'Algorithm identified "Wild Boar" in Zone A. Safety engaged.', timestamp: new Date().toISOString(), zone: 'zone-a', read: false },
+  { id: 'ALT-010', type: 'warning', title: 'Threshold Violation', message: 'Confidence fell below 0.75 in Zone B. Manual verification required.', timestamp: new Date(Date.now() - 1000 * 30).toISOString(), zone: 'zone-b', read: false },
 ];
 
 export const ACTIVITY_LOG = [
