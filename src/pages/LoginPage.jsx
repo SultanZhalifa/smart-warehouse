@@ -83,7 +83,6 @@ export default function LoginPage() {
         <div className="login-form-section">
           <div className="login-form-wrapper">
             <div className="login-form-header">
-              <Shield size={20} className="login-shield" />
               <h2>Welcome Back</h2>
               <p>Sign in to access the warehouse management system</p>
             </div>

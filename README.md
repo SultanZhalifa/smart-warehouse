@@ -1,4 +1,8 @@
-# 🏭 Smart Warehouse — Object Detection System
+<div align="center">
+
+# Smart Warehouse: Bio-Hazard & Pest Detection System
+
+</div>
 
 <div align="center">
 
@@ -13,7 +17,7 @@
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 - [About the Project](#about-the-project)
 - [Features](#features)
 - [Tech Stack](#tech-stack)
@@ -26,113 +30,173 @@
 
 ---
 
-## 📖 About the Project
+## About the Project
 
-**Smart Warehouse** is an AI-powered warehouse management system that uses object detection technology to automate inventory tracking, monitor warehouse zones, and generate real-time analytics. Built as a Software Engineering project at **President University**, this application demonstrates the full Scrum/Agile methodology from product backlog creation to sprint delivery.
+Smart Warehouse is a web based system designed to detect bio-hazard and pest presence in warehouse environments using simulated object detection. The system focuses on improving safety by identifying potentially harmful animals and preventing contamination.
 
-### Key Objectives
-- Real-time object detection visualization with bounding box overlays
-- Automated inventory management with CRUD operations
-- Multi-zone warehouse monitoring with floor plan visualization
-- Alert system for anomalies and threshold violations
-- Comprehensive analytics dashboard with Chart.js visualizations
+In addition to detection, the system also includes warehouse monitoring features such as inventory tracking, zone management, and analytics to support operational efficiency.
+
+This project was developed as part of a Software Engineering course at President University using the Scrum methodology.
+
+## Bio-Hazard Detection Context
+
+This project focuses on detecting animals such as snakes, cats, and geckos that may pose risks in warehouse environments. The system aims to improve safety and prevent contamination through early detection and alert mechanisms.
+
+## Detection Workflow
+
+1. Camera captures real-time footage (simulated)  
+2. System processes the image  
+3. Object detection identifies potential pests (snake, cat, gecko)  
+4. System classifies the risk level  
+5. Alert is triggered for warehouse staff  
+6. Data is stored for monitoring and analysis  
+
+### What This Project Does
+
+- Simulates real-time detection of harmful animals using bounding boxes  
+- Helps identify potential bio-hazards in warehouse environments  
+- Allows users to manage inventory items with search and filtering  
+- Monitors 6 warehouse zones with a visual floor plan  
+- Sends alerts when potential hazards are detected  
+- Provides analytics charts for decision making  
 
 ---
 
-## ✨ Features
+## Screenshots
+
+### Login Page
+![Login Page](./docs/screenshots/login.png)
+
+### Dashboard
+![Dashboard](./docs/screenshots/dashboard.png)
+
+### Object Detection
+![Object Detection](./docs/screenshots/detection.png)
+
+### Inventory Management
+![Inventory](./docs/screenshots/inventory.png)
+
+### Alert Center
+![Alerts](./docs/screenshots/alerts.png)
+
+### Analytics and Reports
+![Analytics](./docs/screenshots/analytics.png)
+
+### Zone Management
+![Zones](./docs/screenshots/zones.png)
+
+### Settings
+![Settings](./docs/screenshots/settings.png)
+
+---
+
+## Features
 
 | Feature | Description |
 |---------|-------------|
-| 🔐 **Authentication** | Role-based login (Admin, Manager, Operator) with protected routes |
-| 📊 **Dashboard** | Real-time KPI cards, camera feeds, activity feed, system health |
-| 🎯 **Object Detection** | Canvas-based simulation with animated bounding boxes and detection log |
-| 📦 **Inventory** | Full CRUD, search, category filters, sortable table, stock alerts |
-| 🔔 **Alert Center** | Severity-based filtering, read/unread state, zone-linked alerts |
-| 📈 **Analytics** | 5 chart types with Chart.js, date range selection, export option |
-| 🗺️ **Zone Management** | Interactive floor plan, utilization tracking, capacity monitoring |
-| 📋 **Activity Log** | Complete audit trail with type filters and timeline view |
-| 🎨 **Premium UI** | Dark cyber theme, glassmorphism, neon accents, smooth animations |
+| **Authentication** | Role-based login system (Admin, Manager, Operator) with route protection |
+| **Dashboard** | Overview page with KPI cards, camera feeds, activity feed, and system health |
+| **Object Detection** | Canvas-based simulation with animated bounding boxes and a detection log |
+| **Inventory** | Full CRUD operations, search, category/zone filters, sortable table, CSV export |
+| **Alert Center** | Severity-based filtering (critical/warning/info), read/unread state |
+| **Analytics** | 5 chart types using Chart.js -- line, bar, doughnut, etc. |
+| **Zone Management** | Interactive floor plan with utilization tracking per zone |
+| **Activity Log** | Audit trail with type-based filters and timeline view, exportable to CSV |
+| **Settings** | Profile editing, notification preferences, theme customization, security settings |
+| **Dark UI Theme** | Custom dark theme with glassmorphism effects and neon accents |
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Layer | Technology | Purpose |
-|-------|-----------|---------|
-| **Build Tool** | Vite 8.x | Fast development server and bundling |
-| **Frontend** | React 19 | Component-based UI framework |
+|-------|-----------|---------| 
+| **Build Tool** | Vite 8.x | Development server and bundling |
+| **Frontend** | React 19 | Component-based UI |
 | **Styling** | Vanilla CSS | Custom design system with CSS variables |
 | **Charts** | Chart.js + react-chartjs-2 | Data visualization |
-| **Icons** | Lucide React | Consistent icon system |
+| **Icons** | Lucide React | Icon system |
 | **Routing** | React Router v6 | Client-side routing with auth guards |
-| **State** | Context API + useReducer | Centralized state management |
+| **State** | Context API + useReducer | Global state management |
 | **Canvas** | HTML5 Canvas API | Object detection simulation |
 
 ---
 
-## 👥 Team Members and Roles
+## Team Members and Roles
 
 | Scrum Role | Name | Student ID | Responsibilities |
-|------------|------|------------|-----------------|
-| **Product Owner** | Risly Maria Theresia Worung | 001202400069 | Product vision, backlog prioritization, sprint acceptance |
-| **Scrum Master** | Sultan Zhalifunnas Musyaffa | 001202400200 | Facilitate ceremonies, remove blockers, process adherence |
-| **Developer** | Misha Andalusia | 001202400040 | Frontend development, UI/UX, visualization components |
-| **Developer** | Fathir Barhouti Awlya | 001202400054 | Backend logic, data management, detection algorithms |
+|------------|------|------------|-----------------| 
+| **Product Owner** | Risly Maria Theresia Worung | 001202400069 | Manages product vision, backlog prioritization, sprint acceptance |
+| **Scrum Master** | Sultan Zhalifunnas Musyaffa | 001202400200 | Facilitates ceremonies, removes blockers, ensures process adherence |
+| **Developer** | Misha Andalusia | 001202400040 | Frontend development, UI/UX, data export features |
+| **Developer** | Fathir Barhouti Awlya | 001202400054 | State management, detection system, real-time notifications |
 
 ---
 
-## 📋 Product Backlogs
+## Product Backlogs
 
 | # | Backlog Item | Priority | Story Points | User Story |
 |---|-------------|----------|-------------|------------|
-| 1 | Dashboard Overview | ⭐ High | 8 | As a manager, I want a real-time dashboard to monitor operations at a glance |
-| 2 | Object Detection Interface | ⭐ High | 13 | As an operator, I want to see detected objects with bounding boxes |
-| 3 | Inventory Management | ⭐ High | 8 | As staff, I want to manage inventory items to track stock levels |
-| 4 | Real-Time Alert System | 🟡 Medium | 5 | As a manager, I want alerts when unusual objects are detected |
-| 5 | Analytics and Reporting | 🟡 Medium | 8 | As a manager, I want analytics for data-driven decisions |
-| 6 | Zone Management | 🟡 Medium | 8 | As a planner, I want to define zones for location tracking |
-| 7 | User Authentication | 🔵 Low | 5 | As an admin, I want role-based access control |
-| 8 | Activity Log and Audit Trail | 🔵 Low | 5 | As an auditor, I want to review all system activities |
+| 1 | Dashboard Overview | High | 8 | As a manager, I want a real-time dashboard to monitor operations at a glance |
+| 2 | Object Detection Interface | High | 13 | As an operator, I want to see detected objects with bounding boxes |
+| 3 | Inventory Management | High | 8 | As staff, I want to manage inventory items to track stock levels |
+| 4 | Real-Time Alert System | Medium | 5 | As a manager, I want alerts when unusual objects are detected |
+| 5 | Analytics and Reporting | Medium | 8 | As a manager, I want analytics for data-driven decisions |
+| 6 | Zone Management | Medium | 8 | As a planner, I want to define zones for location tracking |
+| 7 | User Authentication | Low | 5 | As an admin, I want role-based access control |
+| 8 | Activity Log and Audit Trail | Low | 5 | As an auditor, I want to review all system activities |
 
 **Total Story Points:** 60
 
 ---
 
-## 🏃 Sprint Documentation
+## Sprint Documentation
 
-### Sprint 1 (Week 1) — Foundation and Core
-- **Sprint Goal:** Establish project architecture, design system, authentication, and dashboard
+### Sprint 1 (Week 1) -- Foundation and Core
+- **Goal:** Set up project architecture, design system, authentication, and all 8 pages
 - **Committed:** 21 points | **Delivered:** 60 points
 - **Velocity:** 285%
-- **Report:** [SPRINT_1_REPORT.md](./SPRINT_1_REPORT.md)
-- **Retrospective:** [SPRINT_RETROSPECTIVE.md](./SPRINT_RETROSPECTIVE.md)
-- **Daily Standups:** [DAILY_STANDUP_LOG.md](./DAILY_STANDUP_LOG.md)
+- **Report:** [SPRINT_1_REPORT.md](./docs/SPRINT_1_REPORT.md)
+- **Retrospective:** [SPRINT_RETROSPECTIVE.md](./docs/SPRINT_RETROSPECTIVE.md)
+
+### Sprint 2 (Week 2) -- Enhancements
+- **Goal:** Settings page, export system, real-time notifications, RBAC, advanced filters
+- **Committed:** 23 points | **Delivered:** 23 points
+- **Report:** [SPRINT_2_REPORT.md](./SPRINT_2_REPORT.md)
+- **Retrospective:** [SPRINT_2_RETROSPECTIVE.md](./docs/SPRINT_2_RETROSPECTIVE.md)
+
+### Other Documents
+- [Daily Standup Log](./docs/DAILY_STANDUP_LOG.md) -- Standup notes for all 8 days
+- [Sprint Review Notes](./docs/SPRINT_REVIEW_NOTES.md) -- Meeting notes from both sprint reviews
+- [Product Backlog](./docs/PRODUCT_BACKLOG.md) -- All 8 backlog items with user stories
+- [Architecture Overview](./docs/ARCHITECTURE.md) -- System design, state management, routing, use case diagram
+- [Burndown Charts](./docs/BURNDOWN_CHART.md) -- Sprint progress tracking with velocity data
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
-- Node.js 18+ installed
-- npm or yarn package manager
+- Node.js 18 or newer
+- npm or yarn
 
 ### Installation
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-repo/smart-warehouse.git
+git clone https://github.com/SultanZhalifa/smart-warehouse.git
 
-# Navigate to project directory
+# Go to the project folder
 cd smart-warehouse
 
 # Install dependencies
 npm install
 
-# Start development server
+# Start the dev server
 npm run dev
 ```
 
-Open **http://localhost:5173** in your browser.
+Then open **http://localhost:5173** in your browser.
 
 ### Demo Credentials
 | User | Email | Role | Password |
@@ -144,36 +208,36 @@ Open **http://localhost:5173** in your browser.
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 smart-warehouse/
 ├── src/
 │   ├── components/
-│   │   ├── common/           # Reusable UI components
+│   │   ├── common/           # Shared components (Toast, LiveEventSimulator)
 │   │   └── layout/           # Sidebar, Header, Layout
 │   ├── context/              # AuthContext, WarehouseContext
-│   ├── data/                 # Mock data layer
-│   ├── pages/                # All 8 page components
-│   ├── index.css             # Design system (50+ tokens)
+│   ├── data/                 # Mock data
+│   ├── pages/                # All 9 page components
+│   ├── utils/                # Export utilities
+│   ├── index.css             # Design system
 │   ├── App.jsx               # Root + routing
 │   └── main.jsx              # Entry point
-├── SPRINT_1_REPORT.md
-├── SPRINT_RETROSPECTIVE.md
-├── DAILY_STANDUP_LOG.md
+├── docs/                     # Scrum documentation
+├── SPRINT_2_REPORT.md
 └── README.md
 ```
 
 ---
 
-## 📐 Scrum Methodology
+## Scrum Methodology
 
-### Definition of Done (DoD)
-- Feature is fully implemented and functional
-- Code follows project conventions
-- UI is responsive and matches design system
-- Feature tested manually with no console errors
-- Code committed with descriptive message
+### Definition of Done
+- Feature is implemented and working properly
+- Code follows the project's conventions
+- UI matches the design system
+- Feature tested manually, no console errors
+- Code committed with a clear commit message
 - Reviewed by at least one team member
 
 ### Sprint Ceremonies
@@ -188,8 +252,8 @@ smart-warehouse/
 
 <div align="center">
 
-**Built with ❤️ by Group 5 — President University**
+**Built by Group 5 -- President University**
 
-Risly · Misha · Fathir · Sultan
+Risly - Misha - Fathir - Sultan
 
 </div>

@@ -5,20 +5,20 @@
 /* KPI Cards */
 .kpi-grid .kpi-card {
   background: var(--color-bg-card);
-  backdrop-filter: blur(12px);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: var(--space-lg);
   position: relative;
   overflow: hidden;
+  box-shadow: var(--shadow-sm);
   animation: fadeInUp 0.5s ease both;
   transition: all var(--transition-base);
 }
 
 .kpi-card:hover {
-  border-color: var(--color-border-hover);
-  transform: translateY(-3px);
-  box-shadow: var(--glow-primary);
+  border-color: rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
 .kpi-card-top {
@@ -101,7 +101,9 @@
 }
 
 .stat-pill:hover {
-  border-color: var(--color-border-hover);
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm);
 }
 
 .stat-pill strong {
@@ -167,6 +169,10 @@
   .camera-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
+@media (max-width: 600px) {
+  .camera-grid { grid-template-columns: 1fr; }
+}
+
 .camera-feed {
   border-radius: var(--radius-md);
   overflow: hidden;
@@ -186,7 +192,7 @@
 
 .camera-feed-display {
   aspect-ratio: 16/10;
-  background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+  background: linear-gradient(135deg, #e8ecf1 0%, #f0f3f7 100%);
   position: relative;
   overflow: hidden;
 }
@@ -197,7 +203,7 @@
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.3), transparent);
+  background: linear-gradient(90deg, transparent, rgba(74, 144, 217, 0.2), transparent);
   animation: scanLine 3s linear infinite;
   z-index: 2;
 }
@@ -206,8 +212,8 @@
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(0, 212, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 212, 255, 0.05) 1px, transparent 1px);
+    linear-gradient(rgba(74, 144, 217, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(74, 144, 217, 0.03) 1px, transparent 1px);
   background-size: 20px 20px;
   z-index: 1;
 }
@@ -246,7 +252,7 @@
   left: 0;
   font-size: 9px;
   font-weight: 700;
-  color: #0a0e1a;
+  color: #1a2332;
   background: var(--color-accent-primary);
   padding: 1px 5px;
   border-radius: 2px;
@@ -365,6 +371,13 @@
   .health-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
+@media (max-width: 600px) {
+  .health-grid { grid-template-columns: 1fr; }
+  .dashboard-stats-row { gap: var(--space-sm); }
+  .stat-pill { padding: 6px 12px; font-size: 11px; }
+  .kpi-value { font-size: var(--font-size-2xl); }
+}
+
 .health-card {
   padding: var(--space-md);
   border-radius: var(--radius-md);
@@ -393,7 +406,7 @@
 .health-bar {
   height: 6px;
   border-radius: var(--radius-full);
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.03);
   overflow: hidden;
 }
 
@@ -401,5 +414,5 @@
   height: 100%;
   border-radius: var(--radius-full);
   transition: width 1s ease;
-  box-shadow: 0 0 8px rgba(0, 212, 255, 0.3);
+  box-shadow: 0 0 8px rgba(74, 144, 217, 0.2);
 }

@@ -3,18 +3,20 @@ import { useWarehouse } from '../../context/WarehouseContext';
 import { useAuth } from '../../context/AuthContext';
 import {
   LayoutDashboard, ScanSearch, Package, Bell, BarChart3,
-  Map, Users, ClipboardList, ChevronLeft, ChevronRight, LogOut, Warehouse
+  Map, ClipboardList, ChevronLeft, ChevronRight, LogOut, Warehouse, Settings, Zap
 } from 'lucide-react';
 import './Sidebar.css';
 
 const navItems = [
-  { path: '/', icon: LayoutDashboard, label: 'Dashboard' },
-  { path: '/detection', icon: ScanSearch, label: 'Detection' },
-  { path: '/inventory', icon: Package, label: 'Inventory' },
-  { path: '/alerts', icon: Bell, label: 'Alerts' },
-  { path: '/analytics', icon: BarChart3, label: 'Analytics' },
-  { path: '/zones', icon: Map, label: 'Zones' },
-  { path: '/activity', icon: ClipboardList, label: 'Activity Log' },
+  { path: '/', icon: LayoutDashboard, label: 'Dashboard', roles: null },
+  { path: '/detection', icon: ScanSearch, label: 'Detection', roles: null },
+  { path: '/ai-detection', icon: Zap, label: 'AI Detection', roles: null },
+  { path: '/inventory', icon: Package, label: 'Inventory', roles: null },
+  { path: '/alerts', icon: Bell, label: 'Alerts', roles: null },
+  { path: '/analytics', icon: BarChart3, label: 'Analytics', roles: ['admin', 'manager'] },
+  { path: '/zones', icon: Map, label: 'Zones', roles: null },
+  { path: '/activity', icon: ClipboardList, label: 'Activity Log', roles: ['admin', 'manager'] },
+  { path: '/settings', icon: Settings, label: 'Settings', roles: null },
 ];
 
 export default function Sidebar() {
@@ -23,6 +25,12 @@ export default function Sidebar() {
   const location = useLocation();
   const collapsed = state.sidebarCollapsed;
   const unreadAlerts = state.alerts.filter((a) => !a.read).length;
+
+  // Filter nav items by role
+  const visibleItems = navItems.filter((item) => {
+    if (!item.roles) return true;
+    return item.roles.includes(user?.role);
+  });
 
   return (
     <aside className={`sidebar ${collapsed ? 'collapsed' : ''}`}>
@@ -41,7 +49,7 @@ export default function Sidebar() {
 
       {/* Nav */}
       <nav className="sidebar-nav">
-        {navItems.map((item) => (
+        {visibleItems.map((item) => (
           <NavLink
             key={item.path}
             to={item.path}

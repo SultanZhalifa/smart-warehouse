@@ -120,7 +120,7 @@ export default function DashboardPage() {
           value={stats.today.toLocaleString()}
           change="13.1%"
           changeType="up"
-          color="#00d4ff"
+          color="#4a90d9"
           delay={0}
         />
         <KPICard
@@ -129,7 +129,7 @@ export default function DashboardPage() {
           value={totalInventory.toLocaleString()}
           change="3.2%"
           changeType="up"
-          color="#7c3aed"
+          color="#7c6cf0"
           delay={80}
         />
         <KPICard
@@ -138,7 +138,7 @@ export default function DashboardPage() {
           value={criticalAlerts.length}
           change={criticalAlerts.length > 0 ? 'Action needed' : 'All clear'}
           changeType={criticalAlerts.length > 0 ? 'down' : 'up'}
-          color={criticalAlerts.length > 0 ? '#ef4444' : '#10b981'}
+          color={criticalAlerts.length > 0 ? '#d95459' : '#10b981'}
           delay={160}
         />
         <KPICard
@@ -147,7 +147,7 @@ export default function DashboardPage() {
           value={`${stats.camerasOnline}/${stats.camerasTotal}`}
           change={`${Math.round((stats.camerasOnline / stats.camerasTotal) * 100)}%`}
           changeType={stats.camerasOnline === stats.camerasTotal ? 'up' : 'down'}
-          color="#06d6a0"
+          color="#3db8a9"
           delay={240}
         />
       </div>
@@ -249,7 +249,7 @@ export default function DashboardPage() {
                 <span>45%</span>
               </div>
               <div className="health-bar">
-                <div className="health-bar-fill" style={{ width: '45%', background: 'linear-gradient(90deg, #06d6a0, #fbbf24)' }}></div>
+                <div className="health-bar-fill" style={{ width: '45%', background: 'linear-gradient(90deg, #3db8a9, #e5a035)' }}></div>
               </div>
             </div>
           </div>

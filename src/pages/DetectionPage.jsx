@@ -2,9 +2,14 @@ import { useRef, useEffect, useState, useCallback } from 'react';
 import { OBJECT_CLASSES, CAMERAS } from '../data/mockData';
 import {
   Play, Pause, Camera, Maximize2, Settings, RefreshCw,
-  ZoomIn, ZoomOut, Grid3X3, ScanSearch, PieChart, Clock
+  ZoomIn, ZoomOut, Grid3X3, ScanSearch, PieChart, Clock,
+  Package, Layers, Truck, HardHat, Cylinder, BoxSelect, Cog, LayoutGrid
 } from 'lucide-react';
 import './DetectionPage.css';
+
+const ICON_MAP = {
+  Package, Layers, Truck, HardHat, Cylinder, BoxSelect, Cog, LayoutGrid,
+};
 
 const DETECTION_OBJECTS = [
   { cls: 0, x: 120, y: 80, w: 100, h: 80, vx: 0.3, vy: 0.15, conf: 0.97 },
@@ -120,7 +125,7 @@ export default function DetectionPage() {
         const textW = ctx.measureText(label).width;
         ctx.fillStyle = cls.color;
         ctx.fillRect(obj.x, obj.y - 18, textW + 10, 18);
-        ctx.fillStyle = '#0a0e1a';
+        ctx.fillStyle = '#1a2332';
         ctx.fillText(label, obj.x + 5, obj.y - 5);
 
         // Log every 120 frames
@@ -133,7 +138,7 @@ export default function DetectionPage() {
       ctx.strokeStyle = 'var(--color-accent-primary)';
       ctx.lineWidth = 2;
       const cl2 = 30;
-      ctx.strokeStyle = '#00d4ff';
+      ctx.strokeStyle = '#4a90d9';
       // TL
       ctx.beginPath(); ctx.moveTo(10, 10 + cl2); ctx.lineTo(10, 10); ctx.lineTo(10 + cl2, 10); ctx.stroke();
       // TR
@@ -145,7 +150,7 @@ export default function DetectionPage() {
 
       // Timestamp overlay
       ctx.font = '600 11px Inter, monospace';
-      ctx.fillStyle = '#00d4ff';
+      ctx.fillStyle = '#4a90d9';
       ctx.fillText(new Date().toLocaleTimeString() + '  |  ' + selectedCamera.name + '  |  ' + selectedCamera.resolution, 20, H - 18);
 
       // FPS & Detection count
@@ -177,7 +182,7 @@ export default function DetectionPage() {
           >
             {CAMERAS.map((cam) => (
               <option key={cam.id} value={cam.id}>
-                {cam.name} — {cam.status === 'online' ? '🟢' : '🔴'} {cam.zone.replace('zone-', 'Zone ').toUpperCase()}
+                {cam.name} — {cam.status === 'online' ? '[ON]' : '[OFF]'} {cam.zone.replace('zone-', 'Zone ').toUpperCase()}
               </option>
             ))}
           </select>
@@ -214,13 +219,16 @@ export default function DetectionPage() {
           <div className="detection-legend">
             <h3><ScanSearch size={16} /> Detected Object Classes</h3>
             <div className="legend-items">
-              {OBJECT_CLASSES.map((cls) => (
-                <div key={cls.id} className="legend-item">
-                  <div className="legend-color" style={{ background: cls.color }}></div>
-                  <span className="legend-icon">{cls.icon}</span>
-                  <span>{cls.name}</span>
-                </div>
-              ))}
+              {OBJECT_CLASSES.map((cls) => {
+                const IconComp = ICON_MAP[cls.icon];
+                return (
+                  <div key={cls.id} className="legend-item">
+                    <div className="legend-color" style={{ background: cls.color }}></div>
+                    <span className="legend-icon">{IconComp && <IconComp size={14} style={{ color: cls.color }} />}</span>
+                    <span>{cls.name}</span>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
