@@ -5,10 +5,10 @@ import {
 } from 'lucide-react';
 import './AIDetectionPage.css';
 
-// ----- Roboflow Config -----
-const ROBOFLOW_API_KEY = 'KhJq1P9jOEDJsmxtZddPu';
-const ROBOFLOW_MODEL = 'warehouse-objects-miafr-wamvd';
-const ROBOFLOW_VERSION = '1';
+// ----- Roboflow Config (loaded from .env) -----
+const ROBOFLOW_API_KEY = import.meta.env.VITE_ROBOFLOW_API_KEY || '';
+const ROBOFLOW_MODEL = import.meta.env.VITE_ROBOFLOW_MODEL || 'warehouse-objects-miafr-wamvd';
+const ROBOFLOW_VERSION = import.meta.env.VITE_ROBOFLOW_VERSION || '1';
 const API_URL = `https://detect.roboflow.com/${ROBOFLOW_MODEL}/${ROBOFLOW_VERSION}`;
 // ---------------------------------------------------------
 
