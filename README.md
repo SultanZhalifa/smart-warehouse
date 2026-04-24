@@ -1,6 +1,6 @@
 <div align="center">
 
-# Smart Warehouse: Bio-Hazard & Pest Detection System
+# Smart Warehouse
 
 </div>
 
