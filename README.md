@@ -38,9 +38,7 @@ In addition to detection, the system also includes warehouse monitoring features
 
 This project was developed as part of a Software Engineering course at President University using the Scrum methodology.
 
-## Bio-Hazard Detection Context
 
-This project focuses on detecting animals such as snakes, cats, and geckos that may pose risks in warehouse environments. The system aims to improve safety and prevent contamination through early detection and alert mechanisms.
 
 ## Detection Workflow
 
