@@ -1,12 +1,13 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement,
   BarElement, ArcElement, Filler, Tooltip, Legend
 } from 'chart.js';
 import { Line, Bar, Doughnut } from 'react-chartjs-2';
-import { CHART_DATA } from '../data/mockData';
+import { useWarehouse } from '../context/WarehouseContext';
+import * as db from '../lib/database';
 import {
-  BarChart3, TrendingUp, PieChart, Calendar, Download, RefreshCw
+  BarChart3, TrendingUp, PieChart, Download, Loader2, AlertCircle
 } from 'lucide-react';
 import './AnalyticsPage.css';
 
@@ -27,121 +28,134 @@ const chartDefaults = {
   },
   scales: {
     x: { grid: { color: 'rgba(148,163,184,0.06)', drawBorder: false }, ticks: { color: '#64748b', font: { family: 'Inter', size: 11 } } },
-    y: { grid: { color: 'rgba(148,163,184,0.06)', drawBorder: false }, ticks: { color: '#64748b', font: { family: 'Inter', size: 11 } } },
+    y: { grid: { color: 'rgba(148,163,184,0.06)', drawBorder: false }, ticks: { color: '#64748b', font: { family: 'Inter', size: 11 } }, beginAtZero: true },
+  },
+};
+
+const doughnutOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  cutout: '68%',
+  plugins: {
+    legend: {
+      position: 'right',
+      labels: { color: '#94a3b8', font: { family: 'Inter', size: 11, weight: 500 }, padding: 12, usePointStyle: true, pointStyleWidth: 8 },
+    },
+    tooltip: chartDefaults.plugins.tooltip,
   },
 };
 
 export default function AnalyticsPage() {
+  const { state } = useWarehouse();
   const [dateRange, setDateRange] = useState('week');
+  const [loading, setLoading] = useState(true);
+  const [chartData, setChartData] = useState(null);
 
-  const detectionLineData = {
-    labels: CHART_DATA.detectionsByHour.labels,
+  useEffect(() => {
+    let cancelled = false;
+    async function loadCharts() {
+      setLoading(true);
+      try {
+        const [hourly, daily, pests, zones, trend] = await Promise.all([
+          db.fetchDetectionsByHour(),
+          db.fetchDetectionsByDay(7),
+          db.fetchPestDistribution(),
+          db.fetchAlertsByZone(),
+          db.fetchThreatTrend(4),
+        ]);
+        if (!cancelled) {
+          setChartData({ hourly, daily, pests, zones, trend });
+        }
+      } catch (err) {
+        console.error('Failed to load analytics:', err);
+        if (!cancelled) setChartData(null);
+      }
+      if (!cancelled) setLoading(false);
+    }
+    loadCharts();
+    return () => { cancelled = true; };
+  }, [dateRange]);
+
+  // Build Chart.js data objects from real data
+  const detectionLineData = chartData ? {
+    labels: chartData.hourly.labels,
     datasets: [{
-      label: 'Detections',
-      data: CHART_DATA.detectionsByHour.data,
-      borderColor: '#4a90d9',
-      backgroundColor: 'rgba(0, 212, 255, 0.08)',
-      fill: true,
-      tension: 0.4,
-      pointRadius: 3,
-      pointBackgroundColor: '#4a90d9',
-      pointBorderColor: '#1a2332',
-      pointBorderWidth: 2,
-      pointHoverRadius: 6,
-      borderWidth: 2,
+      label: 'Pest Detections',
+      data: chartData.hourly.data,
+      borderColor: '#d95459',
+      backgroundColor: 'rgba(217, 84, 89, 0.08)',
+      fill: true, tension: 0.4, pointRadius: 3,
+      pointBackgroundColor: '#d95459', pointBorderColor: '#1a2332', pointBorderWidth: 2,
+      pointHoverRadius: 6, borderWidth: 2,
     }],
-  };
+  } : null;
 
-  const weeklyBarData = {
-    labels: CHART_DATA.detectionsByDay.labels,
+  const weeklyBarData = chartData ? {
+    labels: chartData.daily.labels,
     datasets: [{
       label: 'Detections per Day',
-      data: CHART_DATA.detectionsByDay.data,
+      data: chartData.daily.data,
       backgroundColor: [
         'rgba(0, 212, 255, 0.7)', 'rgba(124, 58, 237, 0.7)', 'rgba(6, 214, 160, 0.7)',
         'rgba(251, 191, 36, 0.7)', 'rgba(239, 68, 68, 0.7)', 'rgba(236, 72, 153, 0.7)',
         'rgba(59, 130, 246, 0.7)',
       ],
-      borderRadius: 8,
-      borderSkipped: false,
+      borderRadius: 8, borderSkipped: false,
     }],
-  };
+  } : null;
 
-  const objectDoughnutData = {
-    labels: CHART_DATA.objectDistribution.labels,
+  const pestLabels = chartData ? Object.keys(chartData.pests) : [];
+  const pestValues = chartData ? Object.values(chartData.pests) : [];
+  const pestColors = { snake: '#d95459', cat: '#e5a035', gecko: '#3db8a9' };
+  const objectDoughnutData = chartData ? {
+    labels: pestLabels.map(l => l.charAt(0).toUpperCase() + l.slice(1)),
     datasets: [{
-      data: CHART_DATA.objectDistribution.data,
-      backgroundColor: [
-        '#4a90d9', '#7c6cf0', '#3db8a9', '#e5a035', '#d95459', '#c86d99',
-      ],
-      borderColor: '#111827',
-      borderWidth: 3,
-      hoverOffset: 8,
+      data: pestValues,
+      backgroundColor: pestLabels.map(l => pestColors[l] || '#4a90d9'),
+      borderColor: '#111827', borderWidth: 3, hoverOffset: 8,
     }],
-  };
+  } : null;
 
-  const zoneBarData = {
-    labels: CHART_DATA.zoneActivity.labels,
+  const zoneBarData = chartData ? {
+    labels: chartData.zones.labels,
     datasets: [{
-      label: 'Detections by Zone',
-      data: CHART_DATA.zoneActivity.data,
-      backgroundColor: 'rgba(124, 58, 237, 0.6)',
-      borderRadius: 6,
-      borderSkipped: false,
+      label: 'Alerts by Zone',
+      data: chartData.zones.data,
+      backgroundColor: 'rgba(217, 84, 89, 0.6)',
+      borderRadius: 6, borderSkipped: false,
     }],
-  };
+  } : null;
 
-  const inventoryTrendData = {
-    labels: CHART_DATA.inventoryTrend.labels,
+  const threatTrendData = chartData ? {
+    labels: chartData.trend.labels,
     datasets: [
       {
-        label: 'Items In',
-        data: CHART_DATA.inventoryTrend.datasets[0].data,
-        borderColor: '#3db8a9',
-        backgroundColor: 'rgba(6, 214, 160, 0.08)',
-        fill: true,
-        tension: 0.4,
-        borderWidth: 2,
-        pointRadius: 4,
-        pointBackgroundColor: '#3db8a9',
-        pointBorderColor: '#1a2332',
-        pointBorderWidth: 2,
+        label: 'Threats Detected', data: chartData.trend.detected,
+        borderColor: '#3db8a9', backgroundColor: 'rgba(6, 214, 160, 0.08)',
+        fill: true, tension: 0.4, borderWidth: 2, pointRadius: 4,
+        pointBackgroundColor: '#3db8a9', pointBorderColor: '#1a2332', pointBorderWidth: 2,
       },
       {
-        label: 'Items Out',
-        data: CHART_DATA.inventoryTrend.datasets[1].data,
-        borderColor: '#d95459',
-        backgroundColor: 'rgba(239, 68, 68, 0.08)',
-        fill: true,
-        tension: 0.4,
-        borderWidth: 2,
-        pointRadius: 4,
-        pointBackgroundColor: '#d95459',
-        pointBorderColor: '#1a2332',
-        pointBorderWidth: 2,
+        label: 'Threats Resolved', data: chartData.trend.resolved,
+        borderColor: '#d95459', backgroundColor: 'rgba(239, 68, 68, 0.08)',
+        fill: true, tension: 0.4, borderWidth: 2, pointRadius: 4,
+        pointBackgroundColor: '#d95459', pointBorderColor: '#1a2332', pointBorderWidth: 2,
       },
     ],
-  };
+  } : null;
 
-  const doughnutOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    cutout: '68%',
-    plugins: {
-      legend: {
-        position: 'right',
-        labels: { color: '#94a3b8', font: { family: 'Inter', size: 11, weight: 500 }, padding: 12, usePointStyle: true, pointStyleWidth: 8 },
-      },
-      tooltip: chartDefaults.plugins.tooltip,
-    },
-  };
+  const hasData = chartData && (
+    chartData.hourly.data.some(v => v > 0) ||
+    pestLabels.length > 0 ||
+    chartData.zones.labels.length > 0
+  );
 
   return (
     <div className="page analytics-page">
       <div className="page-header">
         <div>
           <h1>Analytics & Reports</h1>
-          <p>Data-driven insights for warehouse operations</p>
+          <p>Pest detection insights and risk mitigation data</p>
         </div>
         <div style={{ display: 'flex', gap: 'var(--space-sm)' }}>
           <div className="analytics-date-tabs">
@@ -157,58 +171,77 @@ export default function AnalyticsPage() {
         </div>
       </div>
 
-      {/* Charts Grid */}
-      <div className="analytics-grid">
-        {/* Detection Trend */}
-        <div className="analytics-card analytics-wide">
-          <div className="analytics-card-header">
-            <h3><TrendingUp size={16} /> Detection Trend (Hourly)</h3>
-          </div>
-          <div className="analytics-chart-wrapper" style={{ height: 280 }}>
-            <Line data={detectionLineData} options={chartDefaults} />
-          </div>
+      {loading ? (
+        <div className="empty-state" style={{ padding: 'var(--space-2xl)' }}>
+          <Loader2 size={32} className="spin" />
+          <h3>Loading analytics data...</h3>
+          <p>Querying detection results from database</p>
         </div>
+      ) : !hasData ? (
+        <div className="empty-state" style={{ padding: 'var(--space-2xl)' }}>
+          <AlertCircle size={32} />
+          <h3>No detection data yet</h3>
+          <p>Run AI Detection scans to populate charts with real data. All analytics are sourced directly from the Supabase database.</p>
+        </div>
+      ) : (
+        <div className="analytics-grid">
+          {/* Detection Trend */}
+          <div className="analytics-card analytics-wide">
+            <div className="analytics-card-header">
+              <h3><TrendingUp size={16} /> Pest Detection Trend (Hourly)</h3>
+            </div>
+            <div className="analytics-chart-wrapper" style={{ height: 280 }}>
+              {detectionLineData && <Line data={detectionLineData} options={chartDefaults} />}
+            </div>
+          </div>
 
-        {/* Weekly Distribution */}
-        <div className="analytics-card">
-          <div className="analytics-card-header">
-            <h3><BarChart3 size={16} /> Weekly Distribution</h3>
+          {/* Weekly Distribution */}
+          <div className="analytics-card">
+            <div className="analytics-card-header">
+              <h3><BarChart3 size={16} /> Weekly Distribution</h3>
+            </div>
+            <div className="analytics-chart-wrapper" style={{ height: 260 }}>
+              {weeklyBarData && <Bar data={weeklyBarData} options={chartDefaults} />}
+            </div>
           </div>
-          <div className="analytics-chart-wrapper" style={{ height: 260 }}>
-            <Bar data={weeklyBarData} options={chartDefaults} />
-          </div>
-        </div>
 
-        {/* Object Distribution */}
-        <div className="analytics-card">
-          <div className="analytics-card-header">
-            <h3><PieChart size={16} /> Object Classification</h3>
+          {/* Pest Species Distribution */}
+          <div className="analytics-card">
+            <div className="analytics-card-header">
+              <h3><PieChart size={16} /> Pest Species Distribution</h3>
+            </div>
+            <div className="analytics-chart-wrapper" style={{ height: 260 }}>
+              {objectDoughnutData && pestLabels.length > 0
+                ? <Doughnut data={objectDoughnutData} options={doughnutOptions} />
+                : <div className="empty-state"><p>No pest detections recorded yet</p></div>
+              }
+            </div>
           </div>
-          <div className="analytics-chart-wrapper" style={{ height: 260 }}>
-            <Doughnut data={objectDoughnutData} options={doughnutOptions} />
-          </div>
-        </div>
 
-        {/* Zone Activity */}
-        <div className="analytics-card">
-          <div className="analytics-card-header">
-            <h3><BarChart3 size={16} /> Zone Activity</h3>
+          {/* Zone Activity */}
+          <div className="analytics-card">
+            <div className="analytics-card-header">
+              <h3><BarChart3 size={16} /> Zone Alert Activity</h3>
+            </div>
+            <div className="analytics-chart-wrapper" style={{ height: 260 }}>
+              {zoneBarData && chartData.zones.labels.length > 0
+                ? <Bar data={zoneBarData} options={chartDefaults} />
+                : <div className="empty-state"><p>No zone alerts recorded yet</p></div>
+              }
+            </div>
           </div>
-          <div className="analytics-chart-wrapper" style={{ height: 260 }}>
-            <Bar data={zoneBarData} options={chartDefaults} />
-          </div>
-        </div>
 
-        {/* Inventory Trend */}
-        <div className="analytics-card">
-          <div className="analytics-card-header">
-            <h3><TrendingUp size={16} /> Inventory Flow</h3>
-          </div>
-          <div className="analytics-chart-wrapper" style={{ height: 260 }}>
-            <Line data={inventoryTrendData} options={chartDefaults} />
+          {/* Threat Trend */}
+          <div className="analytics-card">
+            <div className="analytics-card-header">
+              <h3><TrendingUp size={16} /> Threat Detection & Resolution</h3>
+            </div>
+            <div className="analytics-chart-wrapper" style={{ height: 260 }}>
+              {threatTrendData && <Line data={threatTrendData} options={chartDefaults} />}
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

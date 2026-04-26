@@ -4,7 +4,9 @@ import { Map, Edit3, BarChart3, AlertTriangle, CheckCircle, MapPin, Layers } fro
 import './ZonesPage.css';
 
 function ZoneCard({ zone, index }) {
-  const utilization = Math.round((zone.used / zone.capacity) * 100);
+  const used = zone.current_load || 0;
+  const cap = zone.capacity || 1;
+  const utilization = Math.round((used / cap) * 100);
   const utilizationColor = utilization > 80 ? 'var(--color-accent-danger)' : utilization > 60 ? 'var(--color-accent-warning)' : 'var(--color-accent-success)';
 
   return (
@@ -30,8 +32,8 @@ function ZoneCard({ zone, index }) {
           <div className="zone-util-fill" style={{ width: `${utilization}%`, background: utilizationColor }}></div>
         </div>
         <div className="zone-util-detail">
-          <span>{zone.used.toLocaleString()} used</span>
-          <span>{zone.capacity.toLocaleString()} capacity</span>
+          <span>{used.toLocaleString()} used</span>
+          <span>{cap.toLocaleString()} capacity</span>
         </div>
       </div>
 
@@ -41,11 +43,11 @@ function ZoneCard({ zone, index }) {
           <span className="zone-stat-label">Capacity</span>
         </div>
         <div className="zone-stat">
-          <span className="zone-stat-value">{zone.used}</span>
+          <span className="zone-stat-value">{used}</span>
           <span className="zone-stat-label">In Use</span>
         </div>
         <div className="zone-stat">
-          <span className="zone-stat-value">{zone.capacity - zone.used}</span>
+          <span className="zone-stat-value">{cap - used}</span>
           <span className="zone-stat-label">Available</span>
         </div>
       </div>
@@ -57,9 +59,9 @@ export default function ZonesPage() {
   const { state } = useWarehouse();
   const zones = state.zones;
 
-  const totalCapacity = zones.reduce((s, z) => s + z.capacity, 0);
-  const totalUsed = zones.reduce((s, z) => s + z.used, 0);
-  const avgUtil = Math.round((totalUsed / totalCapacity) * 100);
+  const totalCapacity = zones.reduce((s, z) => s + (z.capacity || 0), 0);
+  const totalUsed = zones.reduce((s, z) => s + (z.current_load || 0), 0);
+  const avgUtil = totalCapacity > 0 ? Math.round((totalUsed / totalCapacity) * 100) : 0;
 
   return (
     <div className="page zones-page">
@@ -82,7 +84,7 @@ export default function ZonesPage() {
         <div className="zone-map">
           <div className="zone-map-grid"></div>
           {zones.map((zone) => {
-            const util = Math.round((zone.used / zone.capacity) * 100);
+            const util = zone.capacity > 0 ? Math.round(((zone.current_load || 0) / zone.capacity) * 100) : 0;
             return (
               <div
                 key={zone.id}
@@ -103,7 +105,7 @@ export default function ZonesPage() {
                 <div className="zone-map-util">{util}%</div>
                 {/* Simulated items */}
                 <div className="zone-map-dots">
-                  {Array.from({ length: Math.min(Math.floor(zone.used / 80), 12) }).map((_, i) => (
+                  {Array.from({ length: Math.min(Math.floor((zone.current_load || 0) / 80), 12) }).map((_, i) => (
                     <div
                       key={i}
                       className="zone-map-dot"

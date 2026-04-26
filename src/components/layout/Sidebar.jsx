@@ -9,7 +9,7 @@ import './Sidebar.css';
 
 const navItems = [
   { path: '/', icon: LayoutDashboard, label: 'Dashboard', roles: null },
-  { path: '/detection', icon: ScanSearch, label: 'Detection', roles: null },
+  { path: '/detection', icon: ScanSearch, label: 'Pest Simulator', roles: null },
   { path: '/ai-detection', icon: Zap, label: 'AI Detection', roles: null },
   { path: '/inventory', icon: Package, label: 'Inventory', roles: null },
   { path: '/alerts', icon: Bell, label: 'Alerts', roles: null },
@@ -24,7 +24,7 @@ export default function Sidebar() {
   const { user, logout } = useAuth();
   const location = useLocation();
   const collapsed = state.sidebarCollapsed;
-  const unreadAlerts = state.alerts.filter((a) => !a.read).length;
+  const unreadAlerts = state.alerts.filter((a) => a.status === 'unread').length;
 
   // Filter nav items by role
   const visibleItems = navItems.filter((item) => {
@@ -42,7 +42,7 @@ export default function Sidebar() {
         {!collapsed && (
           <div className="sidebar-logo-text">
             <span className="sidebar-logo-title">SmartWH</span>
-            <span className="sidebar-logo-subtitle">Object Detection</span>
+            <span className="sidebar-logo-subtitle">Pest Detection</span>
           </div>
         )}
       </div>

@@ -1,15 +1,16 @@
 <div align="center">
 
-# Smart Warehouse: Bio-Hazard & Pest Detection System
+# Smart Warehouse: Bio-Hazard and Pest Detection System
 
 </div>
 
 <div align="center">
 
-**AI-Powered Object Detection & Inventory Management for Modern Warehouses**
+**AI-Powered Pest Detection and Warehouse Monitoring for PT. Kawan Lama**
 
 ![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
 ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![Supabase](https://img.shields.io/badge/Supabase-3FCF8E?style=for-the-badge&logo=supabase&logoColor=white)
 ![Chart.js](https://img.shields.io/badge/Chart.js-FF6384?style=for-the-badge&logo=chartdotjs&logoColor=white)
 ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
 
@@ -32,9 +33,9 @@
 
 ## About the Project
 
-Smart Warehouse is a web based system designed to detect bio-hazard and pest presence in warehouse environments using simulated object detection. The system focuses on improving safety by identifying potentially harmful animals and preventing contamination.
+Smart Warehouse is a web-based system designed to detect bio-hazard and pest presence in warehouse environments using real AI object detection. The system focuses on improving safety by identifying potentially harmful animals such as snakes, cats, and geckos, and preventing contamination through automated alert mechanisms.
 
-In addition to detection, the system also includes warehouse monitoring features such as inventory tracking, zone management, and analytics to support operational efficiency.
+The platform connects to a live Supabase PostgreSQL database for all data operations and integrates with the Roboflow inference API for YOLOv8 based pest detection. There is no simulated or hardcoded data in the system. Every data point shown on the dashboard, analytics charts, and alert center is sourced directly from the database.
 
 This project was developed as part of a Software Engineering course at President University using the Scrum methodology.
 
@@ -44,21 +45,23 @@ This project focuses on detecting animals such as snakes, cats, and geckos that 
 
 ## Detection Workflow
 
-1. Camera captures real-time footage (simulated)  
-2. System processes the image  
-3. Object detection identifies potential pests (snake, cat, gecko)  
-4. System classifies the risk level  
-5. Alert is triggered for warehouse staff  
-6. Data is stored for monitoring and analysis  
+1. Operator uploads a warehouse image or captures from webcam
+2. Image is sent to the Roboflow YOLOv8 inference API
+3. AI model detects and classifies pest species with confidence scores
+4. System assigns threat severity levels (high, medium, low)
+5. Alerts are automatically created in the database
+6. Results are persisted to detection_results table for analytics
+7. Activity log records the scan event with the operator's name
 
 ### What This Project Does
 
-- Simulates real-time detection of harmful animals using bounding boxes  
-- Helps identify potential bio-hazards in warehouse environments  
-- Allows users to manage inventory items with search and filtering  
-- Monitors 6 warehouse zones with a visual floor plan  
-- Sends alerts when potential hazards are detected  
-- Provides analytics charts for decision making  
+- Performs real AI-powered detection of snakes, cats, and geckos using YOLOv8 via Roboflow
+- Stores all detection results, alerts, and activity logs in a live Supabase database
+- Provides role-based authentication with login, registration, and password recovery
+- Manages inventory items with search, filtering, and CRUD operations
+- Monitors 6 warehouse zones with camera surveillance tracking
+- Generates real-time analytics charts from actual database records
+- Sends severity-based alerts when pests are detected
 
 ---
 
@@ -70,8 +73,11 @@ This project focuses on detecting animals such as snakes, cats, and geckos that 
 ### Dashboard
 ![Dashboard](./docs/screenshots/dashboard.png)
 
-### Object Detection
-![Object Detection](./docs/screenshots/detection.png)
+### AI Pest Detection
+![AI Detection](./docs/screenshots/ai-detection.png)
+
+### Pest Simulator
+![Pest Simulator](./docs/screenshots/detection.png)
 
 ### Inventory Management
 ![Inventory](./docs/screenshots/inventory.png)
@@ -94,38 +100,40 @@ This project focuses on detecting animals such as snakes, cats, and geckos that 
 
 | Feature | Description |
 |---------|-------------|
-| **Authentication** | Role-based login system (Admin, Manager, Operator) with route protection |
-| **Dashboard** | Overview page with KPI cards, camera feeds, activity feed, and system health |
-| **Object Detection** | Canvas-based simulation with animated bounding boxes and a detection log |
-| **Inventory** | Full CRUD operations, search, category/zone filters, sortable table, CSV export |
-| **Alert Center** | Severity-based filtering (critical/warning/info), read/unread state |
-| **Analytics** | 5 chart types using Chart.js -- line, bar, doughnut, etc. |
+| **Authentication** | Supabase-based auth with role-based access (Admin, Manager, Operator), login, registration, and password reset |
+| **Dashboard** | Overview page with KPI cards, live camera feeds, activity feed, and system health indicators |
+| **AI Pest Detection** | Upload images for real YOLOv8 inference via Roboflow. Results are saved to the database with auto-alert creation |
+| **Pest Simulator** | Canvas-based visualization with animated bounding boxes and a live detection log |
+| **Inventory** | Full CRUD operations, search, category and zone filters, sortable table, CSV export |
+| **Alert Center** | Severity-based filtering (critical, warning, info), read and unread state management |
+| **Analytics** | 5 chart types powered by real database queries. Hourly trend, weekly distribution, species breakdown, zone activity, and threat resolution |
 | **Zone Management** | Interactive floor plan with utilization tracking per zone |
 | **Activity Log** | Audit trail with type-based filters and timeline view, exportable to CSV |
 | **Settings** | Profile editing, notification preferences, theme customization, security settings |
-| **Dark UI Theme** | Custom dark theme with glassmorphism effects and neon accents |
+| **Dark UI Theme** | Custom dark theme with glassmorphism effects and accent colors |
 
 ---
 
 ## Tech Stack
 
 | Layer | Technology | Purpose |
-|-------|-----------|---------| 
+|-------|-----------|---------|
 | **Build Tool** | Vite 8.x | Development server and bundling |
 | **Frontend** | React 19 | Component-based UI |
+| **Backend** | Supabase | PostgreSQL database, authentication, Row Level Security |
+| **AI Inference** | Roboflow API | YOLOv8 pest detection model hosting and inference |
 | **Styling** | Vanilla CSS | Custom design system with CSS variables |
-| **Charts** | Chart.js + react-chartjs-2 | Data visualization |
-| **Icons** | Lucide React | Icon system |
+| **Charts** | Chart.js + react-chartjs-2 | Data visualization from real database queries |
+| **Icons** | Lucide React + Custom SVG | Icon system with custom pest species icons |
 | **Routing** | React Router v6 | Client-side routing with auth guards |
-| **State** | Context API + useReducer | Global state management |
-| **Canvas** | HTML5 Canvas API | Object detection simulation |
+| **State** | Context API + useReducer | Global state management with Supabase data |
 
 ---
 
 ## Team Members and Roles
 
 | Scrum Role | Name | Student ID | Responsibilities |
-|------------|------|------------|-----------------| 
+|------------|------|------------|-----------------|
 | **Product Owner** | Risly Maria Theresia Worung | 001202400069 | Manages product vision, backlog prioritization, sprint acceptance |
 | **Scrum Master** | Sultan Zhalifunnas Musyaffa | 001202400200 | Facilitates ceremonies, removes blockers, ensures process adherence |
 | **Developer** | Misha Andalusia | 001202400040 | Frontend development, UI/UX, data export features |
@@ -138,12 +146,12 @@ This project focuses on detecting animals such as snakes, cats, and geckos that 
 | # | Backlog Item | Priority | Story Points | User Story |
 |---|-------------|----------|-------------|------------|
 | 1 | Dashboard Overview | High | 8 | As a manager, I want a real-time dashboard to monitor operations at a glance |
-| 2 | Object Detection Interface | High | 13 | As an operator, I want to see detected objects with bounding boxes |
+| 2 | AI Pest Detection Interface | High | 13 | As an operator, I want to upload images and detect pests using AI |
 | 3 | Inventory Management | High | 8 | As staff, I want to manage inventory items to track stock levels |
-| 4 | Real-Time Alert System | Medium | 5 | As a manager, I want alerts when unusual objects are detected |
-| 5 | Analytics and Reporting | Medium | 8 | As a manager, I want analytics for data-driven decisions |
+| 4 | Real-Time Alert System | Medium | 5 | As a manager, I want alerts when pests are detected in warehouse zones |
+| 5 | Analytics and Reporting | Medium | 8 | As a manager, I want analytics from real detection data for decision making |
 | 6 | Zone Management | Medium | 8 | As a planner, I want to define zones for location tracking |
-| 7 | User Authentication | Low | 5 | As an admin, I want role-based access control |
+| 7 | User Authentication | Low | 5 | As an admin, I want role-based access control with password recovery |
 | 8 | Activity Log and Audit Trail | Low | 5 | As an auditor, I want to review all system activities |
 
 **Total Story Points:** 60
@@ -162,14 +170,19 @@ This project focuses on detecting animals such as snakes, cats, and geckos that 
 ### Sprint 2 (Week 2) -- Enhancements
 - **Goal:** Settings page, export system, real-time notifications, RBAC, advanced filters
 - **Committed:** 23 points | **Delivered:** 23 points
-- **Report:** [SPRINT_2_REPORT.md](./SPRINT_2_REPORT.md)
+- **Report:** [SPRINT_2_REPORT.md](./docs/SPRINT_2_REPORT.md)
 - **Retrospective:** [SPRINT_2_RETROSPECTIVE.md](./docs/SPRINT_2_RETROSPECTIVE.md)
 
+### Sprint 3 (Week 3) -- Production Integration
+- **Goal:** Supabase backend, Roboflow AI integration, remove all mock data, password recovery, SVG icons
+- **Report:** [SPRINT_3_REPORT.md](./docs/SPRINT_3_REPORT.md)
+
 ### Other Documents
-- [Daily Standup Log](./docs/DAILY_STANDUP_LOG.md) -- Standup notes for all 8 days
-- [Sprint Review Notes](./docs/SPRINT_REVIEW_NOTES.md) -- Meeting notes from both sprint reviews
+- [Daily Standup Log](./docs/DAILY_STANDUP_LOG.md) -- Standup notes for all sessions
+- [Sprint Review Notes](./docs/SPRINT_REVIEW_NOTES.md) -- Meeting notes from sprint reviews
 - [Product Backlog](./docs/PRODUCT_BACKLOG.md) -- All 8 backlog items with user stories
-- [Architecture Overview](./docs/ARCHITECTURE.md) -- System design, state management, routing, use case diagram
+- [Architecture Overview](./docs/ARCHITECTURE.md) -- System design, state management, routing
+- [Database Design](./docs/DATABASE_DESIGN.md) -- Schema, tables, and relationships
 - [Burndown Charts](./docs/BURNDOWN_CHART.md) -- Sprint progress tracking with velocity data
 
 ---
@@ -179,6 +192,8 @@ This project focuses on detecting animals such as snakes, cats, and geckos that 
 ### Prerequisites
 - Node.js 18 or newer
 - npm or yarn
+- A Supabase project (free tier works)
+- A Roboflow account with a trained pest detection model (optional for initial setup)
 
 ### Installation
 
@@ -192,19 +207,37 @@ cd smart-warehouse
 # Install dependencies
 npm install
 
+# Copy the environment template and fill in your keys
+cp .env.example .env
+
 # Start the dev server
 npm run dev
 ```
+
+### Environment Variables
+
+Create a `.env` file in the project root with the following:
+
+```
+VITE_SUPABASE_URL=your_supabase_project_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+VITE_ROBOFLOW_API_KEY=your_roboflow_api_key
+VITE_ROBOFLOW_MODEL=your_model_slug
+VITE_ROBOFLOW_VERSION=1
+```
+
+### Database Setup
+
+1. Open your Supabase project SQL Editor
+2. Run `scripts/schema.sql` to create all tables and RLS policies
+3. Run `scripts/seed-data.sql` to populate with initial demo data
 
 Then open **http://localhost:5173** in your browser.
 
 ### Demo Credentials
 | User | Email | Role | Password |
 |------|-------|------|----------|
-| Risly | risly@warehouse.io | Admin | admin123 |
-| Misha | misha@warehouse.io | Manager | admin123 |
-| Fathir | fathir@warehouse.io | Operator | admin123 |
-| Sultan | sultan@warehouse.io | Admin | admin123 |
+| Sultan | sultan@smartwh.io | Admin | admin123 |
 
 ---
 
@@ -214,17 +247,20 @@ Then open **http://localhost:5173** in your browser.
 smart-warehouse/
 ├── src/
 │   ├── components/
-│   │   ├── common/           # Shared components (Toast, LiveEventSimulator)
+│   │   ├── common/           # Toast notifications
+│   │   ├── icons/            # Custom SVG pest icons (Snake, Cat, Gecko)
 │   │   └── layout/           # Sidebar, Header, Layout
-│   ├── context/              # AuthContext, WarehouseContext
-│   ├── data/                 # Mock data
-│   ├── pages/                # All 9 page components
+│   ├── context/              # AuthContext, WarehouseContext (Supabase)
+│   ├── lib/                  # Supabase client, database helper functions
+│   ├── pages/                # All 10 page components
 │   ├── utils/                # Export utilities
 │   ├── index.css             # Design system
-│   ├── App.jsx               # Root + routing
+│   ├── App.jsx               # Root component with routing
 │   └── main.jsx              # Entry point
+├── scripts/
+│   ├── schema.sql            # Database schema (tables, RLS, triggers)
+│   └── seed-data.sql         # Initial data for demo
 ├── docs/                     # Scrum documentation
-├── SPRINT_2_REPORT.md
 └── README.md
 ```
 
@@ -234,9 +270,10 @@ smart-warehouse/
 
 ### Definition of Done
 - Feature is implemented and working properly
-- Code follows the project's conventions
+- All data comes from the Supabase database, no hardcoded values
+- Code follows the project conventions
 - UI matches the design system
-- Feature tested manually, no console errors
+- Feature tested manually with no console errors
 - Code committed with a clear commit message
 - Reviewed by at least one team member
 

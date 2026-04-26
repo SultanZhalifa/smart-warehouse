@@ -1,10 +1,10 @@
 import { useWarehouse } from '../context/WarehouseContext';
-import { DETECTION_STATS, CAMERAS, CHART_DATA } from '../data/mockData';
 import {
   ScanSearch, Package, AlertTriangle, Camera, TrendingUp,
   Activity, Clock, Zap, ArrowUpRight, ArrowDownRight,
-  Box, Eye, Shield, Cpu
+  Eye, Shield, Cpu, Bug
 } from 'lucide-react';
+import { SnakeIcon, CatIcon, GeckoIcon, getPestLabel, StatusDot } from '../components/icons/PestIcons';
 import './DashboardPage.css';
 
 function KPICard({ icon: Icon, label, value, change, changeType, color, delay }) {
@@ -30,6 +30,8 @@ function KPICard({ icon: Icon, label, value, change, changeType, color, delay })
 
 function CameraFeed({ camera, index }) {
   const isOnline = camera.status === 'online';
+  const zoneName = camera.zones?.name || 'Unknown Zone';
+  
   return (
     <div className={`camera-feed ${!isOnline ? 'offline' : ''}`} style={{ animationDelay: `${index * 80}ms` }}>
       <div className="camera-feed-display">
@@ -41,17 +43,8 @@ function CameraFeed({ camera, index }) {
             <div className="camera-corner camera-corner-tr"></div>
             <div className="camera-corner camera-corner-bl"></div>
             <div className="camera-corner camera-corner-br"></div>
-            {/* Simulated detection boxes */}
-            {index % 2 === 0 && (
-              <div className="camera-detect-box" style={{ left: '15%', top: '30%', width: '30%', height: '40%' }}>
-                <span className="camera-detect-label">Box 97%</span>
-              </div>
-            )}
-            {index % 3 === 0 && (
-              <div className="camera-detect-box detect-yellow" style={{ left: '55%', top: '20%', width: '25%', height: '50%' }}>
-                <span className="camera-detect-label">Pallet 94%</span>
-              </div>
-            )}
+            {/* Zone badge */}
+            <div className="camera-zone-badge">{zoneName.split('\u2014')[0]?.trim()}</div>
           </>
         ) : (
           <div className="camera-offline-text">
@@ -62,7 +55,7 @@ function CameraFeed({ camera, index }) {
       </div>
       <div className="camera-feed-info">
         <div className="camera-feed-name">
-          <span className={`status-dot ${isOnline ? 'online' : 'danger'}`}></span>
+          <StatusDot status={isOnline ? 'online' : 'offline'} />
           {camera.name}
         </div>
         <span className="camera-feed-res">{camera.resolution}</span>
@@ -83,7 +76,7 @@ function ActivityItem({ log, index }) {
     approval: 'var(--color-accent-success)',
   };
 
-  const time = new Date(log.timestamp).toLocaleTimeString('en-US', {
+  const time = new Date(log.created_at).toLocaleTimeString('en-US', {
     hour: '2-digit', minute: '2-digit',
   });
 
@@ -92,7 +85,7 @@ function ActivityItem({ log, index }) {
       <div className="activity-dot" style={{ background: typeColors[log.type] || 'var(--color-text-tertiary)' }}></div>
       <div className="activity-content">
         <p className="activity-action">
-          <strong>{log.user}</strong> {log.action}
+          <strong>{log.user_name || 'System'}</strong> {log.action}
         </p>
         <p className="activity-target">{log.target}</p>
       </div>
@@ -103,31 +96,32 @@ function ActivityItem({ log, index }) {
 
 export default function DashboardPage() {
   const { state } = useWarehouse();
-  const stats = DETECTION_STATS;
+  const stats = state.detectionStats;
   const recentLogs = state.activityLog.slice(0, 8);
-  const criticalAlerts = state.alerts.filter((a) => a.type === 'critical' && !a.read);
+  const unreadAlerts = state.alerts.filter((a) => a.status === 'unread');
 
   const totalInventory = state.inventory.reduce((sum, item) => sum + item.quantity, 0);
-  const lowStockCount = state.inventory.filter((i) => i.status === 'low-stock' || i.status === 'out-of-stock').length;
+  const camerasOnline = stats.camerasOnline || state.cameras.filter(c => c.status === 'online').length;
+  const camerasTotal = stats.camerasTotal || state.cameras.length;
 
   return (
     <div className="page dashboard-page">
       {/* KPI Cards */}
       <div className="grid-4 kpi-grid">
         <KPICard
-          icon={ScanSearch}
-          label="Detections Today"
+          icon={Bug}
+          label="Pest Detections Today"
           value={stats.today.toLocaleString()}
-          change="13.1%"
-          changeType="up"
-          color="#4a90d9"
+          change={stats.today > 0 ? 'Active' : 'Clear'}
+          changeType={stats.today > 0 ? 'down' : 'up'}
+          color="#d95459"
           delay={0}
         />
         <KPICard
           icon={Package}
           label="Total Inventory"
           value={totalInventory.toLocaleString()}
-          change="3.2%"
+          change={totalInventory > 0 ? 'Tracked' : 'Empty'}
           changeType="up"
           color="#7c6cf0"
           delay={80}
@@ -135,18 +129,18 @@ export default function DashboardPage() {
         <KPICard
           icon={AlertTriangle}
           label="Active Alerts"
-          value={criticalAlerts.length}
-          change={criticalAlerts.length > 0 ? 'Action needed' : 'All clear'}
-          changeType={criticalAlerts.length > 0 ? 'down' : 'up'}
-          color={criticalAlerts.length > 0 ? '#d95459' : '#10b981'}
+          value={unreadAlerts.length}
+          change={unreadAlerts.length > 0 ? 'Action needed' : 'All clear'}
+          changeType={unreadAlerts.length > 0 ? 'down' : 'up'}
+          color={unreadAlerts.length > 0 ? '#d95459' : '#10b981'}
           delay={160}
         />
         <KPICard
           icon={Camera}
           label="Cameras Online"
-          value={`${stats.camerasOnline}/${stats.camerasTotal}`}
-          change={`${Math.round((stats.camerasOnline / stats.camerasTotal) * 100)}%`}
-          changeType={stats.camerasOnline === stats.camerasTotal ? 'up' : 'down'}
+          value={`${camerasOnline}/${camerasTotal}`}
+          change={camerasTotal > 0 ? `${Math.round((camerasOnline / camerasTotal) * 100)}%` : '0%'}
+          changeType={camerasOnline === camerasTotal ? 'up' : 'down'}
           color="#3db8a9"
           delay={240}
         />
@@ -156,11 +150,11 @@ export default function DashboardPage() {
       <div className="dashboard-stats-row">
         <div className="stat-pill">
           <Zap size={14} />
-          <span>Accuracy: <strong>{stats.accuracy}%</strong></span>
+          <span>Model: <strong>YOLOv8</strong></span>
         </div>
         <div className="stat-pill">
           <Clock size={14} />
-          <span>Avg Processing: <strong>{stats.avgProcessingTime}ms</strong></span>
+          <span>Target Species: <strong>Snake, Cat, Gecko</strong></span>
         </div>
         <div className="stat-pill">
           <Activity size={14} />
@@ -168,7 +162,7 @@ export default function DashboardPage() {
         </div>
         <div className="stat-pill">
           <TrendingUp size={14} />
-          <span>This Month: <strong>{stats.month.toLocaleString()}</strong> detections</span>
+          <span>Total: <strong>{stats.total.toLocaleString()}</strong> detections</span>
         </div>
       </div>
 
@@ -179,11 +173,11 @@ export default function DashboardPage() {
             <h2><Eye size={18} /> Live Camera Feeds</h2>
             <span className="badge badge-success">
               <span className="status-dot online"></span>
-              {stats.camerasOnline} Online
+              {camerasOnline} Online
             </span>
           </div>
           <div className="camera-grid">
-            {CAMERAS.map((camera, i) => (
+            {state.cameras.map((camera, i) => (
               <CameraFeed key={camera.id} camera={camera} index={i} />
             ))}
           </div>
@@ -196,9 +190,17 @@ export default function DashboardPage() {
             <span className="badge badge-primary">{state.activityLog.length} events</span>
           </div>
           <div className="activity-feed">
-            {recentLogs.map((log, i) => (
-              <ActivityItem key={log.id} log={log} index={i} />
-            ))}
+            {recentLogs.length > 0 ? (
+              recentLogs.map((log, i) => (
+                <ActivityItem key={log.id} log={log} index={i} />
+              ))
+            ) : (
+              <div className="empty-state-mini">
+                <Activity size={32} />
+                <p>No activity yet</p>
+                <span>Activity will appear here as you use the system</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -212,44 +214,44 @@ export default function DashboardPage() {
           <div className="health-card">
             <div className="health-bar-wrapper">
               <div className="health-bar-label">
-                <span>CPU Usage</span>
-                <span>34%</span>
+                <span>AI Model Status</span>
+                <span style={{ color: '#10b981' }}>Active</span>
               </div>
               <div className="health-bar">
-                <div className="health-bar-fill" style={{ width: '34%', background: 'var(--gradient-success)' }}></div>
+                <div className="health-bar-fill" style={{ width: '100%', background: 'var(--gradient-success)' }}></div>
               </div>
             </div>
           </div>
           <div className="health-card">
             <div className="health-bar-wrapper">
               <div className="health-bar-label">
-                <span>Memory</span>
-                <span>62%</span>
+                <span>Database Connection</span>
+                <span style={{ color: '#10b981' }}>Connected</span>
               </div>
               <div className="health-bar">
-                <div className="health-bar-fill" style={{ width: '62%', background: 'var(--gradient-primary)' }}></div>
+                <div className="health-bar-fill" style={{ width: '100%', background: 'var(--gradient-primary)' }}></div>
               </div>
             </div>
           </div>
           <div className="health-card">
             <div className="health-bar-wrapper">
               <div className="health-bar-label">
-                <span>GPU (Detection)</span>
-                <span>78%</span>
+                <span>Camera Coverage</span>
+                <span>{camerasTotal > 0 ? Math.round((camerasOnline / camerasTotal) * 100) : 0}%</span>
               </div>
               <div className="health-bar">
-                <div className="health-bar-fill" style={{ width: '78%', background: 'var(--gradient-secondary)' }}></div>
+                <div className="health-bar-fill" style={{ width: `${camerasTotal > 0 ? Math.round((camerasOnline / camerasTotal) * 100) : 0}%`, background: 'var(--gradient-secondary)' }}></div>
               </div>
             </div>
           </div>
           <div className="health-card">
             <div className="health-bar-wrapper">
               <div className="health-bar-label">
-                <span>Storage</span>
-                <span>45%</span>
+                <span>Alert Response</span>
+                <span>{unreadAlerts.length === 0 ? '100%' : `${Math.round(((state.alerts.length - unreadAlerts.length) / Math.max(state.alerts.length, 1)) * 100)}%`}</span>
               </div>
               <div className="health-bar">
-                <div className="health-bar-fill" style={{ width: '45%', background: 'linear-gradient(90deg, #3db8a9, #e5a035)' }}></div>
+                <div className="health-bar-fill" style={{ width: `${unreadAlerts.length === 0 ? 100 : Math.round(((state.alerts.length - unreadAlerts.length) / Math.max(state.alerts.length, 1)) * 100)}%`, background: 'linear-gradient(90deg, #3db8a9, #e5a035)' }}></div>
               </div>
             </div>
           </div>

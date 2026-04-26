@@ -235,6 +235,22 @@
   font-weight: 500;
 }
 
+/* --- Demo Mode Banner --- */
+.ai-det-demo-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.08), rgba(245, 158, 11, 0.06));
+  border: 1px solid rgba(234, 179, 8, 0.2);
+  color: #b45309;
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
 /* --- Stats Grid --- */
 .ai-det-stats-grid {
   display: grid;
@@ -444,3 +460,51 @@
   color: var(--color-text-primary);
   font-weight: 500;
 }
+
+/* --- Supabase Badge --- */
+.ai-det-badge.supabase {
+  background: linear-gradient(135deg, #10b98110, #059b6910);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.15);
+}
+
+/* --- Context Bar (Camera + Zone selectors) --- */
+.ai-det-context-bar {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.ai-det-context-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-text-tertiary);
+}
+
+.ai-det-context-item .input {
+  min-width: 220px;
+  font-size: 0.82rem;
+}
+
+/* --- Saved Badge --- */
+.ai-det-saved-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+  border-radius: var(--radius-full);
+  animation: fadeInUp 0.3s ease;
+}
+
+/* --- Severity Indicator --- */
+.ai-det-severity {
+  font-size: 0.85rem;
+  line-height: 1;
+}
+

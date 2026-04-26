@@ -302,6 +302,84 @@
   text-transform: capitalize;
 }
 
+/* Success message */
+.login-success {
+  padding: var(--space-sm) var(--space-md);
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: var(--radius-md);
+  color: #10b981;
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--space-md);
+}
+
+/* Toggle Login/Register */
+.login-toggle {
+  text-align: center;
+  margin-top: var(--space-lg);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--color-border);
+}
+
+.login-toggle p {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.login-toggle-btn {
+  background: none;
+  border: none;
+  color: var(--color-accent-primary);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  margin-left: var(--space-xs);
+  font-size: var(--font-size-sm);
+  transition: color 0.2s;
+}
+
+.login-toggle-btn:hover {
+  color: var(--color-accent-secondary);
+  text-decoration: underline;
+}
+
+/* PT. Kawan Lama branding */
+.login-brand-company {
+  font-size: var(--font-size-sm);
+  color: var(--color-accent-primary);
+  font-weight: 600;
+  margin-top: var(--space-xs);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Forgot Password */
+.login-forgot-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -4px;
+  margin-bottom: 4px;
+}
+
+.login-forgot-btn {
+  background: none;
+  border: none;
+  color: var(--color-accent-primary);
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 0;
+  transition: opacity 0.2s;
+}
+
+.login-forgot-btn:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .login-branding { display: none; }
@@ -312,5 +390,4 @@
 @media (max-width: 480px) {
   .login-container { max-width: 100%; border-radius: var(--radius-lg); }
   .login-form-section { padding: var(--space-md); }
-  .login-quick-buttons { grid-template-columns: 1fr; }
 }

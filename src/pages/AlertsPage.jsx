@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useWarehouse } from '../context/WarehouseContext';
-import { ZONES } from '../data/mockData';
+import * as db from '../lib/database';
 import {
   Bell, CheckCheck, Filter, AlertTriangle, AlertOctagon,
   Info, Clock, MapPin, Eye, EyeOff
@@ -14,21 +14,28 @@ const SEVERITY_CONFIG = {
 };
 
 export default function AlertsPage() {
-  const { state, dispatch } = useWarehouse();
+  const { state, dispatch, refreshData } = useWarehouse();
+  const zones = state.zones;
   const [filter, setFilter] = useState('all');
   const [showRead, setShowRead] = useState(true);
 
   const filtered = state.alerts.filter((a) => {
     if (filter !== 'all' && a.type !== filter) return false;
-    if (!showRead && a.read) return false;
+    if (!showRead && a.status === 'read') return false;
     return true;
   });
 
-  const unreadCount = state.alerts.filter((a) => !a.read).length;
-  const criticalCount = state.alerts.filter((a) => a.type === 'critical' && !a.read).length;
+  const unreadCount = state.alerts.filter((a) => a.status === 'unread').length;
+  const criticalCount = state.alerts.filter((a) => a.type === 'critical' && a.status === 'unread').length;
 
-  const markRead = (id) => dispatch({ type: 'MARK_ALERT_READ', payload: id });
-  const markAllRead = () => dispatch({ type: 'MARK_ALL_ALERTS_READ' });
+  const markRead = async (id) => {
+    await db.markAlertRead(id);
+    dispatch({ type: 'MARK_ALERT_READ', payload: id });
+  };
+  const markAllRead = async () => {
+    await db.markAllAlertsRead();
+    dispatch({ type: 'MARK_ALL_ALERTS_READ' });
+  };
 
   const timeAgo = (ts) => {
     const diff = Date.now() - new Date(ts).getTime();
@@ -69,7 +76,7 @@ export default function AlertsPage() {
         <div className="alert-stat-card">
           <AlertTriangle size={20} style={{ color: 'var(--color-accent-warning)' }} />
           <div>
-            <span className="alert-stat-value">{state.alerts.filter((a) => a.type === 'warning' && !a.read).length}</span>
+            <span className="alert-stat-value">{state.alerts.filter((a) => a.type === 'warning' && a.status === 'unread').length}</span>
             <span className="alert-stat-label">Warnings</span>
           </div>
         </div>
@@ -113,13 +120,13 @@ export default function AlertsPage() {
           filtered.map((alert, i) => {
             const config = SEVERITY_CONFIG[alert.type] || SEVERITY_CONFIG.info;
             const Icon = config.icon;
-            const zone = ZONES.find((z) => z.id === alert.zone);
+            const zone = alert.zones || zones.find((z) => z.id === alert.zone_id);
             return (
               <div
                 key={alert.id}
-                className={`alert-card ${alert.read ? 'read' : 'unread'} alert-${alert.type}`}
+                className={`alert-card ${alert.status === 'read' ? 'read' : 'unread'} alert-${alert.type}`}
                 style={{ animationDelay: `${i * 60}ms` }}
-                onClick={() => !alert.read && markRead(alert.id)}
+                onClick={() => alert.status === 'unread' && markRead(alert.id)}
               >
                 <div className="alert-icon-wrapper" style={{ background: config.bg, color: config.color }}>
                   <Icon size={20} />
@@ -127,16 +134,16 @@ export default function AlertsPage() {
                 <div className="alert-content">
                   <div className="alert-title-row">
                     <h3 className="alert-title">{alert.title}</h3>
-                    {!alert.read && <span className="alert-unread-dot"></span>}
+                    {alert.status === 'unread' && <span className="alert-unread-dot"></span>}
                   </div>
                   <p className="alert-message">{alert.message}</p>
                   <div className="alert-meta">
                     <span className="alert-meta-item">
-                      <Clock size={12} /> {timeAgo(alert.timestamp)}
+                      <Clock size={12} /> {timeAgo(alert.created_at)}
                     </span>
                     {zone && (
                       <span className="alert-meta-item">
-                        <MapPin size={12} /> {zone.name}
+                        <MapPin size={12} /> {zone?.name || ''}
                       </span>
                     )}
                     <span className={`badge badge-${alert.type === 'critical' ? 'danger' : alert.type === 'warning' ? 'warning' : 'info'}`} style={{ marginLeft: 'auto' }}>

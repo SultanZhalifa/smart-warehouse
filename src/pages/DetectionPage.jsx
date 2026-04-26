@@ -1,42 +1,54 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
-import { OBJECT_CLASSES, CAMERAS } from '../data/mockData';
+import { useWarehouse } from '../context/WarehouseContext';
 import {
-  Play, Pause, Camera, Maximize2, Settings, RefreshCw,
-  ZoomIn, ZoomOut, Grid3X3, ScanSearch, PieChart, Clock,
-  Package, Layers, Truck, HardHat, Cylinder, BoxSelect, Cog, LayoutGrid
+  Play, Pause, Camera, Grid3X3, ScanSearch, Clock,
+  ZoomIn, ZoomOut, Bug
 } from 'lucide-react';
+import { getPestIcon, getPestLabel, StatusDot } from '../components/icons/PestIcons';
 import './DetectionPage.css';
 
-const ICON_MAP = {
-  Package, Layers, Truck, HardHat, Cylinder, BoxSelect, Cog, LayoutGrid,
-};
+// Pest classes for detection — matches our Roboflow model targets
+const PEST_CLASSES = [
+  { id: 0, name: 'Snake', label: 'SNK', color: '#d95459' },
+  { id: 1, name: 'Cat', label: 'CAT', color: '#e5a035' },
+  { id: 2, name: 'Gecko', label: 'GKO', color: '#3db8a9' },
+];
 
-const DETECTION_OBJECTS = [
-  { cls: 0, x: 120, y: 80, w: 100, h: 80, vx: 0.3, vy: 0.15, conf: 0.97 },
-  { cls: 1, x: 350, y: 200, w: 130, h: 60, vx: -0.2, vy: 0.1, conf: 0.94 },
-  { cls: 3, x: 500, y: 150, w: 50, h: 90, vx: 0.5, vy: 0.2, conf: 0.91 },
-  { cls: 4, x: 200, y: 280, w: 60, h: 70, vx: 0.1, vy: -0.2, conf: 0.89 },
-  { cls: 5, x: 450, y: 50, w: 90, h: 70, vx: -0.3, vy: 0.15, conf: 0.96 },
-  { cls: 2, x: 80, y: 230, w: 110, h: 70, vx: 0.4, vy: -0.1, conf: 0.93 },
-  { cls: 7, x: 580, y: 280, w: 100, h: 90, vx: -0.15, vy: 0.1, conf: 0.98 },
+const SIMULATION_OBJECTS = [
+  { cls: 0, x: 120, y: 80, w: 110, h: 40, vx: 0.4, vy: 0.1, conf: 0.96 },
+  { cls: 1, x: 350, y: 200, w: 80, h: 70, vx: -0.3, vy: 0.2, conf: 0.94 },
+  { cls: 2, x: 500, y: 150, w: 40, h: 25, vx: 0.5, vy: -0.15, conf: 0.89 },
+  { cls: 0, x: 200, y: 280, w: 120, h: 35, vx: 0.2, vy: -0.1, conf: 0.92 },
+  { cls: 1, x: 450, y: 50, w: 70, h: 65, vx: -0.25, vy: 0.3, conf: 0.91 },
+  { cls: 2, x: 80, y: 230, w: 35, h: 20, vx: 0.35, vy: 0.2, conf: 0.87 },
 ];
 
 export default function DetectionPage() {
+  const { state } = useWarehouse();
+  const cameras = state.cameras;
   const canvasRef = useRef(null);
   const animRef = useRef(null);
-  const objectsRef = useRef(DETECTION_OBJECTS.map((o) => ({ ...o })));
+  const objectsRef = useRef(SIMULATION_OBJECTS.map((o) => ({ ...o })));
   const [isRunning, setIsRunning] = useState(true);
-  const [selectedCamera, setSelectedCamera] = useState(CAMERAS[0]);
+  const [selectedCamera, setSelectedCamera] = useState(null);
   const [detectionLog, setDetectionLog] = useState([]);
   const [totalDetections, setTotalDetections] = useState(0);
   const [showGrid, setShowGrid] = useState(true);
 
+  // Set default camera when data loads
+  useEffect(() => {
+    if (cameras.length > 0 && !selectedCamera) {
+      setSelectedCamera(cameras[0]);
+    }
+  }, [cameras, selectedCamera]);
+
   const addDetectionLog = useCallback((obj) => {
-    const cls = OBJECT_CLASSES[obj.cls];
+    const cls = PEST_CLASSES[obj.cls];
     setDetectionLog((prev) => [
       {
         id: Date.now() + Math.random(),
         class: cls.name,
+        label: cls.label,
         confidence: (obj.conf * 100).toFixed(1),
         time: new Date().toLocaleTimeString(),
         color: cls.color,
@@ -75,27 +87,25 @@ export default function DetectionPage() {
       const scanY = (frameCount * 1.5) % H;
       const scanGrad = ctx.createLinearGradient(0, scanY - 20, 0, scanY + 20);
       scanGrad.addColorStop(0, 'transparent');
-      scanGrad.addColorStop(0.5, 'rgba(0, 212, 255, 0.08)');
+      scanGrad.addColorStop(0.5, 'rgba(217, 84, 89, 0.08)');
       scanGrad.addColorStop(1, 'transparent');
       ctx.fillStyle = scanGrad;
       ctx.fillRect(0, scanY - 20, W, 40);
 
-      // Objects
+      // Objects — pests
       objectsRef.current.forEach((obj, i) => {
         if (!isRunning) return;
 
-        // Move
         obj.x += obj.vx;
         obj.y += obj.vy;
 
-        // Bounce
         if (obj.x <= 0 || obj.x + obj.w >= W) { obj.vx *= -1; obj.x = Math.max(0, Math.min(obj.x, W - obj.w)); }
         if (obj.y <= 0 || obj.y + obj.h >= H) { obj.vy *= -1; obj.y = Math.max(0, Math.min(obj.y, H - obj.h)); }
 
-        const cls = OBJECT_CLASSES[obj.cls];
+        const cls = PEST_CLASSES[obj.cls];
         const alpha = 0.6 + 0.4 * Math.sin(frameCount * 0.03 + i);
 
-        // Filled region (simulated object)
+        // Filled region
         ctx.fillStyle = cls.color + '15';
         ctx.fillRect(obj.x, obj.y, obj.w, obj.h);
 
@@ -110,52 +120,44 @@ export default function DetectionPage() {
         const cornerLen = 8;
         ctx.strokeStyle = cls.color;
         ctx.lineWidth = 3;
-        // TL
         ctx.beginPath(); ctx.moveTo(obj.x, obj.y + cornerLen); ctx.lineTo(obj.x, obj.y); ctx.lineTo(obj.x + cornerLen, obj.y); ctx.stroke();
-        // TR
         ctx.beginPath(); ctx.moveTo(obj.x + obj.w - cornerLen, obj.y); ctx.lineTo(obj.x + obj.w, obj.y); ctx.lineTo(obj.x + obj.w, obj.y + cornerLen); ctx.stroke();
-        // BL
         ctx.beginPath(); ctx.moveTo(obj.x, obj.y + obj.h - cornerLen); ctx.lineTo(obj.x, obj.y + obj.h); ctx.lineTo(obj.x + cornerLen, obj.y + obj.h); ctx.stroke();
-        // BR
         ctx.beginPath(); ctx.moveTo(obj.x + obj.w - cornerLen, obj.y + obj.h); ctx.lineTo(obj.x + obj.w, obj.y + obj.h); ctx.lineTo(obj.x + obj.w, obj.y + obj.h - cornerLen); ctx.stroke();
 
         // Label
-        const label = `${cls.name} ${(obj.conf * 100).toFixed(0)}%`;
+        const label = `${cls.emoji} ${cls.name} ${(obj.conf * 100).toFixed(0)}%`;
         ctx.font = '600 11px Inter, sans-serif';
         const textW = ctx.measureText(label).width;
         ctx.fillStyle = cls.color;
         ctx.fillRect(obj.x, obj.y - 18, textW + 10, 18);
-        ctx.fillStyle = '#1a2332';
+        ctx.fillStyle = '#ffffff';
         ctx.fillText(label, obj.x + 5, obj.y - 5);
 
-        // Log every 120 frames
-        if (frameCount % 120 === 0 && i === frameCount / 120 % objectsRef.current.length) {
+        // Log periodically
+        if (frameCount % 120 === 0 && i === Math.floor(frameCount / 120) % objectsRef.current.length) {
           addDetectionLog(obj);
         }
       });
 
-      // Corner markers for viewport
-      ctx.strokeStyle = 'var(--color-accent-primary)';
+      // Viewport corners
       ctx.lineWidth = 2;
       const cl2 = 30;
-      ctx.strokeStyle = '#4a90d9';
-      // TL
+      ctx.strokeStyle = '#d95459';
       ctx.beginPath(); ctx.moveTo(10, 10 + cl2); ctx.lineTo(10, 10); ctx.lineTo(10 + cl2, 10); ctx.stroke();
-      // TR
       ctx.beginPath(); ctx.moveTo(W - 10 - cl2, 10); ctx.lineTo(W - 10, 10); ctx.lineTo(W - 10, 10 + cl2); ctx.stroke();
-      // BL
       ctx.beginPath(); ctx.moveTo(10, H - 10 - cl2); ctx.lineTo(10, H - 10); ctx.lineTo(10 + cl2, H - 10); ctx.stroke();
-      // BR
       ctx.beginPath(); ctx.moveTo(W - 10 - cl2, H - 10); ctx.lineTo(W - 10, H - 10); ctx.lineTo(W - 10, H - 10 - cl2); ctx.stroke();
 
       // Timestamp overlay
+      const camLabel = selectedCamera ? selectedCamera.name : 'Camera 1';
+      const camRes = selectedCamera ? selectedCamera.resolution : '1920x1080';
       ctx.font = '600 11px Inter, monospace';
-      ctx.fillStyle = '#4a90d9';
-      ctx.fillText(new Date().toLocaleTimeString() + '  |  ' + selectedCamera.name + '  |  ' + selectedCamera.resolution, 20, H - 18);
+      ctx.fillStyle = '#d95459';
+      ctx.fillText(`${new Date().toLocaleTimeString()}  |  ${camLabel}  |  ${camRes}  |  PEST DETECTION`, 20, H - 18);
 
-      // FPS & Detection count
       ctx.textAlign = 'right';
-      ctx.fillText(`OBJECTS: ${objectsRef.current.length}  |  FPS: 30  |  MODEL: YOLOv8`, W - 20, H - 18);
+      ctx.fillText(`THREATS: ${objectsRef.current.length}  |  FPS: 30  |  MODEL: YOLOv8`, W - 20, H - 18);
       ctx.textAlign = 'left';
 
       frameCount++;
@@ -170,19 +172,19 @@ export default function DetectionPage() {
     <div className="page detection-page">
       <div className="page-header">
         <div>
-          <h1>Object Detection</h1>
-          <p>Real-time AI-powered object detection and tracking</p>
+          <h1><Bug size={22} /> Pest Detection Simulator</h1>
+          <p>Live visualization of bio-hazard pest detection in warehouse zones</p>
         </div>
         <div style={{ display: 'flex', gap: 'var(--space-sm)' }}>
           <select
             className="input"
-            value={selectedCamera.id}
-            onChange={(e) => setSelectedCamera(CAMERAS.find((c) => c.id === e.target.value) || CAMERAS[0])}
+            value={selectedCamera?.id || ''}
+            onChange={(e) => setSelectedCamera(cameras.find((c) => c.id === e.target.value) || cameras[0])}
             style={{ minWidth: 160 }}
           >
-            {CAMERAS.map((cam) => (
+            {cameras.map((cam) => (
               <option key={cam.id} value={cam.id}>
-                {cam.name} — {cam.status === 'online' ? '[ON]' : '[OFF]'} {cam.zone.replace('zone-', 'Zone ').toUpperCase()}
+                {cam.name} — {cam.zones?.name?.split('\u2014')[0]?.trim() || ''}
               </option>
             ))}
           </select>
@@ -215,20 +217,17 @@ export default function DetectionPage() {
             </div>
           </div>
 
-          {/* Object Classes Legend */}
+          {/* Pest Classes Legend */}
           <div className="detection-legend">
-            <h3><ScanSearch size={16} /> Detected Object Classes</h3>
+            <h3><Bug size={16} /> Target Pest Species</h3>
             <div className="legend-items">
-              {OBJECT_CLASSES.map((cls) => {
-                const IconComp = ICON_MAP[cls.icon];
-                return (
-                  <div key={cls.id} className="legend-item">
-                    <div className="legend-color" style={{ background: cls.color }}></div>
-                    <span className="legend-icon">{IconComp && <IconComp size={14} style={{ color: cls.color }} />}</span>
-                    <span>{cls.name}</span>
-                  </div>
-                );
-              })}
+              {PEST_CLASSES.map((cls) => (
+                <div key={cls.id} className="legend-item">
+                  <div className="legend-color" style={{ background: cls.color }}></div>
+                  <span className="legend-icon">{getPestIcon(cls.name, 16, cls.color)}</span>
+                  <span>{cls.name}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -237,21 +236,21 @@ export default function DetectionPage() {
         <div className="detection-sidebar">
           <div className="detection-sidebar-header">
             <h3><Clock size={16} /> Detection Log</h3>
-            <span className="badge badge-primary">{totalDetections} total</span>
+            <span className="badge badge-danger">{totalDetections} threats</span>
           </div>
           <div className="detection-log-list">
             {detectionLog.length === 0 ? (
               <div className="empty-state" style={{ padding: 'var(--space-xl)' }}>
                 <ScanSearch size={32} />
-                <h3>Waiting for detections...</h3>
-                <p>Detection events will appear here in real time</p>
+                <h3>Scanning for pests...</h3>
+                <p>Detections will appear here in real time</p>
               </div>
             ) : (
               detectionLog.map((log) => (
                 <div key={log.id} className="detection-log-item">
                   <div className="detection-log-dot" style={{ background: log.color }}></div>
                   <div className="detection-log-info">
-                    <span className="detection-log-class">{log.class}</span>
+                    <span className="detection-log-class">{getPestIcon(log.class, 14, log.color)} {log.class}</span>
                     <span className="detection-log-time">{log.time}</span>
                   </div>
                   <span className="detection-log-conf" style={{ color: log.color }}>{log.confidence}%</span>
@@ -263,7 +262,7 @@ export default function DetectionPage() {
           {/* Stats */}
           <div className="detection-sidebar-stats">
             <div className="detection-stat">
-              <span className="detection-stat-label">Objects Found</span>
+              <span className="detection-stat-label">Threats Found</span>
               <span className="detection-stat-value">{objectsRef.current.length}</span>
             </div>
             <div className="detection-stat">
@@ -272,11 +271,11 @@ export default function DetectionPage() {
             </div>
             <div className="detection-stat">
               <span className="detection-stat-label">Inference</span>
-              <span className="detection-stat-value">42ms</span>
+              <span className="detection-stat-value">~42ms</span>
             </div>
             <div className="detection-stat">
-              <span className="detection-stat-label">Accuracy</span>
-              <span className="detection-stat-value" style={{ color: 'var(--color-accent-success)' }}>97.3%</span>
+              <span className="detection-stat-label">Species</span>
+              <span className="detection-stat-value" style={{ color: 'var(--color-accent-danger)' }}>SNK CAT GKO</span>
             </div>
           </div>
         </div>

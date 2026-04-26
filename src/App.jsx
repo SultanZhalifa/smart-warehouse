@@ -75,13 +75,20 @@ function AppRoutes() {
   );
 }
 
+function AppInner() {
+  const { isAuthenticated } = useAuth();
+  return (
+    <WarehouseProvider isAuthenticated={isAuthenticated}>
+      <AppRoutes />
+    </WarehouseProvider>
+  );
+}
+
 export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <WarehouseProvider>
-          <AppRoutes />
-        </WarehouseProvider>
+        <AppInner />
       </AuthProvider>
     </BrowserRouter>
   );

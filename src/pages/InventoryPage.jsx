@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useWarehouse } from '../context/WarehouseContext';
-import { ZONES } from '../data/mockData';
+import * as db from '../lib/database';
 import { exportToCSV } from '../utils/exportUtils';
 import {
   Package, Plus, Search, Filter, Edit3, Trash2, X,
@@ -26,23 +26,24 @@ function statusBadge(status) {
 }
 
 export default function InventoryPage() {
-  const { state, dispatch, addToast } = useWarehouse();
+  const { state, dispatch, addToast, refreshData } = useWarehouse();
+  const zones = state.zones;
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('All');
   const [zoneFilter, setZoneFilter] = useState('All');
   const [showModal, setShowModal] = useState(false);
   const [editItem, setEditItem] = useState(null);
-  const [sortField, setSortField] = useState('id');
+  const [sortField, setSortField] = useState('item_code');
   const [sortDir, setSortDir] = useState('asc');
 
   // Form state
-  const [form, setForm] = useState({ name: '', category: 'Electronics', zone: 'zone-a', quantity: 0, minStock: 0, weight: 0 });
+  const [form, setForm] = useState({ name: '', category: 'Electronics', zone_id: zones[0]?.id || '', quantity: 0, min_stock: 0, weight: 0 });
 
   const filteredItems = state.inventory
     .filter((item) => {
-      const matchSearch = item.name.toLowerCase().includes(search.toLowerCase()) || item.id.toLowerCase().includes(search.toLowerCase());
+      const matchSearch = item.name.toLowerCase().includes(search.toLowerCase()) || (item.item_code || '').toLowerCase().includes(search.toLowerCase());
       const matchCategory = category === 'All' || item.category === category;
-      const matchZone = zoneFilter === 'All' || item.zone === zoneFilter;
+      const matchZone = zoneFilter === 'All' || item.zone_id === zoneFilter;
       return matchSearch && matchCategory && matchZone;
     })
     .sort((a, b) => {
@@ -59,42 +60,63 @@ export default function InventoryPage() {
 
   const openCreate = () => {
     setEditItem(null);
-    setForm({ name: '', category: 'Electronics', zone: 'zone-a', quantity: 0, minStock: 0, weight: 0 });
+    setForm({ name: '', category: 'Electronics', zone_id: zones[0]?.id || '', quantity: 0, min_stock: 0, weight: 0 });
     setShowModal(true);
   };
 
   const openEdit = (item) => {
     setEditItem(item);
-    setForm({ name: item.name, category: item.category, zone: item.zone, quantity: item.quantity, minStock: item.minStock, weight: item.weight });
+    setForm({ name: item.name, category: item.category, zone_id: item.zone_id, quantity: item.quantity, min_stock: item.min_stock, weight: item.weight });
     setShowModal(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!form.name.trim()) { addToast({ type: 'error', title: 'Validation Error', message: 'Item name is required' }); return; }
-    const status = form.quantity <= 0 ? 'out-of-stock' : form.quantity < form.minStock ? 'low-stock' : 'in-stock';
+    const status = Number(form.quantity) <= 0 ? 'out-of-stock' : Number(form.quantity) < Number(form.min_stock) ? 'low-stock' : 'in-stock';
 
-    if (editItem) {
-      dispatch({ type: 'UPDATE_INVENTORY_ITEM', payload: { ...editItem, ...form, status, quantity: Number(form.quantity), minStock: Number(form.minStock), weight: Number(form.weight) } });
-      addToast({ type: 'success', title: 'Item Updated', message: `${form.name} has been updated successfully` });
-    } else {
-      const newItem = {
-        id: `INV-${String(state.inventory.length + 1).padStart(3, '0')}`,
-        ...form,
-        quantity: Number(form.quantity),
-        minStock: Number(form.minStock),
-        weight: Number(form.weight),
-        status,
-        lastDetected: new Date().toISOString(),
-      };
-      dispatch({ type: 'ADD_INVENTORY_ITEM', payload: newItem });
-      addToast({ type: 'success', title: 'Item Created', message: `${form.name} has been added to inventory` });
+    try {
+      if (editItem) {
+        const updated = await db.updateInventoryItem(editItem.id, {
+          name: form.name,
+          category: form.category,
+          zone_id: form.zone_id,
+          quantity: Number(form.quantity),
+          min_stock: Number(form.min_stock),
+          weight: Number(form.weight),
+          status,
+        });
+        dispatch({ type: 'UPDATE_INVENTORY_ITEM', payload: updated });
+        addToast({ type: 'success', title: 'Item Updated', message: `${form.name} has been updated successfully` });
+      } else {
+        const newItem = await db.createInventoryItem({
+          item_code: `INV-${String(state.inventory.length + 1).padStart(3, '0')}`,
+          name: form.name,
+          category: form.category,
+          zone_id: form.zone_id,
+          quantity: Number(form.quantity),
+          min_stock: Number(form.min_stock),
+          weight: Number(form.weight),
+          status,
+          last_detected: new Date().toISOString(),
+        });
+        dispatch({ type: 'ADD_INVENTORY_ITEM', payload: newItem });
+        addToast({ type: 'success', title: 'Item Created', message: `${form.name} has been added to inventory` });
+      }
+      setShowModal(false);
+      refreshData();
+    } catch (err) {
+      addToast({ type: 'error', title: 'Error', message: err.message });
     }
-    setShowModal(false);
   };
 
-  const handleDelete = (item) => {
-    dispatch({ type: 'DELETE_INVENTORY_ITEM', payload: item.id });
-    addToast({ type: 'warning', title: 'Item Deleted', message: `${item.name} has been removed from inventory` });
+  const handleDelete = async (item) => {
+    try {
+      await db.deleteInventoryItem(item.id);
+      dispatch({ type: 'DELETE_INVENTORY_ITEM', payload: item.id });
+      addToast({ type: 'warning', title: 'Item Deleted', message: `${item.name} has been removed from inventory` });
+    } catch (err) {
+      addToast({ type: 'error', title: 'Error', message: err.message });
+    }
   };
 
   const totalItems = state.inventory.reduce((s, i) => s + i.quantity, 0);
@@ -111,9 +133,9 @@ export default function InventoryPage() {
         <div style={{ display: 'flex', gap: 'var(--space-sm)' }}>
           <button className="btn btn-secondary" onClick={() => {
             exportToCSV(filteredItems, 'inventory_export', [
-              { key: 'id', label: 'ID' }, { key: 'name', label: 'Name' },
-              { key: 'category', label: 'Category' }, { key: 'zone', label: 'Zone' },
-              { key: 'quantity', label: 'Quantity' }, { key: 'minStock', label: 'Min Stock' },
+              { key: 'item_code', label: 'ID' }, { key: 'name', label: 'Name' },
+              { key: 'category', label: 'Category' }, { key: 'zone_id', label: 'Zone' },
+              { key: 'quantity', label: 'Quantity' }, { key: 'min_stock', label: 'Min Stock' },
               { key: 'status', label: 'Status' }, { key: 'weight', label: 'Weight (kg)' },
             ]);
             addToast({ type: 'success', message: `Exported ${filteredItems.length} items to CSV` });
@@ -175,7 +197,7 @@ export default function InventoryPage() {
           <Filter size={14} />
           <select className="input" value={zoneFilter} onChange={(e) => setZoneFilter(e.target.value)} style={{ width: 150 }}>
             <option value="All">All Zones</option>
-            {ZONES.map((z) => <option key={z.id} value={z.id}>{z.name.split('—')[0].trim()}</option>)}
+            {zones.map((z) => <option key={z.id} value={z.id}>{z.name.split('—')[0].trim()}</option>)}
           </select>
         </div>
       </div>
@@ -198,15 +220,15 @@ export default function InventoryPage() {
           </thead>
           <tbody>
             {filteredItems.map((item) => {
-              const zone = ZONES.find((z) => z.id === item.zone);
+              const zone = zones.find((z) => z.id === item.zone_id);
               return (
                 <tr key={item.id}>
-                  <td><code style={{ color: 'var(--color-accent-primary)', fontSize: 'var(--font-size-xs)' }}>{item.id}</code></td>
+                  <td><code style={{ color: 'var(--color-accent-primary)', fontSize: 'var(--font-size-xs)' }}>{item.item_code}</code></td>
                   <td style={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>{item.name}</td>
                   <td><span className="badge badge-info">{item.category}</span></td>
                   <td>{zone ? zone.name.split('—')[0].trim() : item.zone}</td>
-                  <td style={{ fontWeight: 600 }}>{item.quantity.toLocaleString()}</td>
-                  <td>{item.minStock}</td>
+                  <td style={{ fontWeight: 600 }}>{(item.quantity || 0).toLocaleString()}</td>
+                  <td>{item.min_stock}</td>
                   <td>{statusBadge(item.status)}</td>
                   <td>{item.weight}</td>
                   <td>
@@ -251,8 +273,8 @@ export default function InventoryPage() {
                 </div>
                 <div className="input-group">
                   <label>Zone</label>
-                  <select className="input" value={form.zone} onChange={(e) => setForm({ ...form, zone: e.target.value })}>
-                    {ZONES.map((z) => <option key={z.id} value={z.id}>{z.name}</option>)}
+                  <select className="input" value={form.zone_id} onChange={(e) => setForm({ ...form, zone_id: e.target.value })}>
+                    {zones.map((z) => <option key={z.id} value={z.id}>{z.name}</option>)}
                   </select>
                 </div>
               </div>
@@ -263,7 +285,7 @@ export default function InventoryPage() {
                 </div>
                 <div className="input-group">
                   <label>Min Stock</label>
-                  <input className="input" type="number" value={form.minStock} onChange={(e) => setForm({ ...form, minStock: e.target.value })} />
+                  <input className="input" type="number" value={form.min_stock} onChange={(e) => setForm({ ...form, min_stock: e.target.value })} />
                 </div>
                 <div className="input-group">
                   <label>Weight (kg)</label>
