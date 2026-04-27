@@ -1,6 +1,7 @@
 """
 SmartWH Backend - FastAPI Server
 Handles AI pest detection inference via Roboflow YOLOv8 and persists results to Supabase.
+Uses httpx for direct Supabase REST API calls (PostgREST).
 """
 
 import os
@@ -12,7 +13,6 @@ import httpx
 from dotenv import load_dotenv
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from supabase import create_client
 
 load_dotenv()
 
@@ -24,7 +24,14 @@ ROBOFLOW_VERSION = os.getenv("ROBOFLOW_VERSION", "1")
 HOST = os.getenv("HOST", "0.0.0.0")
 PORT = int(os.getenv("PORT", "8000"))
 
-supabase = create_client(SUPABASE_URL, SUPABASE_KEY) if SUPABASE_URL and SUPABASE_KEY else None
+# Supabase REST API headers
+SUPABASE_HEADERS = {
+    "apikey": SUPABASE_KEY,
+    "Authorization": f"Bearer {SUPABASE_KEY}",
+    "Content-Type": "application/json",
+    "Prefer": "return=representation",
+}
+
 http_client = httpx.AsyncClient(timeout=30.0)
 
 app = FastAPI(
@@ -51,6 +58,29 @@ def get_severity(class_name: str) -> str:
     return SEVERITY_MAP.get(class_name.lower(), "low")
 
 
+async def supabase_insert(table: str, data: dict | list) -> list:
+    """Insert data into a Supabase table via REST API."""
+    if not SUPABASE_URL or not SUPABASE_KEY:
+        return []
+    url = f"{SUPABASE_URL}/rest/v1/{table}"
+    resp = await http_client.post(url, json=data, headers=SUPABASE_HEADERS)
+    if resp.status_code in (200, 201):
+        return resp.json()
+    print(f"[DB] Insert to {table} failed: {resp.status_code} {resp.text[:200]}")
+    return []
+
+
+async def supabase_select(table: str, select: str = "*", limit: int = 1) -> list:
+    """Select data from a Supabase table via REST API."""
+    if not SUPABASE_URL or not SUPABASE_KEY:
+        return []
+    url = f"{SUPABASE_URL}/rest/v1/{table}?select={select}&limit={limit}"
+    resp = await http_client.get(url, headers=SUPABASE_HEADERS)
+    if resp.status_code == 200:
+        return resp.json()
+    return []
+
+
 @app.get("/")
 async def root():
     return {"message": "SmartWH Pest Detection API", "status": "online"}
@@ -58,11 +88,12 @@ async def root():
 
 @app.get("/api/health")
 async def health_check():
+    """Returns server health, model info, and database connection status."""
     db_status = "disconnected"
-    if supabase:
+    if SUPABASE_URL and SUPABASE_KEY:
         try:
-            supabase.table("zones").select("id").limit(1).execute()
-            db_status = "connected"
+            result = await supabase_select("zones", "id", 1)
+            db_status = "connected" if isinstance(result, list) else "error"
         except Exception:
             db_status = "error"
 
@@ -84,20 +115,27 @@ async def detect_pests(
     confidence_threshold: int = Form(40),
     overlap_threshold: int = Form(30),
 ):
+    """
+    Run YOLOv8 pest detection on an uploaded image.
+    Accepts either a file upload or base64-encoded image.
+    Results are automatically saved to Supabase.
+    """
     if not ROBOFLOW_MODEL:
-        raise HTTPException(status_code=503, detail="Roboflow model not configured. Set ROBOFLOW_MODEL in backend/.env")
+        raise HTTPException(
+            status_code=503,
+            detail="Roboflow model not configured. Set ROBOFLOW_MODEL in backend/.env",
+        )
 
+    # Get image as base64
     if image and image.filename:
         raw_bytes = await image.read()
         img_base64 = base64.b64encode(raw_bytes).decode("utf-8")
     elif image_base64:
-        if "," in image_base64:
-            img_base64 = image_base64.split(",")[1]
-        else:
-            img_base64 = image_base64
+        img_base64 = image_base64.split(",")[1] if "," in image_base64 else image_base64
     else:
         raise HTTPException(status_code=400, detail="No image provided.")
 
+    # Call Roboflow API
     roboflow_url = f"https://detect.roboflow.com/{ROBOFLOW_MODEL}/{ROBOFLOW_VERSION}"
     params = {
         "api_key": ROBOFLOW_API_KEY,
@@ -113,7 +151,10 @@ async def detect_pests(
         )
         response.raise_for_status()
     except httpx.HTTPStatusError as e:
-        raise HTTPException(status_code=e.response.status_code, detail=f"Roboflow API error: {e.response.text}")
+        raise HTTPException(
+            status_code=e.response.status_code,
+            detail=f"Roboflow API error: {e.response.text}",
+        )
     except httpx.RequestError as e:
         raise HTTPException(status_code=502, detail=f"Failed to reach Roboflow: {str(e)}")
 
@@ -121,19 +162,23 @@ async def detect_pests(
     data = response.json()
     predictions = data.get("predictions", [])
 
+    # Save to Supabase
     detection_id = None
-    saved_results = []
+    saved_count = 0
 
-    if supabase and predictions:
+    if predictions:
         try:
-            det = supabase.table("detections").insert({
+            # 1. Create detection session
+            det_rows = await supabase_insert("detections", {
                 "total_objects": len(predictions),
                 "inference_time_ms": inference_ms,
                 "model_version": f"YOLOv8 ({ROBOFLOW_MODEL})",
-            }).execute()
+            })
 
-            if det.data:
-                detection_id = det.data[0]["id"]
+            if det_rows:
+                detection_id = det_rows[0]["id"]
+
+                # 2. Save individual detection results
                 results = [{
                     "detection_id": detection_id,
                     "class_name": p.get("class", "unknown"),
@@ -141,31 +186,35 @@ async def detect_pests(
                     "x": p.get("x", 0), "y": p.get("y", 0),
                     "width": p.get("width", 0), "height": p.get("height", 0),
                 } for p in predictions]
+                saved = await supabase_insert("detection_results", results)
+                saved_count = len(saved)
 
-                res = supabase.table("detection_results").insert(results).execute()
-                saved_results = res.data or []
-
+                # 3. Create alerts
                 for pred in predictions:
                     cls = pred.get("class", "unknown")
                     conf = pred.get("confidence", 0)
                     severity = get_severity(cls)
-                    supabase.table("alerts").insert({
+                    await supabase_insert("alerts", {
                         "type": "critical" if severity == "high" else "warning",
                         "severity": severity,
                         "title": f"{cls.capitalize()} Detected via AI Scan",
-                        "message": f"AI detected {cls} ({conf*100:.1f}% confidence).",
+                        "message": f"AI detected {cls} ({conf * 100:.1f}% confidence).",
                         "zone_id": zone_id if zone_id else None,
                         "animal_type": cls.lower(),
                         "status": "unread",
-                    }).execute()
+                    })
 
-                species_list = ", ".join(set(p.get("class", "unknown").capitalize() for p in predictions))
-                supabase.table("activity_log").insert({
+                # 4. Log activity
+                species = ", ".join(set(
+                    p.get("class", "unknown").capitalize() for p in predictions
+                ))
+                await supabase_insert("activity_log", {
                     "user_name": user_name,
                     "action": f"AI Pest Scan: {len(predictions)} detection{'s' if len(predictions) != 1 else ''}",
-                    "target": species_list,
+                    "target": species,
                     "type": "detection",
-                }).execute()
+                })
+
         except Exception as e:
             print(f"[DB] Failed to save results: {e}")
 
@@ -175,14 +224,17 @@ async def detect_pests(
         "inference_time_ms": inference_ms,
         "predictions": predictions,
         "total_detections": len(predictions),
-        "saved_results": len(saved_results),
+        "saved_results": saved_count,
         "model": ROBOFLOW_MODEL,
     }
 
 
 if __name__ == "__main__":
     import uvicorn
-    print(f"Starting SmartWH Backend on http://{HOST}:{PORT}")
-    print(f"Model: {ROBOFLOW_MODEL or 'NOT SET'}")
-    print(f"Database: {'Connected' if supabase else 'Not configured'}")
+
+    print(f"SmartWH Backend v1.0.0")
+    print(f"Server:   http://{HOST}:{PORT}")
+    print(f"Model:    {ROBOFLOW_MODEL or 'NOT SET -- update backend/.env'}")
+    print(f"Database: {'Configured' if SUPABASE_URL else 'Not configured'}")
+    print()
     uvicorn.run("app:app", host=HOST, port=PORT, reload=True)
