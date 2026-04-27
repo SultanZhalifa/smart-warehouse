@@ -1,20 +1,15 @@
 import { useState, useRef, useCallback } from 'react';
 import { useWarehouse } from '../context/WarehouseContext';
 import { useAuth } from '../context/AuthContext';
-import * as db from '../lib/database';
 import {
   Upload, ImagePlus, Loader2, X, Zap, Target,
-  Bug, AlertCircle, BarChart3, Camera, Save, Shield,
-  CheckCircle, AlertTriangle, Circle
+  Bug, AlertCircle, BarChart3, Camera, Shield,
+  CheckCircle
 } from 'lucide-react';
 import { getPestIcon, StatusDot } from '../components/icons/PestIcons';
 import './AIDetectionPage.css';
 
-// ----- Roboflow Config -----
-const ROBOFLOW_API_KEY = import.meta.env.VITE_ROBOFLOW_API_KEY || '';
-const ROBOFLOW_MODEL = import.meta.env.VITE_ROBOFLOW_MODEL || '';
-const ROBOFLOW_VERSION = import.meta.env.VITE_ROBOFLOW_VERSION || '1';
-const API_URL = `https://detect.roboflow.com/${ROBOFLOW_MODEL}/${ROBOFLOW_VERSION}`;
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
 
 // Pest-themed colors for detection classes
 const PEST_COLORS = {
@@ -36,10 +31,6 @@ function getColor(cls) {
   return PEST_COLORS[key] || PEST_COLORS.default;
 }
 
-function getLabel(cls) {
-  return (cls || 'unknown').charAt(0).toUpperCase() + (cls || 'unknown').slice(1);
-}
-
 function getSeverity(cls) {
   const key = cls?.toLowerCase() || '';
   if (['snake'].includes(key)) return 'high';
@@ -49,16 +40,16 @@ function getSeverity(cls) {
 }
 
 export default function AIDetectionPage() {
-  const { state, dispatch, addToast, refreshData } = useWarehouse();
+  const { state, addToast, refreshData } = useWarehouse();
   const { user } = useAuth();
   const cameras = state.cameras;
   const zones = state.zones;
 
   const [image, setImage] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [predictions, setPredictions] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
   const [inferenceTime, setInferenceTime] = useState(null);
@@ -81,6 +72,7 @@ export default function AIDetectionPage() {
     setPredictions([]);
     setInferenceTime(null);
     setSaved(false);
+    setImageFile(file);
 
     const reader = new FileReader();
     reader.onload = (ev) => {
@@ -101,11 +93,20 @@ export default function AIDetectionPage() {
     try {
       const base64 = image.split(',')[1];
       const startTime = performance.now();
+      const formData = new FormData();
+      if (imageFile) {
+        formData.append('image', imageFile);
+      } else {
+        formData.append('image_base64', base64);
+      }
+      formData.append('user_name', user?.name || user?.email || 'System');
+      if (selectedZone) formData.append('zone_id', selectedZone);
+      formData.append('confidence_threshold', '40');
+      formData.append('overlap_threshold', '30');
 
-      const response = await fetch(`${API_URL}?api_key=${ROBOFLOW_API_KEY}&confidence=40&overlap=30`, {
+      const response = await fetch(`${BACKEND_URL}/api/detect`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: base64,
+        body: formData,
       });
 
       const endTime = performance.now();
@@ -120,6 +121,8 @@ export default function AIDetectionPage() {
       const data = await response.json();
       const preds = data.predictions || [];
       setPredictions(preds);
+      setSaved(preds.length > 0 && data.saved_results >= 0);
+      refreshData();
 
       if (data.image) {
         setImageSize({ width: data.image.width, height: data.image.height });
@@ -139,84 +142,11 @@ export default function AIDetectionPage() {
         });
       }
     } catch (err) {
-      setError(`Network Error: ${err.message}. Check your internet connection.`);
+      setError(`Network Error: ${err.message}. Ensure backend is running at ${BACKEND_URL}.`);
     } finally {
       setLoading(false);
     }
-  }, [image, addToast]);
-
-  // Save detection results to Supabase
-  const saveToDatabase = useCallback(async () => {
-    if (predictions.length === 0) return;
-
-    setSaving(true);
-    try {
-      // 1. Create the detection record
-      const detection = await db.createDetection({
-        camera_id: selectedCamera || null,
-        zone_id: selectedZone || null,
-        image_url: null, // Could upload to storage in future
-        model_version: `roboflow-${ROBOFLOW_MODEL}-v${ROBOFLOW_VERSION}`,
-        inference_time_ms: inferenceTime,
-        total_objects: predictions.length,
-        status: 'completed',
-      });
-
-      // 2. Create detection results for each prediction
-      const results = predictions.map((p) => ({
-        detection_id: detection.id,
-        class_name: p.class,
-        confidence: p.confidence,
-        bbox_x: Math.round(p.x),
-        bbox_y: Math.round(p.y),
-        bbox_width: Math.round(p.width),
-        bbox_height: Math.round(p.height),
-      }));
-      await db.createDetectionResults(results);
-
-      // 3. Create alerts for dangerous pests
-      const uniqueClasses = [...new Set(predictions.map(p => p.class))];
-      for (const cls of uniqueClasses) {
-        const severity = getSeverity(cls);
-        const highConfPred = predictions
-          .filter(p => p.class === cls)
-          .sort((a, b) => b.confidence - a.confidence)[0];
-
-        const alert = await db.createAlert({
-          type: severity === 'high' ? 'critical' : 'warning',
-          severity,
-          title: `${getLabel(cls)} Detected via AI Scan`,
-          message: `AI detected ${cls} (${(highConfPred.confidence * 100).toFixed(1)}% confidence) in ${
-            zones.find(z => z.id === selectedZone)?.name || 'unspecified zone'
-          }. Immediate response recommended.`,
-          zone_id: selectedZone || null,
-          animal_type: cls.toLowerCase(),
-          status: 'unread',
-        });
-        dispatch({ type: 'ADD_ALERT', payload: alert });
-      }
-
-      // 4. Log the activity
-      await db.logActivity({
-        user_name: user?.name || 'System',
-        action: `AI Pest Scan: ${predictions.length} detections`,
-        target: uniqueClasses.map(c => getLabel(c)).join(', '),
-        type: 'detection',
-      });
-
-      setSaved(true);
-      addToast({
-        type: 'success',
-        title: 'Results Saved to Database',
-        message: `${predictions.length} detections + ${uniqueClasses.length} alert(s) created`,
-      });
-      refreshData();
-    } catch (err) {
-      addToast({ type: 'error', title: 'Save Failed', message: err.message });
-    } finally {
-      setSaving(false);
-    }
-  }, [predictions, selectedCamera, selectedZone, inferenceTime, zones, user, dispatch, addToast, refreshData]);
+  }, [image, imageFile, user, selectedZone, addToast, refreshData]);
 
   const handleImageLoad = useCallback(() => {
     const img = imgRef.current;
@@ -227,6 +157,7 @@ export default function AIDetectionPage() {
 
   const clearImage = useCallback(() => {
     setImage(null);
+    setImageFile(null);
     setImagePreview(null);
     setPredictions([]);
     setError('');
@@ -244,6 +175,7 @@ export default function AIDetectionPage() {
       reader.onload = (ev) => {
         setImagePreview(ev.target.result);
         setImage(ev.target.result);
+        setImageFile(file);
         setError('');
         setPredictions([]);
         setInferenceTime(null);
@@ -362,20 +294,6 @@ export default function AIDetectionPage() {
                       <><Zap size={14} /> Scan for Pests</>
                     )}
                   </button>
-                  {predictions.length > 0 && !saved && (
-                    <button
-                      className="btn btn-sm"
-                      onClick={saveToDatabase}
-                      disabled={saving}
-                      style={{ background: '#10b981', color: 'white', border: 'none' }}
-                    >
-                      {saving ? (
-                        <><Loader2 size={14} className="ai-det-spin" /> Saving...</>
-                      ) : (
-                        <><Save size={14} /> Save to DB</>
-                      )}
-                    </button>
-                  )}
                   {saved && (
                     <span className="ai-det-saved-badge">
                       <CheckCircle size={14} /> Saved

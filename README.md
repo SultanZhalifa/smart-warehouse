@@ -35,7 +35,7 @@
 
 Smart Warehouse is a web-based system designed to detect bio-hazard and pest presence in warehouse environments using real AI object detection. The system focuses on improving safety by identifying potentially harmful animals such as snakes, cats, and geckos, and preventing contamination through automated alert mechanisms.
 
-The platform connects to a live Supabase PostgreSQL database for all data operations and integrates with the Roboflow inference API for YOLOv8 based pest detection. There is no simulated or hardcoded data in the system. Every data point shown on the dashboard, analytics charts, and alert center is sourced directly from the database.
+The platform connects to a live Supabase PostgreSQL database for all data operations and routes AI detection through a FastAPI backend (`/api/detect`). In production mode, the backend calls Roboflow YOLOv8 inference. For local demos without model credentials, the backend provides a deterministic fallback response so the complete workflow can still be tested.
 
 This project was developed as part of a Software Engineering course at President University using the Scrum methodology.
 
@@ -46,12 +46,13 @@ This project focuses on detecting animals such as snakes, cats, and geckos that 
 ## Detection Workflow
 
 1. Operator uploads a warehouse image or captures from webcam
-2. Image is sent to the Roboflow YOLOv8 inference API
-3. AI model detects and classifies pest species with confidence scores
-4. System assigns threat severity levels (high, medium, low)
-5. Alerts are automatically created in the database
-6. Results are persisted to detection_results table for analytics
-7. Activity log records the scan event with the operator's name
+2. Image is sent to the FastAPI backend endpoint (`/api/detect`)
+3. Backend runs Roboflow inference (or demo fallback if model is not configured)
+4. AI model detects and classifies pest species with confidence scores
+5. System assigns threat severity levels (high, medium, low)
+6. Alerts are automatically created in the database
+7. Results are persisted to detection_results table for analytics
+8. Activity log records the scan event with the operator's name
 
 ### What This Project Does
 
@@ -102,7 +103,7 @@ This project focuses on detecting animals such as snakes, cats, and geckos that 
 |---------|-------------|
 | **Authentication** | Supabase-based auth with role-based access (Admin, Manager, Operator), login, registration, and password reset |
 | **Dashboard** | Overview page with KPI cards, live camera feeds, activity feed, and system health indicators |
-| **AI Pest Detection** | Upload images for real YOLOv8 inference via Roboflow. Results are saved to the database with auto-alert creation |
+| **AI Pest Detection** | Upload images to the FastAPI backend for YOLOv8 inference and automatic database persistence (detections, alerts, activity log) |
 | **Pest Simulator** | Canvas-based visualization with animated bounding boxes and a live detection log |
 | **Inventory** | Full CRUD operations, search, category and zone filters, sortable table, CSV export |
 | **Alert Center** | Severity-based filtering (critical, warning, info), read and unread state management |
@@ -120,7 +121,8 @@ This project focuses on detecting animals such as snakes, cats, and geckos that 
 |-------|-----------|---------|
 | **Build Tool** | Vite 8.x | Development server and bundling |
 | **Frontend** | React 19 | Component-based UI |
-| **Backend** | Supabase | PostgreSQL database, authentication, Row Level Security |
+| **Backend API** | FastAPI + Uvicorn | Detection endpoint, Roboflow integration, persistence orchestration |
+| **Database/Auth** | Supabase | PostgreSQL database, authentication, Row Level Security |
 | **AI Inference** | Roboflow API | YOLOv8 pest detection model hosting and inference |
 | **Styling** | Vanilla CSS | Custom design system with CSS variables |
 | **Charts** | Chart.js + react-chartjs-2 | Data visualization from real database queries |
@@ -221,9 +223,7 @@ Create a `.env` file in the project root with the following:
 ```
 VITE_SUPABASE_URL=your_supabase_project_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-VITE_ROBOFLOW_API_KEY=your_roboflow_api_key
-VITE_ROBOFLOW_MODEL=your_model_slug
-VITE_ROBOFLOW_VERSION=1
+VITE_BACKEND_URL=http://localhost:8000
 ```
 
 ### Database Setup
