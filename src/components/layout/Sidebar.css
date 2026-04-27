@@ -197,16 +197,38 @@
 }
 
 .sidebar-logout {
-  padding: 6px;
+  padding: 6px 8px;
   border-radius: var(--radius-sm);
   color: var(--color-text-tertiary);
   transition: all var(--transition-fast);
   flex-shrink: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.sidebar-logout--labeled {
+  padding: 6px 10px;
+}
+
+.sidebar-logout-text {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-secondary);
 }
 
 .sidebar-logout:hover {
   color: var(--color-accent-danger);
   background: rgba(217, 84, 89, 0.08);
+}
+
+.sidebar-logout:hover .sidebar-logout-text {
+  color: var(--color-accent-danger);
 }
 
 .sidebar-toggle {

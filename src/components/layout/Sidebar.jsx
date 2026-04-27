@@ -21,7 +21,7 @@ const navItems = [
 
 export default function Sidebar() {
   const { state, dispatch } = useWarehouse();
-  const { user, logout } = useAuth();
+  const { user, logout, isAuthenticated } = useAuth();
   const location = useLocation();
   const collapsed = state.sidebarCollapsed;
   const unreadAlerts = state.alerts.filter((a) => a.status === 'unread').length;
@@ -73,22 +73,26 @@ export default function Sidebar() {
 
       {/* User & Toggle */}
       <div className="sidebar-footer">
-        {user && (
+        {isAuthenticated && (
           <div className="sidebar-user">
-            <div className="sidebar-avatar">{user.avatar}</div>
+            <div className="sidebar-avatar">{user?.avatar ?? '?'}</div>
             {!collapsed && (
               <div className="sidebar-user-info">
-                <span className="sidebar-user-name">{user.name.split(' ')[0]}</span>
-                <span className="sidebar-user-role">{user.role}</span>
+                <span className="sidebar-user-name">
+                  {user?.name?.split(/\s+/)[0] || user?.email?.split('@')[0] || 'Account'}
+                </span>
+                <span className="sidebar-user-role">{user?.role ?? 'user'}</span>
               </div>
             )}
             <button
-              className="sidebar-logout"
+              type="button"
+              className={`sidebar-logout ${!collapsed ? 'sidebar-logout--labeled' : ''}`}
               onClick={logout}
               title="Logout"
               aria-label="Logout"
             >
               <LogOut size={16} />
+              {!collapsed && <span className="sidebar-logout-text">Logout</span>}
             </button>
           </div>
         )}

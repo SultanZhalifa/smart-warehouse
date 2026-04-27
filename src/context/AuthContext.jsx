@@ -5,6 +5,22 @@ import { Warehouse } from 'lucide-react';
 
 const AuthContext = createContext(null);
 
+/** Minimal user from Supabase session so UI (sidebar logout) works before profiles row loads. */
+function buildUserFromAuthSession(authUser) {
+  const meta = authUser.user_metadata || {};
+  const displayName = meta.full_name || authUser.email?.split('@')[0] || 'User';
+  const initials = meta.avatar_initials
+    || String(displayName).replace(/\s+/g, '').slice(0, 2).toUpperCase();
+  return {
+    id: authUser.id,
+    email: authUser.email,
+    name: displayName,
+    role: meta.role || 'operator',
+    studentId: null,
+    avatar: initials,
+  };
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
@@ -46,6 +62,7 @@ export function AuthProvider({ children }) {
       resolved = true;
       if (session?.user) {
         setIsAuthenticated(true);
+        setUser(buildUserFromAuthSession(session.user));
         loadProfile(session.user).finally(() => setLoading(false));
       } else {
         setLoading(false);
@@ -68,6 +85,7 @@ export function AuthProvider({ children }) {
       async (_event, session) => {
         if (session?.user) {
           setIsAuthenticated(true);
+          setUser(buildUserFromAuthSession(session.user));
           await loadProfile(session.user);
         } else {
           setUser(null);
@@ -90,7 +108,13 @@ export function AuthProvider({ children }) {
       password,
     });
     if (error) return { success: false, error: error.message };
-    return { success: true, user: data.user };
+    const authUser = data.user;
+    if (authUser) {
+      setIsAuthenticated(true);
+      setUser(buildUserFromAuthSession(authUser));
+      loadProfile(authUser);
+    }
+    return { success: true, user: authUser };
   };
 
   const register = async (email, password, fullName, role = 'operator') => {

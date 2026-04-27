@@ -68,7 +68,7 @@ function useTypingAnimation(texts, typingSpeed = 60, deletingSpeed = 35, pauseDu
 export default function Header() {
   const location = useLocation();
   const { state } = useWarehouse();
-  const { logout } = useAuth();
+  const { logout, isAuthenticated } = useAuth();
   const unreadAlerts = state.alerts.filter((a) => !a.read).length;
   const title = pageTitles[location.pathname] || 'Smart Warehouse';
   const [isFocused, setIsFocused] = useState(false);
@@ -116,15 +116,17 @@ export default function Header() {
             <Settings size={18} />
           </button>
 
-          <button
-            type="button"
-            className="header-action-btn header-logout-mobile"
-            onClick={() => logout()}
-            title="Logout"
-            aria-label="Logout"
-          >
-            <LogOut size={18} />
-          </button>
+          {isAuthenticated && (
+            <button
+              type="button"
+              className="header-action-btn header-logout-btn"
+              onClick={() => logout()}
+              title="Logout"
+              aria-label="Logout"
+            >
+              <LogOut size={18} />
+            </button>
+          )}
 
           <div className="header-status">
             <span className="status-dot online"></span>
