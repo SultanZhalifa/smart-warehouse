@@ -49,7 +49,7 @@
 | Write actual tests | Set up Vitest, write at least 5 unit tests for core components | Fathir | Sprint 3 |
 | Persist settings | Use localStorage to save theme preference, notification settings, profile data | Sultan | Sprint 3 |
 | Pull before push | Always run git pull --rebase before git push | Everyone | Sprint 3 |
-| Backend API | Start building a Node.js + Express backend to replace mock data | Fathir, Sultan | Sprint 3 |
+| Backend API | Add FastAPI service for `/api/detect` and wire Supabase persistence | Fathir, Sultan | Sprint 3 |
 | Deploy to Vercel | Get the app deployed so we can share a link instead of running locally | Sultan | Sprint 3 |
 
 ---

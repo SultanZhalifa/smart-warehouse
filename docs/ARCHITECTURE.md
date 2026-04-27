@@ -8,35 +8,17 @@ This document describes the technical architecture of the Smart Warehouse applic
 
 ```
 +---------------------------------------------------+
-|                    Browser (Client)                |
-|                                                   |
-|  +-------+  +----------+  +-------------------+  |
-|  | React |  | React    |  | Chart.js          |  |
-|  | Router|  | Context  |  | (Visualizations)  |  |
-|  +-------+  +----------+  +-------------------+  |
-|       |          |                |                |
-|  +-------------------------------------------------+
-|  |            Component Tree                       |
-|  |                                                 |
-|  |  App.jsx                                        |
-|  |    |-- LoginPage (public)                       |
-|  |    |-- Layout                                   |
-|  |         |-- Sidebar                             |
-|  |         |-- Header                              |
-|  |         |-- ToastContainer                      |
-|  |         |-- LiveEventSimulator                  |
-|  |         |-- [Page Component]                    |
-|  |              |-- DashboardPage                  |
-|  |              |-- DetectionPage                  |
-|  |              |-- InventoryPage                  |
-|  |              |-- AlertsPage                     |
-|  |              |-- AnalyticsPage (admin/manager)  |
-|  |              |-- ZonesPage                      |
-|  |              |-- ActivityPage (admin/manager)   |
-|  |              |-- SettingsPage                   |
-|  +-------------------------------------------------+
-|                                                   |
+|                    Browser (Client)              |
+|  React (Vite) + React Router + Context           |
+|  Supabase JS client  +  HTTP to FastAPI          |
 +---------------------------------------------------+
+          |                              |
+          v                              v
++------------------+            +-------------------+
+| Supabase         |            | FastAPI backend   |
+| PostgreSQL + Auth|            | /api/detect       |
+| REST + Realtime  |            | -> Roboflow API   |
++------------------+            +-------------------+
 ```
 
 ---
@@ -52,23 +34,19 @@ We use React Context API with useReducer for global state. There are two context
 - Used by LoginPage, Sidebar, RoleRoute, and all pages that need user info
 
 ### WarehouseContext
-- Manages all application data
-- Uses a reducer with these action types:
-  - ADD_INVENTORY_ITEM, UPDATE_INVENTORY_ITEM, DELETE_INVENTORY_ITEM
-  - MARK_ALERT_READ, MARK_ALL_ALERTS_READ
-  - ADD_ACTIVITY
-  - ADD_TOAST, REMOVE_TOAST
-- Automatically logs activities when inventory changes happen
+- Holds operational data loaded from Supabase after authentication (zones, cameras, inventory, alerts, and related views)
+- Uses a reducer for UI actions such as toasts, sidebar state, and merging refreshed query results into state
+- Page components call `src/lib/database.js` for CRUD and analytics; successful writes refresh context state where needed
 
 ```
 WarehouseContext
   |
-  |-- inventory[] -----> InventoryPage (CRUD)
-  |-- alerts[] --------> AlertsPage (read/filter)
-  |-- activities[] ----> ActivityPage (timeline)
-  |-- toasts[] --------> ToastContainer (auto-dismiss)
-  |-- zones[] ---------> ZonesPage (read-only)
-  |-- cameras[] -------> DashboardPage, DetectionPage
+  |-- inventory[] -----> InventoryPage (CRUD via Supabase)
+  |-- alerts[] --------> AlertsPage
+  |-- activities[] ----> ActivityPage
+  |-- toasts[] --------> ToastContainer
+  |-- zones[] ---------> ZonesPage
+  |-- cameras[] -------> DashboardPage, AIDetectionPage
 ```
 
 ---
@@ -96,34 +74,34 @@ Routes are defined in App.jsx. We use two wrapper components:
 
 ## Data Flow
 
-```
-User Action (click, form submit)
-       |
-       v
-Page Component calls dispatch()
-       |
-       v
-WarehouseContext Reducer processes action
-       |
-       +---> Updates inventory/alerts/activities state
-       +---> Auto-creates activity log entry (for CRUD)
-       +---> Fires toast notification
-       |
-       v
-React re-renders affected components
-```
-
-For the real-time notification system:
+Typical CRUD or alert action:
 
 ```
-LiveEventSimulator (runs in Layout)
+User action on a page
        |
-       | setInterval (25-45 seconds, randomized)
        v
-Generates random event (detection, alert, camera, inventory)
+Page calls database helper (src/lib/database.js)
        |
-       +---> dispatch(ADD_ACTIVITY) -> updates Activity Log
-       +---> dispatch(ADD_TOAST) -> shows toast popup
+       v
+Supabase PostgREST (RLS applies per authenticated user)
+       |
+       v
+Context refresh + toast + UI update
+```
+
+AI pest scan:
+
+```
+AIDetectionPage -> POST /api/detect (FastAPI, multipart or base64)
+       |
+       v
+Roboflow hosted inference (YOLOv8)
+       |
+       v
+Backend persists detections, detection_results, alerts, activity_log via Supabase REST (service role)
+       |
+       v
+Frontend refreshes warehouse data from Supabase
 ```
 
 ---
@@ -134,7 +112,6 @@ Generates random event (detection, alert, camera, inventory)
 src/
  |-- components/
  |    |-- common/
- |    |    |-- LiveEventSimulator.jsx   # Headless event generator
  |    |    |-- ToastContainer.jsx       # Toast notification display
  |    |-- layout/
  |         |-- Header.jsx              # Top bar with search
@@ -145,12 +122,14 @@ src/
  |    |-- AuthContext.jsx              # User auth state
  |    |-- WarehouseContext.jsx         # App data state
  |
- |-- data/
- |    |-- mockData.js                  # All sample data
+ |-- lib/
+ |    |-- supabase.js                  # Supabase client
+ |    |-- database.js                  # Supabase queries (CRUD, analytics)
  |
  |-- pages/
  |    |-- DashboardPage.jsx
- |    |-- DetectionPage.jsx            # Canvas simulation
+ |    |-- DetectionPage.jsx            # Canvas visualization (not Roboflow)
+ |    |-- AIDetectionPage.jsx         # Real inference via backend
  |    |-- InventoryPage.jsx            # CRUD + export
  |    |-- AlertsPage.jsx
  |    |-- AnalyticsPage.jsx            # Chart.js
@@ -164,6 +143,12 @@ src/
  |-- index.css                         # Design system tokens
  |-- App.jsx                           # Router + guards
  |-- main.jsx                          # Entry point
+
+backend/
+ |-- app.py                            # FastAPI + /api/detect
+ |-- seed.py                           # Database seeding via REST
+ |-- requirements.txt
+ |-- .env.example
 ```
 
 ---
@@ -224,9 +209,10 @@ src/
 | Vanilla CSS over Tailwind | More control over the dark theme, plus the team was more familiar with CSS |
 | useReducer over Redux | App state is not that complex, Context + useReducer is simpler and doesnt need extra dependencies |
 | Chart.js over D3 | Easier to use for standard chart types, good React wrapper available |
-| Canvas over SVG for detection | Better performance for animated bounding boxes at 30fps |
-| Mock data over backend | Time constraint -- building a proper backend would take another sprint |
+| Canvas on DetectionPage | Smooth animation for the warehouse visualization prototype |
+| Supabase PostgreSQL | Managed Postgres, auth, and RLS in one place |
+| FastAPI + Roboflow | Hosted YOLOv8 inference without bundling weights in the browser |
 
 ---
 
-Date: April 21, 2026
+Date: April 28, 2026

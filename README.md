@@ -35,7 +35,7 @@
 
 Smart Warehouse is a web-based system designed to detect bio-hazard and pest presence in warehouse environments using real AI object detection. The system focuses on improving safety by identifying potentially harmful animals such as snakes, cats, and geckos, and preventing contamination through automated alert mechanisms.
 
-The platform connects to a live Supabase PostgreSQL database for all data operations and routes AI detection through a FastAPI backend (`/api/detect`). In production mode, the backend calls Roboflow YOLOv8 inference. For local demos without model credentials, the backend provides a deterministic fallback response so the complete workflow can still be tested.
+The platform connects to a live Supabase PostgreSQL database for all data operations and routes AI detection through a FastAPI backend (`/api/detect`). Detection uses real YOLOv8 inference through the Roboflow API. You must configure `ROBOFLOW_MODEL` and `ROBOFLOW_API_KEY` in `backend/.env`; the backend does not return synthetic predictions.
 
 This project was developed as part of a Software Engineering course at President University using the Scrum methodology.
 
@@ -47,7 +47,7 @@ This project focuses on detecting animals such as snakes, cats, and geckos that 
 
 1. Operator uploads a warehouse image or captures from webcam
 2. Image is sent to the FastAPI backend endpoint (`/api/detect`)
-3. Backend runs Roboflow inference (or demo fallback if model is not configured)
+3. Backend calls Roboflow for YOLOv8 inference on the image
 4. AI model detects and classifies pest species with confidence scores
 5. System assigns threat severity levels (high, medium, low)
 6. Alerts are automatically created in the database
@@ -77,7 +77,9 @@ This project focuses on detecting animals such as snakes, cats, and geckos that 
 ### AI Pest Detection
 ![AI Detection](./docs/screenshots/ai-detection.png)
 
-### Pest Simulator
+### Pest Simulator (canvas visualization only)
+This page animates bounding boxes for UX and layout testing. It is not a substitute for the Roboflow model used on the AI Pest Detection page.
+
 ![Pest Simulator](./docs/screenshots/detection.png)
 
 ### Inventory Management
@@ -195,7 +197,7 @@ This project focuses on detecting animals such as snakes, cats, and geckos that 
 - Node.js 18 or newer
 - npm or yarn
 - A Supabase project (free tier works)
-- A Roboflow account with a trained pest detection model (optional for initial setup)
+- A Roboflow account, API key, and deployed model slug (required for AI Pest Detection)
 
 ### Installation
 
@@ -226,11 +228,23 @@ VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 VITE_BACKEND_URL=http://localhost:8000
 ```
 
+### Backend setup (AI detection)
+
+```bash
+cd backend
+cp .env.example .env
+# Edit .env: Supabase service key, Roboflow model slug and API key
+pip install -r requirements.txt
+python app.py
+```
+
+Use `GET /api/health` to confirm the database connection. The field `roboflow_configured` should be true before running scans.
+
 ### Database Setup
 
 1. Open your Supabase project SQL Editor
 2. Run `scripts/schema.sql` to create all tables and RLS policies
-3. Run `scripts/seed-data.sql` to populate with initial demo data
+3. Run `scripts/seed-data.sql` or `python backend/seed.py` to load initial warehouse records (real rows in PostgreSQL, reproducible from scripts)
 
 Then open **http://localhost:5173** in your browser.
 

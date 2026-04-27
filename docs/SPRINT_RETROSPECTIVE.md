@@ -40,8 +40,8 @@
 3. **No automated tests**  
    We were moving fast and didnt write any tests. All testing was done manually by clicking through the app. This works for now but its going to be a problem if we keep adding features.
 
-4. **Everything resets on refresh**  
-   The app only uses mock data with no persistence layer. When you refresh the page, any changes you made are gone. Its fine for a demo but not ideal.
+4. **No persistence in Sprint 1**  
+   Early in the project, data lived in memory and reset on refresh. That was acceptable for the first sprint, but we planned a real database layer for later sprints. Supabase integration in Sprint 3 addressed this.
 
 5. **Mobile responsiveness is limited**  
    The sidebar collapses on smaller screens but some pages like the Detection canvas and the Zone floor plan dont look great on mobile. We need to add better breakpoints.
@@ -54,7 +54,7 @@
 |------|--------|-----|------|
 | Path aliases | Configure `@/` alias in vite.config.js so imports are cleaner | Sultan | Sprint 2 |
 | Testing | Set up Vitest and React Testing Library, write tests for the main components | Fathir | Sprint 2 |
-| Data persistence | Use localStorage or IndexedDB so state survives page refresh | Fathir | Sprint 2 |
+| Data persistence | Move operational data to Supabase PostgreSQL with RLS | Team | Sprint 3 |
 | Setup documentation | Write a developer setup guide so new members dont run into the same env issues | Sultan | Sprint 2 |
 | Mobile support | Add responsive breakpoints for detection canvas and zone map | Misha | Sprint 2 |
 | Code reviews | Start doing PR reviews before merging to main | Everyone | Sprint 2 |

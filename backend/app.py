@@ -58,17 +58,6 @@ def get_severity(class_name: str) -> str:
     return SEVERITY_MAP.get(class_name.lower(), "low")
 
 
-def build_mock_predictions() -> list:
-    """
-    Demo fallback when Roboflow model is not configured.
-    Keeps the full app flow functional for presentation and testing.
-    """
-    return [
-        {"class": "gecko", "confidence": 0.87, "x": 245.0, "y": 180.0, "width": 92.0, "height": 55.0},
-        {"class": "cat", "confidence": 0.78, "x": 420.0, "y": 260.0, "width": 160.0, "height": 180.0},
-    ]
-
-
 async def supabase_insert(table: str, data: dict | list) -> list:
     """Insert data into a Supabase table via REST API."""
     if not SUPABASE_URL or not SUPABASE_KEY:
@@ -112,6 +101,7 @@ async def health_check():
         "status": "online",
         "model": ROBOFLOW_MODEL or "not configured",
         "model_version": ROBOFLOW_VERSION,
+        "roboflow_configured": bool(ROBOFLOW_MODEL and ROBOFLOW_API_KEY),
         "database": db_status,
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }
@@ -140,37 +130,36 @@ async def detect_pests(
     else:
         raise HTTPException(status_code=400, detail="No image provided.")
 
-    start_time = time.time()
     if not ROBOFLOW_MODEL or not ROBOFLOW_API_KEY:
-        # If model credentials are not configured, use deterministic mock output.
-        print("[AI] Using mock predictions (ROBOFLOW_MODEL or ROBOFLOW_API_KEY not configured).")
-        predictions = build_mock_predictions()
-        inference_ms = int((time.time() - start_time) * 1000)
-    else:
-        # Call Roboflow API
-        roboflow_url = f"https://detect.roboflow.com/{ROBOFLOW_MODEL}/{ROBOFLOW_VERSION}"
-        params = {
-            "api_key": ROBOFLOW_API_KEY,
-            "confidence": confidence_threshold,
-            "overlap": overlap_threshold,
-        }
-        try:
-            response = await http_client.post(
-                roboflow_url, params=params, content=img_base64,
-                headers={"Content-Type": "application/x-www-form-urlencoded"},
-            )
-            response.raise_for_status()
-        except httpx.HTTPStatusError as e:
-            raise HTTPException(
-                status_code=e.response.status_code,
-                detail=f"Roboflow API error: {e.response.text}",
-            )
-        except httpx.RequestError as e:
-            raise HTTPException(status_code=502, detail=f"Failed to reach Roboflow: {str(e)}")
+        raise HTTPException(
+            status_code=503,
+            detail="Roboflow is not configured. Set ROBOFLOW_MODEL and ROBOFLOW_API_KEY in backend/.env",
+        )
 
-        inference_ms = int((time.time() - start_time) * 1000)
-        data = response.json()
-        predictions = data.get("predictions", [])
+    start_time = time.time()
+    roboflow_url = f"https://detect.roboflow.com/{ROBOFLOW_MODEL}/{ROBOFLOW_VERSION}"
+    params = {
+        "api_key": ROBOFLOW_API_KEY,
+        "confidence": confidence_threshold,
+        "overlap": overlap_threshold,
+    }
+    try:
+        response = await http_client.post(
+            roboflow_url, params=params, content=img_base64,
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+        )
+        response.raise_for_status()
+    except httpx.HTTPStatusError as e:
+        raise HTTPException(
+            status_code=e.response.status_code,
+            detail=f"Roboflow API error: {e.response.text}",
+        )
+    except httpx.RequestError as e:
+        raise HTTPException(status_code=502, detail=f"Failed to reach Roboflow: {str(e)}")
+
+    inference_ms = int((time.time() - start_time) * 1000)
+    data = response.json()
+    predictions = data.get("predictions", [])
 
     # Save to Supabase
     detection_id = None
@@ -235,7 +224,7 @@ async def detect_pests(
         "predictions": predictions,
         "total_detections": len(predictions),
         "saved_results": saved_count,
-        "model": ROBOFLOW_MODEL or "mock-fallback",
+        "model": ROBOFLOW_MODEL,
     }
 
 

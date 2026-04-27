@@ -4,6 +4,8 @@
 **Sprint:** Sprint 1 (Week 1)  
 **Facilitator:** Sultan Zhalifunnas Musyaffa (Scrum Master)
 
+These notes reflect what the team did at the time. Early sprints used in-memory sample data; production data later moved to Supabase PostgreSQL (see Sprint 3 documentation).
+
 ---
 
 ## Day 1 -- Monday, April 14, 2026

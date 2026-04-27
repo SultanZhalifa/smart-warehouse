@@ -68,7 +68,7 @@ This sprint also included cleanup and documentation updates to meet course submi
 
 3. **Emoji cross-platform inconsistency.** Unicode emoji render differently across operating systems and browsers, which would have been a problem during the competition demo on an unfamiliar machine. Switching to SVG icons ensures pixel-perfect rendering regardless of the environment.
 
-4. **Roboflow model readiness.** Pest-specific model availability was still in progress. To protect demo stability, the system required safe fallback behavior while keeping the integration path ready.
+4. **Roboflow model readiness.** The team needed a pest-focused YOLOv8 deployment on Roboflow with a stable model slug and API access so every scan returns real inference output, not placeholder logic.
 
 ---
 
@@ -79,13 +79,13 @@ This sprint also included cleanup and documentation updates to meet course submi
 | Auth lock timeout | Custom localStorage adapter with implicit flow type and 3 second fallback timer |
 | Hardcoded analytics | Five new database query functions that aggregate from detection_results and alerts tables |
 | Emoji rendering | Custom PestIcons.jsx component with SVG paths for each species |
-| Model readiness gap | Backend fallback path prepared while keeping Roboflow integration configurable for final model handoff |
+| Model readiness gap | Finalize Roboflow project, train or deploy the model, then set `ROBOFLOW_MODEL` and `ROBOFLOW_API_KEY` in `backend/.env` |
 
 ---
 
 ## Plan for Final Delivery
 
-1. **Train the Roboflow model.** Collect and annotate snake, cat, and gecko images on Roboflow Universe, then train a YOLOv8 model using Roboflow Train. Deploy the model and update the VITE_ROBOFLOW_MODEL environment variable.
+1. **Train the Roboflow model.** Collect and annotate snake, cat, and gecko images on Roboflow Universe, then train a YOLOv8 model using Roboflow Train. Deploy the model and set `ROBOFLOW_MODEL` and `ROBOFLOW_API_KEY` in `backend/.env` (the frontend calls the backend only).
 
 2. **Live demonstration preparation.** Test the full detection workflow end to end with the webcam and uploaded photos. Ensure alert creation, activity logging, and analytics chart updates work in real time during the demo.
 

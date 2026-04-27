@@ -147,7 +147,7 @@ Integrate real backend and database services, connect AI detection flow end-to-e
 ### Solutions
 - Custom storage/session handling strategy
 - Dedicated query functions and empty-state handling
-- Prepared fallback and staged model integration plan
+- Finalize Roboflow model deployment and environment configuration so all scans use live inference
 
 ### Plan for Final Delivery
 - Final end-to-end demo rehearsal
