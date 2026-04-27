@@ -20,7 +20,9 @@
 
 ## 1. Sprint Goal
 
-Our main goal for Sprint 1 was to get the entire project foundation in place and deliver the core features that users will interact with. Specifically, we aimed to:
+Sprint 1 focused on building a stable project foundation and delivering the core features users interact with first. The team agreed to prioritize setup quality so the next sprints could move faster with fewer rework cycles.
+
+Main targets in this sprint:
 
 - Set up the project architecture using Vite and React
 - Build a custom dark themed UI with a consistent design system
@@ -43,7 +45,7 @@ Our main goal for Sprint 1 was to get the entire project foundation in place and
 
 ## 2. Progress Completed
 
-All Sprint 1 items were completed on time. No items were carried over.
+All planned Sprint 1 items were completed within the sprint window, with no carry-over tasks.
 
 | Task | Status | Notes |
 |------|--------|-------|
@@ -59,9 +61,9 @@ All Sprint 1 items were completed on time. No items were carried over.
 | Mock Data | Done | 12 inventory items, 6 zones, 8 alerts, 8 cameras, 4 users |
 | Routing | Done | Protected and public routes with React Router v6 |
 
-### Extra -- Delivered Ahead of Schedule
+### Extra Work Delivered Ahead of Schedule
 
-The foundation went up quicker than expected so we kept going and finished the remaining backlog items too:
+After core setup was stabilized, the team used remaining capacity to complete additional backlog items:
 
 | Task | Was Planned For | Status |
 |------|----------------|--------|
@@ -114,7 +116,7 @@ The foundation went up quicker than expected so we kept going and finished the r
 
 ---
 
-## 4. Challenges
+## 4. Challenges Encountered
 
 | # | Problem | Impact | Severity |
 |---|---------|--------|----------|
@@ -128,7 +130,7 @@ The foundation went up quicker than expected so we kept going and finished the r
 
 ---
 
-## 5. Solutions
+## 5. Solutions Applied
 
 | # | Problem | How We Fixed It |
 |---|---------|----------------|
@@ -144,7 +146,7 @@ The foundation went up quicker than expected so we kept going and finished the r
 
 ## 6. Plan for Week 2
 
-Since we finished all 8 backlog items early, Sprint 2 is going to focus on enhancements and polish:
+Because core pages were already functional, Sprint 2 was planned as an enhancement and hardening sprint:
 
 | # | Task | Priority | Assigned To | Points |
 |---|------|----------|-------------|--------|
@@ -175,5 +177,6 @@ Since we finished all 8 backlog items early, Sprint 2 is going to focus on enhan
 
 ---
 
-  
+Sprint 1 closed with a usable end-to-end prototype and clear direction for moving from prototype quality to production-ready behavior.
+
 Date: April 17, 2026

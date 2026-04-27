@@ -7,9 +7,9 @@
 
 ## Sprint Goal
 
-The main objective of Sprint 3 was to transition SmartWH from a frontend prototype with mock data into a fully functional production system. This involved connecting every page to a live Supabase database, integrating the Roboflow YOLOv8 inference API for real pest detection, adding password recovery functionality, and replacing all placeholder graphics with scalable vector icons.
+Sprint 3 was the transition sprint from prototype behavior to real system behavior. The team focused on connecting the frontend to live Supabase data, integrating AI detection through backend services, and preparing the project for a reliable live demo.
 
-The sprint also addressed documentation and code quality improvements required for the academic evaluation and hackathon presentation.
+This sprint also included cleanup and documentation updates to meet course submission and competition presentation standards.
 
 ---
 
@@ -22,7 +22,7 @@ The sprint also addressed documentation and code quality improvements required f
 - Created a schema migration script (`schema.sql`) and a seed data script (`seed-data.sql`) for reproducible database setup.
 
 ### AI Detection System (Roboflow)
-- Built the AI Pest Detection page with drag-and-drop image upload and real-time YOLOv8 inference via the Roboflow API.
+- Implemented AI detection flow with image upload and YOLOv8 inference integration through backend orchestration.
 - Detection results are automatically persisted to the `detections` and `detection_results` tables in Supabase.
 - The system creates alerts in the database whenever pests are identified, categorized by severity (high for snakes, medium for cats and geckos).
 - Each scan event is logged to the activity log with the operator's name and detected species.
@@ -45,7 +45,7 @@ The sprint also addressed documentation and code quality improvements required f
 ### Cleanup
 - Removed the LiveEventSimulator component, which was generating fake database entries on a timer.
 - Deleted the legacy `mockData.js` file.
-- Cleared the old Roboflow model reference from the environment configuration.
+- Updated environment usage to support backend-driven detection configuration.
 
 ---
 
@@ -68,7 +68,7 @@ The sprint also addressed documentation and code quality improvements required f
 
 3. **Emoji cross-platform inconsistency.** Unicode emoji render differently across operating systems and browsers, which would have been a problem during the competition demo on an unfamiliar machine. Switching to SVG icons ensures pixel-perfect rendering regardless of the environment.
 
-4. **Roboflow model availability.** The original warehouse object detection model was not designed for pest species. A new pest-specific model needs to be trained before the live demonstration. The codebase is prepared and will connect to the new model endpoint as soon as it is deployed.
+4. **Roboflow model readiness.** Pest-specific model availability was still in progress. To protect demo stability, the system required safe fallback behavior while keeping the integration path ready.
 
 ---
 
@@ -79,11 +79,11 @@ The sprint also addressed documentation and code quality improvements required f
 | Auth lock timeout | Custom localStorage adapter with implicit flow type and 3 second fallback timer |
 | Hardcoded analytics | Five new database query functions that aggregate from detection_results and alerts tables |
 | Emoji rendering | Custom PestIcons.jsx component with SVG paths for each species |
-| Missing pest model | Roboflow project created, dataset collection in progress, codebase ready for plug-and-play integration |
+| Model readiness gap | Backend fallback path prepared while keeping Roboflow integration configurable for final model handoff |
 
 ---
 
-## Plan for Sprint 3 Continuation and Final Delivery
+## Plan for Final Delivery
 
 1. **Train the Roboflow model.** Collect and annotate snake, cat, and gecko images on Roboflow Universe, then train a YOLOv8 model using Roboflow Train. Deploy the model and update the VITE_ROBOFLOW_MODEL environment variable.
 
@@ -96,3 +96,7 @@ The sprint also addressed documentation and code quality improvements required f
 5. **Update documentation and screenshots.** Capture fresh screenshots of all pages with populated data and update the README and sprint documentation accordingly.
 
 6. **Final code review.** Ensure all files pass linting, there are no console errors, and the application handles edge cases gracefully.
+
+---
+
+Sprint 3 closed with the core architecture already connected to live services and a workable demo path prepared for final presentation.
