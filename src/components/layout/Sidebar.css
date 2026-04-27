@@ -231,8 +231,7 @@
   .sidebar .sidebar-logo-text,
   .sidebar .sidebar-nav-label,
   .sidebar .sidebar-badge:not(.sidebar-badge-dot),
-  .sidebar .sidebar-user-info,
-  .sidebar .sidebar-logout { display: none; }
+  .sidebar .sidebar-user-info { display: none; }
   .sidebar .sidebar-badge-dot { display: block; }
 }
 

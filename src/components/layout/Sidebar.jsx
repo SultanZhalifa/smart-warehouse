@@ -82,11 +82,14 @@ export default function Sidebar() {
                 <span className="sidebar-user-role">{user.role}</span>
               </div>
             )}
-            {!collapsed && (
-              <button className="sidebar-logout" onClick={logout} title="Logout">
-                <LogOut size={16} />
-              </button>
-            )}
+            <button
+              className="sidebar-logout"
+              onClick={logout}
+              title="Logout"
+              aria-label="Logout"
+            >
+              <LogOut size={16} />
+            </button>
           </div>
         )}
         <button

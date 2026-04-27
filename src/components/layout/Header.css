@@ -175,3 +175,14 @@
   .header-status { display: none; }
   .header-search-kbd { display: none; }
 }
+
+/* Logout in header only when sidebar is hidden (mobile layout) */
+.header-logout-mobile {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .header-logout-mobile {
+    display: flex;
+  }
+}

@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useWarehouse } from '../../context/WarehouseContext';
-import { Search, Bell, Settings } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import { Search, Bell, Settings, LogOut } from 'lucide-react';
 import './Header.css';
 
 const pageTitles = {
@@ -13,6 +14,7 @@ const pageTitles = {
   '/zones': 'Zone Management',
   '/activity': 'Activity Log',
   '/settings': 'Settings',
+  '/ai-detection': 'AI Pest Detection',
 };
 
 const searchSuggestions = [
@@ -66,6 +68,7 @@ function useTypingAnimation(texts, typingSpeed = 60, deletingSpeed = 35, pauseDu
 export default function Header() {
   const location = useLocation();
   const { state } = useWarehouse();
+  const { logout } = useAuth();
   const unreadAlerts = state.alerts.filter((a) => !a.read).length;
   const title = pageTitles[location.pathname] || 'Smart Warehouse';
   const [isFocused, setIsFocused] = useState(false);
@@ -111,6 +114,16 @@ export default function Header() {
           </button>
           <button className="header-action-btn" title="Settings">
             <Settings size={18} />
+          </button>
+
+          <button
+            type="button"
+            className="header-action-btn header-logout-mobile"
+            onClick={() => logout()}
+            title="Logout"
+            aria-label="Logout"
+          >
+            <LogOut size={18} />
           </button>
 
           <div className="header-status">
