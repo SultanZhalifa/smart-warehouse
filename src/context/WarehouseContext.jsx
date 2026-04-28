@@ -1,6 +1,5 @@
 import { createContext, useContext, useReducer, useCallback, useEffect } from 'react';
 import * as db from '../lib/database';
-import { supabase } from '../lib/supabase';
 
 const WarehouseContext = createContext(null);
 

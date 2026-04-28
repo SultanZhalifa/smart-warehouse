@@ -1,22 +1,28 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
-import { fetchProfile } from '../lib/database';
+import { auth } from '../lib/firebase';
+import { fetchProfile, createUserProfile } from '../lib/database';
 import { Warehouse } from 'lucide-react';
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  setPersistence,
+  browserLocalPersistence,
+} from 'firebase/auth';
 
 const AuthContext = createContext(null);
 
-/** Minimal user from Supabase session so UI (sidebar logout) works before profiles row loads. */
-function buildUserFromAuthSession(authUser) {
-  const meta = authUser.user_metadata || {};
-  const displayName = meta.full_name || authUser.email?.split('@')[0] || 'User';
-  const initials = meta.avatar_initials
+/** Build user object from Firebase auth */
+function buildUserFromAuth(firebaseUser, profileData = null) {
+  const displayName = profileData?.full_name || firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User';
+  const initials = profileData?.avatar_initials
     || String(displayName).replace(/\s+/g, '').slice(0, 2).toUpperCase();
   return {
-    id: authUser.id,
-    email: authUser.email,
+    id: firebaseUser.uid,
+    email: firebaseUser.email,
     name: displayName,
-    role: meta.role || 'operator',
-    studentId: null,
+    role: profileData?.role || 'operator',
     avatar: initials,
   };
 }
@@ -26,126 +32,113 @@ export function AuthProvider({ children }) {
   const [profile, setProfile] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Load profile data from the profiles table
-  const loadProfile = async (authUser) => {
+  // Setup persistence
+  useEffect(() => {
+    setPersistence(auth, browserLocalPersistence).catch(console.error);
+  }, []);
+
+  // Load profile data
+  const loadProfile = async (firebaseUser) => {
     try {
-      const profileData = await fetchProfile(authUser.id);
+      const profileData = await fetchProfile(firebaseUser.uid);
       setProfile(profileData);
-      setUser({
-        id: authUser.id,
-        email: authUser.email,
-        name: profileData.full_name,
-        role: profileData.role,
-        studentId: profileData.student_id,
-        avatar: profileData.avatar_initials,
-      });
+      setUser(buildUserFromAuth(firebaseUser, profileData));
     } catch (err) {
-      // Profile might not exist yet (trigger delay), use email as fallback
-      setUser({
-        id: authUser.id,
-        email: authUser.email,
-        name: authUser.user_metadata?.full_name || authUser.email.split('@')[0],
-        role: authUser.user_metadata?.role || 'operator',
-        studentId: null,
-        avatar: (authUser.user_metadata?.full_name || authUser.email).substring(0, 2).toUpperCase(),
-      });
+      console.error('Error loading profile:', err);
+      // Use Firebase user data if profile doesn't exist yet
+      setUser(buildUserFromAuth(firebaseUser));
     }
   };
 
+  // Listen for auth state changes
   useEffect(() => {
-    let resolved = false;
+    let timeoutId;
 
-    // 1) Get existing session on mount — with 3s timeout
-    const sessionPromise = supabase.auth.getSession().then(({ data: { session } }) => {
-      if (resolved) return;
-      resolved = true;
-      if (session?.user) {
-        setIsAuthenticated(true);
-        setUser(buildUserFromAuthSession(session.user));
-        loadProfile(session.user).finally(() => setLoading(false));
-      } else {
-        setLoading(false);
-      }
-    }).catch(() => {
-      if (!resolved) { resolved = true; setLoading(false); }
-    });
-
-    // Timeout fallback — never hang more than 3 seconds
-    const timeout = setTimeout(() => {
-      if (!resolved) {
-        resolved = true;
-        console.warn('Auth session check timed out — showing login');
-        setLoading(false);
-      }
-    }, 3000);
-
-    // 2) Listen for future auth changes (login, logout, token refresh)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        if (session?.user) {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      try {
+        if (firebaseUser) {
           setIsAuthenticated(true);
-          setUser(buildUserFromAuthSession(session.user));
-          await loadProfile(session.user);
+          await loadProfile(firebaseUser);
         } else {
           setUser(null);
           setProfile(null);
           setIsAuthenticated(false);
         }
+      } catch (err) {
+        console.error('Auth state change error:', err);
+        setError(err.message);
+      } finally {
         setLoading(false);
       }
-    );
+    });
+
+    // Timeout fallback
+    timeoutId = setTimeout(() => {
+      setLoading(false);
+    }, 3000);
 
     return () => {
-      clearTimeout(timeout);
-      subscription.unsubscribe();
+      clearTimeout(timeoutId);
+      unsubscribe();
     };
   }, []);
 
   const login = async (email, password) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    if (error) return { success: false, error: error.message };
-    const authUser = data.user;
-    if (authUser) {
-      setIsAuthenticated(true);
-      setUser(buildUserFromAuthSession(authUser));
-      loadProfile(authUser);
+    try {
+      setError(null);
+      setLoading(true);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      return { success: true, user: userCredential.user };
+    } catch (err) {
+      console.error('Login error:', err);
+      setError(err.message);
+      return { success: false, error: err.message };
+    } finally {
+      setLoading(false);
     }
-    return { success: true, user: authUser };
   };
 
-  const register = async (email, password, fullName, role = 'operator') => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: fullName,
-          role: role,
-          avatar_initials: fullName.substring(0, 2).toUpperCase(),
-        },
-      },
-    });
-    if (error) return { success: false, error: error.message };
-    return { success: true, user: data.user };
+  const register = async (email, password, fullName = '', role = 'operator') => {
+    try {
+      setError(null);
+      setLoading(true);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const firebaseUser = userCredential.user;
+
+      // Create profile in Firestore
+      const profileData = {
+        email: firebaseUser.email,
+        full_name: fullName || email.split('@')[0],
+        role: role,
+        avatar_initials: (fullName || email).slice(0, 2).toUpperCase(),
+      };
+
+      await createUserProfile(firebaseUser.uid, profileData);
+
+      return { success: true, user: firebaseUser };
+    } catch (err) {
+      console.error('Register error:', err);
+      setError(err.message);
+      return { success: false, error: err.message };
+    } finally {
+      setLoading(false);
+    }
   };
 
   const logout = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    setProfile(null);
-    setIsAuthenticated(false);
-  };
-
-  const resetPassword = async (email) => {
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/login`,
-    });
-    if (error) return { success: false, error: error.message };
-    return { success: true };
+    try {
+      await signOut(auth);
+      setUser(null);
+      setProfile(null);
+      setIsAuthenticated(false);
+      return { success: true };
+    } catch (err) {
+      console.error('Logout error:', err);
+      setError(err.message);
+      return { success: false, error: err.message };
+    }
   };
 
   if (loading) {
@@ -168,7 +161,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, profile, isAuthenticated, login, register, logout, resetPassword, loading }}>
+    <AuthContext.Provider value={{ user, profile, isAuthenticated, login, register, logout, loading, error }}>
       {children}
     </AuthContext.Provider>
   );
