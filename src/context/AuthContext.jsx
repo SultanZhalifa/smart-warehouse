@@ -1,6 +1,8 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { auth } from '../lib/firebase';
-import { fetchProfile, createUserProfile } from '../lib/database';
+// Added 'db' to the import from your firebase config
+import { auth, db } from '../lib/firebase'; 
+import { doc, setDoc } from "firebase/firestore";
+import { fetchProfile } from '../lib/database';
 import { Warehouse } from 'lucide-react';
 import {
   createUserWithEmailAndPassword,
@@ -39,7 +41,7 @@ export function AuthProvider({ children }) {
     setPersistence(auth, browserLocalPersistence).catch(console.error);
   }, []);
 
-  // Load profile data
+  // Load profile data from Firestore
   const loadProfile = async (firebaseUser) => {
     try {
       const profileData = await fetchProfile(firebaseUser.uid);
@@ -47,15 +49,13 @@ export function AuthProvider({ children }) {
       setUser(buildUserFromAuth(firebaseUser, profileData));
     } catch (err) {
       console.error('Error loading profile:', err);
-      // Use Firebase user data if profile doesn't exist yet
+      // Fallback to basic auth data if profile fetch fails
       setUser(buildUserFromAuth(firebaseUser));
     }
   };
 
   // Listen for auth state changes
   useEffect(() => {
-    let timeoutId;
-
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       try {
         if (firebaseUser) {
@@ -74,15 +74,7 @@ export function AuthProvider({ children }) {
       }
     });
 
-    // Timeout fallback
-    timeoutId = setTimeout(() => {
-      setLoading(false);
-    }, 3000);
-
-    return () => {
-      clearTimeout(timeoutId);
-      unsubscribe();
-    };
+    return () => unsubscribe();
   }, []);
 
   const login = async (email, password) => {
@@ -100,30 +92,39 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const register = async (email, password, fullName = '', role = 'operator') => {
+  const register = async (email, password, fullName, role, warehouseId) => {
     try {
       setError(null);
-      setLoading(true);
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const firebaseUser = userCredential.user;
+      console.log("Step 1: Creating user in Firebase Auth...");
+      const res = await createUserWithEmailAndPassword(auth, email, password);
+      const newUser = res.user;
+      console.log("Step 2: Auth created with UID:", newUser.uid);
 
-      // Create profile in Firestore
-      const profileData = {
-        email: firebaseUser.email,
-        full_name: fullName || email.split('@')[0],
-        role: role,
-        avatar_initials: (fullName || email).slice(0, 2).toUpperCase(),
-      };
+      const initials = fullName
+        .split(' ')
+        .map(n => n[0])
+        .join('')
+        .toUpperCase();
 
-      await createUserProfile(firebaseUser.uid, profileData);
+      console.log("Step 3: Writing profile to Firestore 'users' collection...");
+      // Using 'db' which is now imported correctly
+      await setDoc(doc(db, "users", newUser.uid), {
+        uid: newUser.uid,
+        email: email,
+        full_name: fullName, // Adjusted to match fetchProfile expected fields
+        role: role,             
+        warehouseId: warehouseId, 
+        avatar_initials: initials,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
 
-      return { success: true, user: firebaseUser };
+      console.log("Step 4: Registration complete!");
+      return { success: true };
     } catch (err) {
-      console.error('Register error:', err);
+      console.error('Registration error details:', err.code, err.message);
       setError(err.message);
       return { success: false, error: err.message };
-    } finally {
-      setLoading(false);
     }
   };
 

@@ -1,22 +1,25 @@
-import { useState } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useWarehouse } from '../../context/WarehouseContext';
+import { useAuth } from '../../context/AuthContext';
 import * as db from '../../lib/database';
 import { exportToCSV } from '../../utils/exportUtils';
 import {
-  Package, Plus, Search, Filter, Edit3, Trash2, X,
-  AlertTriangle, CheckCircle, XCircle, ArrowUpDown, Download
+  Bug, Plus, Search, Filter, Edit3, X,
+  AlertTriangle, ShieldCheck, Flame, Download, 
+  Activity, MapPin, Hash, Info, ChevronRight,
+  TrendingUp, AlertCircle, LayoutGrid
 } from 'lucide-react';
 import './InventoryPage.css';
 
-const CATEGORIES = ['All', 'Electronics', 'Chemicals', 'Mechanical', 'Perishable', 'Automotive', 'Supplies', 'Safety', 'Logistics'];
+const PEST_CATEGORIES = ['All', 'Rodents', 'Insects', 'Flying Pests', 'Birds', 'Microbial', 'Reptiles'];
 
-function statusBadge(status) {
+function ThreatBadge({ status }) {
   const map = {
-    'in-stock': { cls: 'badge-success', icon: CheckCircle, label: 'In Stock' },
-    'low-stock': { cls: 'badge-warning', icon: AlertTriangle, label: 'Low Stock' },
-    'out-of-stock': { cls: 'badge-danger', icon: XCircle, label: 'Out of Stock' },
+    'safe': { cls: 'badge-success', icon: ShieldCheck, label: 'Controlled' },
+    'warning': { cls: 'badge-warning', icon: AlertTriangle, label: 'Warning' },
+    'critical': { cls: 'badge-danger', icon: Flame, label: 'Critical' },
   };
-  const s = map[status] || map['in-stock'];
+  const s = map[status] || map['safe'];
   return (
     <span className={`badge ${s.cls}`}>
       <s.icon size={11} />
@@ -27,275 +30,265 @@ function statusBadge(status) {
 
 export default function InventoryPage() {
   const { state, dispatch, addToast, refreshData } = useWarehouse();
-  const zones = state.zones;
+  const { profile } = useAuth();
+  
+  // Ambil zones dari state global
+  const zones = state.zones || [];
+  
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('All');
-  const [zoneFilter, setZoneFilter] = useState('All');
   const [showModal, setShowModal] = useState(false);
   const [editItem, setEditItem] = useState(null);
-  const [sortField, setSortField] = useState('item_code');
-  const [sortDir, setSortDir] = useState('asc');
 
-  // Form state
-  const [form, setForm] = useState({ name: '', category: 'Electronics', zone_id: zones[0]?.id || '', quantity: 0, min_stock: 0, weight: 0 });
+  const [form, setForm] = useState({ 
+    name: '', category: 'Insects', zone_id: '', quantity: 0, min_stock: 5 
+  });
 
-  const filteredItems = state.inventory
-    .filter((item) => {
-      const matchSearch = item.name.toLowerCase().includes(search.toLowerCase()) || (item.item_code || '').toLowerCase().includes(search.toLowerCase());
+  // Logika Filter Tabel
+  const filteredItems = useMemo(() => {
+    return (state.inventory || []).filter((item) => {
+      const isSameWarehouse = item.warehouseId === profile?.warehouseId;
+      const matchSearch = item.name.toLowerCase().includes(search.toLowerCase());
       const matchCategory = category === 'All' || item.category === category;
-      const matchZone = zoneFilter === 'All' || item.zone_id === zoneFilter;
-      return matchSearch && matchCategory && matchZone;
-    })
-    .sort((a, b) => {
-      const aVal = a[sortField];
-      const bVal = b[sortField];
-      if (typeof aVal === 'number') return sortDir === 'asc' ? aVal - bVal : bVal - aVal;
-      return sortDir === 'asc' ? String(aVal).localeCompare(String(bVal)) : String(bVal).localeCompare(String(aVal));
+      return isSameWarehouse && matchSearch && matchCategory;
     });
+  }, [state.inventory, search, category, profile?.warehouseId]);
 
-  const handleSort = (field) => {
-    if (sortField === field) setSortDir(sortDir === 'asc' ? 'desc' : 'asc');
-    else { setSortField(field); setSortDir('asc'); }
-  };
+  // Statistik Ringkas
+  const stats = useMemo(() => ({
+    total: filteredItems.length,
+    critical: filteredItems.filter(i => i.status === 'critical').length,
+    activeZones: new Set(filteredItems.map(i => i.zone_id)).size
+  }), [filteredItems]);
 
-  const openCreate = () => {
-    setEditItem(null);
-    setForm({ name: '', category: 'Electronics', zone_id: zones[0]?.id || '', quantity: 0, min_stock: 0, weight: 0 });
+  // Handler Buka Modal (Tambah / Edit)
+  const handleOpenModal = (item = null) => {
+    if (item) {
+      setEditItem(item);
+      setForm(item);
+    } else {
+      setEditItem(null);
+      setForm({ 
+        name: '', 
+        category: 'Insects', 
+        // Otomatis pilih zona pertama jika tersedia
+        zone_id: zones.length > 0 ? zones[0].id : '', 
+        quantity: 0, 
+        min_stock: 5 
+      });
+    }
     setShowModal(true);
   };
 
-  const openEdit = (item) => {
-    setEditItem(item);
-    setForm({ name: item.name, category: item.category, zone_id: item.zone_id, quantity: item.quantity, min_stock: item.min_stock, weight: item.weight });
-    setShowModal(true);
-  };
-
+  // Simpan Data ke Database
   const handleSave = async () => {
-    if (!form.name.trim()) { addToast({ type: 'error', title: 'Validation Error', message: 'Item name is required' }); return; }
-    const status = Number(form.quantity) <= 0 ? 'out-of-stock' : Number(form.quantity) < Number(form.min_stock) ? 'low-stock' : 'in-stock';
+    if (!form.name.trim() || !form.zone_id) { 
+      addToast({ type: 'error', title: 'Error', message: 'Lengkapi nama dan pilih zona!' }); 
+      return; 
+    }
+    const qty = Number(form.quantity);
+    const threshold = Number(form.min_stock);
+    const status = qty === 0 ? 'safe' : qty >= threshold ? 'critical' : 'warning';
 
     try {
+      const payload = { 
+        ...form, 
+        warehouseId: profile.warehouseId, 
+        quantity: qty, 
+        min_stock: threshold, 
+        status, 
+        updatedAt: new Date().toISOString() 
+      };
+
       if (editItem) {
-        const updated = await db.updateInventoryItem(editItem.id, {
-          name: form.name,
-          category: form.category,
-          zone_id: form.zone_id,
-          quantity: Number(form.quantity),
-          min_stock: Number(form.min_stock),
-          weight: Number(form.weight),
-          status,
-        });
+        const updated = await db.updateInventoryItem(editItem.id, payload);
         dispatch({ type: 'UPDATE_INVENTORY_ITEM', payload: updated });
-        addToast({ type: 'success', title: 'Item Updated', message: `${form.name} has been updated successfully` });
       } else {
-        const newItem = await db.createInventoryItem({
-          item_code: `INV-${String(state.inventory.length + 1).padStart(3, '0')}`,
-          name: form.name,
-          category: form.category,
-          zone_id: form.zone_id,
-          quantity: Number(form.quantity),
-          min_stock: Number(form.min_stock),
-          weight: Number(form.weight),
-          status,
-          last_detected: new Date().toISOString(),
+        const newItem = await db.createInventoryItem({ 
+          ...payload, 
+          item_code: `LOG-${Date.now().toString().slice(-6)}`, 
+          createdAt: new Date().toISOString() 
         });
         dispatch({ type: 'ADD_INVENTORY_ITEM', payload: newItem });
-        addToast({ type: 'success', title: 'Item Created', message: `${form.name} has been added to inventory` });
       }
+      
       setShowModal(false);
       refreshData();
+      addToast({ type: 'success', title: 'Success', message: 'Data berhasil diperbarui' });
     } catch (err) {
-      addToast({ type: 'error', title: 'Error', message: err.message });
+      addToast({ type: 'error', title: 'Database Error', message: err.message });
     }
   };
-
-  const handleDelete = async (item) => {
-    try {
-      await db.deleteInventoryItem(item.id);
-      dispatch({ type: 'DELETE_INVENTORY_ITEM', payload: item.id });
-      addToast({ type: 'warning', title: 'Item Deleted', message: `${item.name} has been removed from inventory` });
-    } catch (err) {
-      addToast({ type: 'error', title: 'Error', message: err.message });
-    }
-  };
-
-  const totalItems = state.inventory.reduce((s, i) => s + i.quantity, 0);
-  const lowStock = state.inventory.filter((i) => i.status === 'low-stock').length;
-  const outOfStock = state.inventory.filter((i) => i.status === 'out-of-stock').length;
 
   return (
-    <div className="page inventory-page">
-      <div className="page-header">
-        <div>
+    <div className="inventory-container">
+      {/* 1. HEADER SECTON */}
+      <div className="inventory-header">
+        <div className="header-title">
           <h1>Inventory Management</h1>
-          <p>Track and manage warehouse inventory items</p>
+          <p>Tuesday, April 28, 2026</p>
         </div>
-        <div style={{ display: 'flex', gap: 'var(--space-sm)' }}>
-          <button className="btn btn-secondary" onClick={() => {
-            exportToCSV(filteredItems, 'inventory_export', [
-              { key: 'item_code', label: 'ID' }, { key: 'name', label: 'Name' },
-              { key: 'category', label: 'Category' }, { key: 'zone_id', label: 'Zone' },
-              { key: 'quantity', label: 'Quantity' }, { key: 'min_stock', label: 'Min Stock' },
-              { key: 'status', label: 'Status' }, { key: 'weight', label: 'Weight (kg)' },
-            ]);
-            addToast({ type: 'success', message: `Exported ${filteredItems.length} items to CSV` });
-          }}>
-            <Download size={16} /> Export CSV
+        <div className="header-btns">
+          <button className="btn-csv" onClick={() => exportToCSV(filteredItems, 'report')}>
+            <Download size={16}/> Export CSV
           </button>
-          <button className="btn btn-primary" onClick={openCreate}>
-            <Plus size={16} /> Add Item
+          <button className="btn-add" onClick={() => handleOpenModal()}>
+            <Plus size={16}/> New Detection
           </button>
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="inventory-stats">
-        <div className="inv-stat-card">
-          <Package size={20} style={{ color: 'var(--color-accent-primary)' }} />
-          <div>
-            <span className="inv-stat-value">{state.inventory.length}</span>
-            <span className="inv-stat-label">Unique Items</span>
-          </div>
+      {/* 2. STATS CARDS */}
+      <div className="stats-row">
+        <div className="card-stat">
+          <div className="icon-bg blue"><TrendingUp size={20}/></div>
+          <div><label>Total Species</label><h3>{stats.total}</h3></div>
         </div>
-        <div className="inv-stat-card">
-          <CheckCircle size={20} style={{ color: 'var(--color-accent-success)' }} />
-          <div>
-            <span className="inv-stat-value">{totalItems.toLocaleString()}</span>
-            <span className="inv-stat-label">Total Units</span>
-          </div>
+        <div className="card-stat">
+          <div className="icon-bg red"><AlertCircle size={20}/></div>
+          <div><label>Critical Threats</label><h3>{stats.critical}</h3></div>
         </div>
-        <div className="inv-stat-card">
-          <AlertTriangle size={20} style={{ color: 'var(--color-accent-warning)' }} />
-          <div>
-            <span className="inv-stat-value">{lowStock}</span>
-            <span className="inv-stat-label">Low Stock</span>
-          </div>
-        </div>
-        <div className="inv-stat-card">
-          <XCircle size={20} style={{ color: 'var(--color-accent-danger)' }} />
-          <div>
-            <span className="inv-stat-value">{outOfStock}</span>
-            <span className="inv-stat-label">Out of Stock</span>
-          </div>
+        <div className="card-stat">
+          <div className="icon-bg purple"><LayoutGrid size={20}/></div>
+          <div><label>Infected Zones</label><h3>{stats.activeZones}</h3></div>
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="inventory-filters">
-        <div className="inventory-search">
-          <Search size={16} />
-          <input type="text" placeholder="Search items..." value={search} onChange={(e) => setSearch(e.target.value)} className="input" />
-        </div>
-        <div className="inventory-categories">
-          {CATEGORIES.map((cat) => (
-            <button key={cat} className={`inv-cat-btn ${category === cat ? 'active' : ''}`} onClick={() => setCategory(cat)}>
-              {cat}
-            </button>
-          ))}
-        </div>
-        <div className="inventory-zone-filter">
-          <Filter size={14} />
-          <select className="input" value={zoneFilter} onChange={(e) => setZoneFilter(e.target.value)} style={{ width: 150 }}>
-            <option value="All">All Zones</option>
-            {zones.map((z) => <option key={z.id} value={z.id}>{z.name.split('—')[0].trim()}</option>)}
+      {/* 3. MAIN TABLE CARD */}
+      <div className="main-content-card">
+        <div className="filter-bar">
+          <div className="search-input">
+            <Search size={18} />
+            <input 
+              placeholder="Search detection logs..." 
+              value={search} 
+              onChange={(e) => setSearch(e.target.value)} 
+            />
+          </div>
+          <select value={category} onChange={(e) => setCategory(e.target.value)}>
+            {PEST_CATEGORIES.map(c => (
+              <option key={c} value={c}>{c === 'All' ? 'All Categories' : c}</option>
+            ))}
           </select>
         </div>
-      </div>
 
-      {/* Table */}
-      <div className="table-container">
-        <table className="table">
-          <thead>
-            <tr>
-              <th onClick={() => handleSort('id')} className="sortable">ID <ArrowUpDown size={12} /></th>
-              <th onClick={() => handleSort('name')} className="sortable">Name <ArrowUpDown size={12} /></th>
-              <th>Category</th>
-              <th>Zone</th>
-              <th onClick={() => handleSort('quantity')} className="sortable">Qty <ArrowUpDown size={12} /></th>
-              <th>Min Stock</th>
-              <th>Status</th>
-              <th>Weight (kg)</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredItems.map((item) => {
-              const zone = zones.find((z) => z.id === item.zone_id);
-              return (
+        <div className="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>ITEM CODE</th>
+                <th>SPECIES NAME</th>
+                <th>CLASSIFICATION</th>
+                <th>ZONE</th>
+                <th>COUNT</th>
+                <th>STATUS</th>
+                <th>ACTIONS</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredItems.length > 0 ? filteredItems.map(item => (
                 <tr key={item.id}>
-                  <td><code style={{ color: 'var(--color-accent-primary)', fontSize: 'var(--font-size-xs)' }}>{item.item_code}</code></td>
-                  <td style={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>{item.name}</td>
-                  <td><span className="badge badge-info">{item.category}</span></td>
-                  <td>{zone ? zone.name.split('—')[0].trim() : item.zone}</td>
-                  <td style={{ fontWeight: 600 }}>{(item.quantity || 0).toLocaleString()}</td>
-                  <td>{item.min_stock}</td>
-                  <td>{statusBadge(item.status)}</td>
-                  <td>{item.weight}</td>
+                  <td><span className="tag-code">{item.item_code}</span></td>
+                  <td><strong>{item.name}</strong></td>
+                  <td><span className="tag-cat">{item.category}</span></td>
+                  <td>{zones.find(z => z.id === item.zone_id)?.name || 'Unknown'}</td>
+                  <td>{item.quantity}</td>
+                  <td><ThreatBadge status={item.status} /></td>
                   <td>
-                    <div style={{ display: 'flex', gap: 4 }}>
-                      <button className="btn btn-ghost btn-sm" onClick={() => openEdit(item)}><Edit3 size={14} /></button>
-                      <button className="btn btn-ghost btn-sm" onClick={() => handleDelete(item)} style={{ color: 'var(--color-accent-danger)' }}><Trash2 size={14} /></button>
-                    </div>
+                    <button className="btn-edit-small" onClick={() => handleOpenModal(item)}>
+                      <Edit3 size={14}/>
+                    </button>
                   </td>
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
-        {filteredItems.length === 0 && (
-          <div className="empty-state">
-            <Package size={40} />
-            <h3>No items found</h3>
-            <p>Try adjusting your search or filter criteria</p>
-          </div>
-        )}
+              )) : (
+                <tr>
+                  <td colSpan="7" className="td-empty">No detections found in this warehouse.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      {/* Modal */}
+      {/* 4. MODAL (DIRENDER TERPISAH) */}
       {showModal && (
-        <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>{editItem ? 'Edit Item' : 'Add New Item'}</h2>
-              <button className="btn btn-ghost btn-icon" onClick={() => setShowModal(false)}><X size={18} /></button>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
-              <div className="input-group">
-                <label>Item Name</label>
-                <input className="input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Enter item name" />
+        <div className="force-modal-overlay">
+          <div className="force-modal-card">
+            <div className="f-header">
+              <div className="f-title">
+                <div className="f-icon-box"><Bug size={20}/></div>
+                <div>
+                  <h3>{editItem ? 'Update Log' : 'Log Detection'}</h3>
+                  <p>Bio-hazard surveillance data</p>
+                </div>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-md)' }}>
-                <div className="input-group">
-                  <label>Category</label>
-                  <select className="input" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
-                    {CATEGORIES.filter((c) => c !== 'All').map((c) => <option key={c} value={c}>{c}</option>)}
+              <X className="f-close" onClick={() => setShowModal(false)} />
+            </div>
+            
+            <div className="f-body">
+              <div className="f-field">
+                <label><Info size={14}/> Species Name</label>
+                <input 
+                  value={form.name} 
+                  onChange={e => setForm({...form, name: e.target.value})} 
+                  placeholder="e.g. Snake, Rat" 
+                />
+              </div>
+
+              <div className="f-row">
+                <div className="f-field half">
+                  <label><Filter size={14}/> Category</label>
+                  <select value={form.category} onChange={e => setForm({...form, category: e.target.value})}>
+                    {PEST_CATEGORIES.filter(c => c !== 'All').map(c => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
                   </select>
                 </div>
-                <div className="input-group">
-                  <label>Zone</label>
-                  <select className="input" value={form.zone_id} onChange={(e) => setForm({ ...form, zone_id: e.target.value })}>
-                    {zones.map((z) => <option key={z.id} value={z.id}>{z.name}</option>)}
+
+                <div className="f-field half">
+                  <label><MapPin size={14}/> Zone</label>
+                  <select 
+                    value={form.zone_id} 
+                    onChange={e => setForm({...form, zone_id: e.target.value})}
+                  >
+                    {zones.length > 0 ? (
+                      zones.map(z => (
+                        <option key={z.id} value={z.id}>{z.name}</option>
+                      ))
+                    ) : (
+                      <option disabled>No zones found</option>
+                    )}
                   </select>
                 </div>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 'var(--space-md)' }}>
-                <div className="input-group">
-                  <label>Quantity</label>
-                  <input className="input" type="number" value={form.quantity} onChange={(e) => setForm({ ...form, quantity: e.target.value })} />
-                </div>
-                <div className="input-group">
-                  <label>Min Stock</label>
-                  <input className="input" type="number" value={form.min_stock} onChange={(e) => setForm({ ...form, min_stock: e.target.value })} />
-                </div>
-                <div className="input-group">
-                  <label>Weight (kg)</label>
-                  <input className="input" type="number" step="0.1" value={form.weight} onChange={(e) => setForm({ ...form, weight: e.target.value })} />
+
+              <div className="f-highlight">
+                <div className="f-row">
+                  <div className="f-field half">
+                    <label><Activity size={14}/> Current Count</label>
+                    <input 
+                      type="number" 
+                      value={form.quantity} 
+                      onChange={e => setForm({...form, quantity: e.target.value})} 
+                    />
+                  </div>
+                  <div className="f-field half">
+                    <label><Hash size={14}/> Alert Threshold</label>
+                    <input 
+                      type="number" 
+                      value={form.min_stock} 
+                      onChange={e => setForm({...form, min_stock: e.target.value})} 
+                    />
+                  </div>
                 </div>
               </div>
             </div>
-            <div className="modal-footer">
-              <button className="btn btn-secondary" onClick={() => setShowModal(false)}>Cancel</button>
-              <button className="btn btn-primary" onClick={handleSave}>{editItem ? 'Update' : 'Create'}</button>
+
+            <div className="f-footer">
+              <button className="f-btn-cancel" onClick={() => setShowModal(false)}>Discard</button>
+              <button className="f-btn-save" onClick={handleSave}>
+                {editItem ? 'Update' : 'Save Detection'} <ChevronRight size={16}/>
+              </button>
             </div>
           </div>
         </div>
