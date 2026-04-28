@@ -87,12 +87,13 @@ export const fetchDetections = async (warehouseId, limit = 100) => {
   }
 };
 
-export const subscribeToDetections = (warehouseId, callback) => {
+// src/lib/database.js
+
+export const subscribeToDetections = (callback) => {
   try {
-    const q = query(
-      collection(db, 'detections'),
-      where('warehouseId', '==', warehouseId)
-    );
+    // remove filtering by warehouseId to get all detections for real-time updates
+    const q = query(collection(db, 'detections')); 
+    
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const data = querySnapshot.docs.map(doc => ({
         id: doc.id,
@@ -418,5 +419,64 @@ export const updateWarehouse = async (warehouseId, updates) => {
   } catch (error) {
     console.error('Error updating warehouse:', error);
     throw error;
+  }
+};
+
+// ============= ADDITIONAL FUNCTIONS (Fix for WarehouseContext) =============
+
+export const fetchCameras = async (warehouseId) => {
+  try {
+    const q = query(
+      collection(db, 'cameras'), // make sure the collection name is 'cameras'
+      where('warehouseId', '==', warehouseId)
+    );
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+  } catch (error) {
+    console.error('Error fetching cameras:', error);
+    return []; // backward array if error occurs, so it doesn't break the app
+  }
+};
+
+export const fetchActivityLog = async (warehouseId) => {
+  try {
+    const q = query(
+      collection(db, 'activity_log'), // make sure the collection name is 'activity_log'
+      where('warehouseId', '==', warehouseId)
+    );
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+  } catch (error) {
+    console.error('Error fetching activity log:', error);
+    return [];
+  }
+};
+
+export const fetchDetectionStats = async (warehouseId) => {
+  try {
+    // simple version: just count total detections for now, we can expand this later with more complex stats
+    const q = query(
+      collection(db, 'detections'),
+      where('warehouseId', '==', warehouseId)
+    );
+    const querySnapshot = await getDocs(q);
+    const total = querySnapshot.size;
+    
+    return {
+      today: total, // for simplicity, we use total for all stats, but ideally we should calculate today, this week, etc.
+      week: total,
+      total: total,
+      camerasOnline: 0,
+      camerasTotal: 0
+    };
+  } catch (error) {
+    console.error('Error fetching detection stats:', error);
+    return { today: 0, week: 0, total: 0, camerasOnline: 0, camerasTotal: 0 };
   }
 };

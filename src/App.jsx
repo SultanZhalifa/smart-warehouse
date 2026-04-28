@@ -76,9 +76,10 @@ function AppRoutes() {
 }
 
 function AppInner() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth(); // Ambil user di sini
   return (
-    <WarehouseProvider isAuthenticated={isAuthenticated}>
+    // send user to warehouse provider so it can use userProfile.warehouseId to load data
+    <WarehouseProvider isAuthenticated={isAuthenticated} userProfile={user}>
       <AppRoutes />
     </WarehouseProvider>
   );

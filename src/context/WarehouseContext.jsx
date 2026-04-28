@@ -54,22 +54,8 @@ function warehouseReducer(state, action) {
         ),
       };
 
-    case 'MARK_ALL_ALERTS_READ':
-      return {
-        ...state,
-        alerts: state.alerts.map((alert) => ({ ...alert, status: 'read' })),
-      };
-
     case 'SET_ZONES':
       return { ...state, zones: action.payload };
-
-    case 'UPDATE_ZONE':
-      return {
-        ...state,
-        zones: state.zones.map((zone) =>
-          zone.id === action.payload.id ? { ...zone, ...action.payload } : zone
-        ),
-      };
 
     case 'SET_ACTIVITY_LOG':
       return { ...state, activityLog: action.payload };
@@ -97,54 +83,43 @@ function warehouseReducer(state, action) {
   }
 }
 
-export function WarehouseProvider({ children, isAuthenticated }) {
+// protection for warehouseId: if user is not authenticated or doesn't have warehouseId, we set loading to false but keep data empty
+export function WarehouseProvider({ children, isAuthenticated, userProfile }) {
   const [state, dispatch] = useReducer(warehouseReducer, initialState);
 
-  // Load all data from Supabase once authenticated
-  useEffect(() => {
-    if (!isAuthenticated) {
-      // Reset to initial state when logged out
+  const loadData = useCallback(async () => {
+    // if user is not authenticated or doesn't have warehouseId, we skip loading data and set loading to false
+    if (!isAuthenticated || !userProfile?.warehouseId) {
       dispatch({ type: 'SET_DATA', payload: { ...initialState, loading: false } });
       return;
     }
 
-    async function loadData() {
-      try {
-        const [zones, cameras, alerts, inventory, activityLog, detectionStats] = await Promise.all([
-          db.fetchZones(),
-          db.fetchCameras(),
-          db.fetchAlerts(),
-          db.fetchInventory(),
-          db.fetchActivityLog(),
-          db.fetchDetectionStats(),
-        ]);
+    const warehouseId = userProfile.warehouseId;
 
-        dispatch({
-          type: 'SET_DATA',
-          payload: { zones, cameras, alerts, inventory, activityLog, detectionStats },
-        });
-      } catch (err) {
-        console.error('Failed to load warehouse data:', err);
-        dispatch({ type: 'SET_DATA', payload: { loading: false } });
-      }
+    try {
+      const [zones, cameras, alerts, inventory, activityLog, detectionStats] = await Promise.all([
+        db.fetchZones(warehouseId),
+        db.fetchCameras(warehouseId),
+        db.fetchAlerts(warehouseId),
+        db.fetchInventory(warehouseId),
+        db.fetchActivityLog(warehouseId),
+        db.fetchDetectionStats(warehouseId),
+      ]);
+
+      dispatch({
+        type: 'SET_DATA',
+        payload: { zones, cameras, alerts, inventory, activityLog, detectionStats },
+      });
+    } catch (err) {
+      console.error('Failed to load warehouse data:', err);
+      dispatch({ type: 'SET_DATA', payload: { loading: false } });
     }
+  }, [isAuthenticated, userProfile]);
+
+  useEffect(() => {
     loadData();
-
-    // Real-time subscription for new alerts
-    const channel = supabase
-      .channel('realtime-alerts')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'alerts' }, (payload) => {
-        dispatch({ type: 'ADD_ALERT', payload: payload.new });
-      })
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'activity_log' }, (payload) => {
-        dispatch({ type: 'ADD_ACTIVITY', payload: payload.new });
-      })
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [isAuthenticated]);
+    // logic real time for detections is now handled in DetectionPage.jsx, so we don't need to subscribe here anymore
+  }, [loadData]);
 
   const addToast = useCallback((toast) => {
     const id = Date.now();
@@ -152,25 +127,9 @@ export function WarehouseProvider({ children, isAuthenticated }) {
     setTimeout(() => dispatch({ type: 'REMOVE_TOAST', payload: id }), 4000);
   }, []);
 
-  // Refresh data from Supabase
   const refreshData = useCallback(async () => {
-    try {
-      const [zones, cameras, alerts, inventory, activityLog, detectionStats] = await Promise.all([
-        db.fetchZones(),
-        db.fetchCameras(),
-        db.fetchAlerts(),
-        db.fetchInventory(),
-        db.fetchActivityLog(),
-        db.fetchDetectionStats(),
-      ]);
-      dispatch({
-        type: 'SET_DATA',
-        payload: { zones, cameras, alerts, inventory, activityLog, detectionStats },
-      });
-    } catch (err) {
-      console.error('Failed to refresh data:', err);
-    }
-  }, []);
+    await loadData();
+  }, [loadData]);
 
   return (
     <WarehouseContext.Provider value={{ state, dispatch, addToast, refreshData }}>
