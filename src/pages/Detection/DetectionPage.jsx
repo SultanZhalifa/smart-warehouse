@@ -1,25 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { subscribeToDetections } from '../../lib/database';
 import { useAuth } from '../../context/AuthContext';
+import { useWarehouse } from '../../context/WarehouseContext'; // Import the warehouse context
 
 const DetectionPage = () => {
   const [detections, setDetections] = useState([]);
   const { user } = useAuth();
+  const { selectedWarehouseId } = useWarehouse(); // Get the current warehouse ID
 
-useEffect(() => {
-  // Panggil fungsi tanpa perlu oper warehouseId dulu buat ngetes
-  const unsubscribe = subscribeToDetections((data) => {
-    // Urutkan data berdasarkan timestamp terbaru
-    const sortedData = data.sort((a, b) => {
-      const timeA = a.timestamp?.seconds || 0;
-      const timeB = b.timestamp?.seconds || 0;
-      return timeB - timeA;
+  useEffect(() => {
+    // Safety check: Only subscribe if we have a valid warehouse ID
+    if (!selectedWarehouseId) return;
+
+    /**
+     * Subscribe to real-time detection updates from Firestore
+     * filtered by the currently selected warehouse.
+     */
+    const unsubscribe = subscribeToDetections(selectedWarehouseId, (data) => {
+      // Sort detections by latest timestamp
+      const sortedData = data.sort((a, b) => {
+        const timeA = a.timestamp?.seconds || 0;
+        const timeB = b.timestamp?.seconds || 0;
+        return timeB - timeA;
+      });
+      setDetections(sortedData);
     });
-    setDetections(sortedData);
-  });
 
-  return () => unsubscribe();
-}, []);
+    // Cleanup subscription on component unmount
+    return () => unsubscribe();
+  }, [selectedWarehouseId]); // Re-run if the warehouse selection changes
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -55,10 +64,11 @@ useEffect(() => {
         ))}
       </div>
 
+      {/* Empty State */}
       {detections.length === 0 && (
         <div className="flex flex-col items-center justify-center py-20 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
           <p className="text-gray-500 font-medium text-lg">No detection data available.</p>
-          <p className="text-gray-400 text-sm mt-1">Make sure the Python script is pushing data to Firestore.</p>
+          <p className="text-gray-400 text-sm mt-1">Make sure the Python script is pushing data to Firestore for warehouse {selectedWarehouseId}.</p>
         </div>
       )}
     </div>

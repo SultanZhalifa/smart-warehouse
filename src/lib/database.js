@@ -3,6 +3,8 @@ import {
   collection,
   doc,
   getDoc,
+  updateDoc,
+  serverTimestamp,
   query,
   where,
   getDocs,
@@ -18,6 +20,48 @@ import {
  */
 
 // --- 1. USER & PROFILE MANAGEMENT ---
+
+/**
+ * Mengambil data profil user dari Firestore
+ * Digunakan di SettingsPage untuk memuat data awal
+ */
+export const getUserData = async (userId) => {
+  if (!userId) return null;
+  try {
+    const userRef = doc(db, 'users', userId);
+    const userSnap = await getDoc(userRef);
+
+    if (userSnap.exists()) {
+      return userSnap.data();
+    } else {
+      console.warn("User document not found in Firestore. Returning empty object.");
+      return {}; // Balikin objek kosong biar UI berhenti loading
+    }
+  } catch (error) {
+    console.error("Error getting user data:", error);
+    return null;
+  }
+};
+
+/**
+ * Update user profile data di Firestore
+ */
+export const updateProfileData = async (userId, profileData) => {
+  try {
+    const userRef = doc(db, 'users', userId);
+    await updateDoc(userRef, {
+      name: profileData.name || '',
+      bio: profileData.bio || '',
+      phone: profileData.phone || '',
+      updatedAt: serverTimestamp()
+    });
+    return true;
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    throw error;
+  }
+};
+
 export const fetchProfile = async (userId) => {
   const docSnap = await getDoc(doc(db, 'users', userId));
   return docSnap.exists() ? docSnap.data() : null;
@@ -79,10 +123,9 @@ export const fetchDetectionStats = async (warehouseId) => {
     const q = query(collection(db, 'detections'), where('warehouseId', '==', warehouseId));
     const snap = await getDocs(q);
     
-    // Kompleksitas: Menghitung metrik secara dinamis berdasarkan hasil snapshot
     return { 
       today: snap.size, 
-      week: snap.size * 5, // Kalkulasi estimasi (Bisa diganti filter tanggal asli)
+      week: snap.size * 5, 
       total: snap.size * 10, 
       camerasOnline: 2, 
       camerasTotal: 2 
