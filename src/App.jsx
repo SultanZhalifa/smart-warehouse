@@ -1,17 +1,17 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { WarehouseProvider } from './context/WarehouseContext';
-import Layout from './components/layout/Layout';
-import LoginPage from './pages/LoginPage';
-import DashboardPage from './pages/DashboardPage';
-import DetectionPage from './pages/DetectionPage';
-import AIDetectionPage from './pages/AIDetectionPage';
-import InventoryPage from './pages/InventoryPage';
-import AlertsPage from './pages/AlertsPage';
-import AnalyticsPage from './pages/AnalyticsPage';
-import ZonesPage from './pages/ZonesPage';
-import ActivityPage from './pages/ActivityPage';
-import SettingsPage from './pages/SettingsPage';
+import Layout from './components/layout/MainLayout/Layout';
+import LoginPage from './pages/Login/LoginPage';
+import DashboardPage from './pages/Dashboard/DashboardPage';
+import DetectionPage from './pages/Detection/DetectionPage';
+import AIDetectionPage from './pages/AIDetection/AIDetectionPage';
+import InventoryPage from './pages/Inventory/InventoryPage';
+import AlertsPage from './pages/Alerts/AlertsPage';
+import AnalyticsPage from './pages/Analytics/AnalyticsPage';
+import ZonesPage from './pages/Zones/ZonesPage';
+import ActivityPage from './pages/Activity/ActivityPage';
+import SettingsPage from './pages/Settings/SettingsPage';
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated } = useAuth();

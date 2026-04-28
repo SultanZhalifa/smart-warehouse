@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { useWarehouse } from '../context/WarehouseContext';
-import * as db from '../lib/database';
-import { exportToCSV } from '../utils/exportUtils';
+import { useWarehouse } from '../../context/WarehouseContext';
+import * as db from '../../lib/database';
+import { exportToCSV } from '../../utils/exportUtils';
 import {
   Package, Plus, Search, Filter, Edit3, Trash2, X,
   AlertTriangle, CheckCircle, XCircle, ArrowUpDown, Download

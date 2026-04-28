@@ -1,12 +1,12 @@
 import { useState, useRef, useCallback } from 'react';
-import { useWarehouse } from '../context/WarehouseContext';
-import { useAuth } from '../context/AuthContext';
+import { useWarehouse } from '../../context/WarehouseContext';
+import { useAuth } from '../../context/AuthContext';
 import {
   Upload, ImagePlus, Loader2, X, Zap, Target,
   Bug, AlertCircle, BarChart3, Camera, Shield,
   CheckCircle
 } from 'lucide-react';
-import { getPestIcon, StatusDot } from '../components/icons/PestIcons';
+import { getPestIcon, StatusDot } from '../../components/icons/PestIcons';
 import './AIDetectionPage.css';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';

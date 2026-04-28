@@ -4,8 +4,8 @@ import {
   BarElement, ArcElement, Filler, Tooltip, Legend
 } from 'chart.js';
 import { Line, Bar, Doughnut } from 'react-chartjs-2';
-import { useWarehouse } from '../context/WarehouseContext';
-import * as db from '../lib/database';
+import { useWarehouse } from '../../context/WarehouseContext';
+import * as db from '../../lib/database';
 import {
   BarChart3, TrendingUp, PieChart, Download, Loader2, AlertCircle
 } from 'lucide-react';

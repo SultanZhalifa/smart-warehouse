@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useWarehouse } from '../context/WarehouseContext';
-import { exportToCSV } from '../utils/exportUtils';
+import { useWarehouse } from '../../context/WarehouseContext';
+import { exportToCSV } from '../../utils/exportUtils';
 import {
   ClipboardList, Search, Filter, Download, RefreshCw,
   Eye, Edit3, Trash2, Plus, Upload, Shield, AlertTriangle,

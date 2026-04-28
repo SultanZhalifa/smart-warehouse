@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useWarehouse } from '../context/WarehouseContext';
-import * as db from '../lib/database';
+import { useWarehouse } from '../../context/WarehouseContext';
+import * as db from '../../lib/database';
 import {
   Bell, CheckCheck, Filter, AlertTriangle, AlertOctagon,
   Info, Clock, MapPin, Eye, EyeOff

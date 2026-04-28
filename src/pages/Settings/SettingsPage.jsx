@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { useWarehouse } from '../context/WarehouseContext';
+import { useAuth } from '../../context/AuthContext';
+import { useWarehouse } from '../../context/WarehouseContext';
 import {
   User, Mail, Shield, Key, Bell, Monitor, Palette,
   Save, Camera, Globe, Clock, Lock, Eye, EyeOff, CheckCircle

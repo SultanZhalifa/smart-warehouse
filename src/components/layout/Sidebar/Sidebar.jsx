@@ -1,6 +1,6 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { useWarehouse } from '../../context/WarehouseContext';
-import { useAuth } from '../../context/AuthContext';
+import { useWarehouse } from '../../../context/WarehouseContext';
+import { useAuth } from '../../../context/AuthContext';
 import {
   LayoutDashboard, ScanSearch, Package, Bell, BarChart3,
   Map, ClipboardList, ChevronLeft, ChevronRight, LogOut, Warehouse, Settings, Zap

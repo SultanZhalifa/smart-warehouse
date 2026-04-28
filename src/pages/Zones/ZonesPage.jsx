@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useWarehouse } from '../context/WarehouseContext';
+import { useWarehouse } from '../../context/WarehouseContext';
 import { Map, Edit3, BarChart3, AlertTriangle, CheckCircle, MapPin, Layers } from 'lucide-react';
 import './ZonesPage.css';
 

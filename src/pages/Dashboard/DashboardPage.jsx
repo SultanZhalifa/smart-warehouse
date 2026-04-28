@@ -1,10 +1,10 @@
-import { useWarehouse } from '../context/WarehouseContext';
+import { useWarehouse } from '../../context/WarehouseContext';
 import {
   ScanSearch, Package, AlertTriangle, Camera, TrendingUp,
   Activity, Clock, Zap, ArrowUpRight, ArrowDownRight,
   Eye, Shield, Cpu, Bug
 } from 'lucide-react';
-import { SnakeIcon, CatIcon, GeckoIcon, getPestLabel, StatusDot } from '../components/icons/PestIcons';
+import { SnakeIcon, CatIcon, GeckoIcon, getPestLabel, StatusDot } from '../../components/icons/PestIcons';
 import './DashboardPage.css';
 
 function KPICard({ icon: Icon, label, value, change, changeType, color, delay }) {

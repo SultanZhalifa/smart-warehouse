@@ -1,10 +1,10 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
-import { useWarehouse } from '../context/WarehouseContext';
+import { useWarehouse } from '../../context/WarehouseContext';
 import {
   Play, Pause, Camera, Grid3X3, ScanSearch, Clock,
   ZoomIn, ZoomOut, Bug
 } from 'lucide-react';
-import { getPestIcon, getPestLabel, StatusDot } from '../components/icons/PestIcons';
+import { getPestIcon, getPestLabel, StatusDot } from '../../components/icons/PestIcons';
 import './DetectionPage.css';
 
 // Pest classes for detection — matches our Roboflow model targets

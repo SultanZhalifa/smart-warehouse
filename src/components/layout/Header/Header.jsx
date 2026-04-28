@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
-import { useWarehouse } from '../../context/WarehouseContext';
-import { useAuth } from '../../context/AuthContext';
+import { useWarehouse } from '../../../context/WarehouseContext';
+import { useAuth } from '../../../context/AuthContext';
 import { Search, Bell, Settings, LogOut } from 'lucide-react';
 import './Header.css';
 

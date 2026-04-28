@@ -1,8 +1,8 @@
 import { Outlet } from 'react-router-dom';
-import Sidebar from './Sidebar';
-import Header from './Header';
-import ToastContainer from '../common/ToastContainer';
-import { useWarehouse } from '../../context/WarehouseContext';
+import Sidebar from '../Sidebar/Sidebar';
+import Header from '../Header/Header';
+import ToastContainer from '../../common/ToastContainer';
+import { useWarehouse } from '../../../context/WarehouseContext';
 import './Layout.css';
 
 export default function Layout() {
