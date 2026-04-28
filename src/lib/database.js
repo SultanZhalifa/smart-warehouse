@@ -469,7 +469,7 @@ export const fetchDetectionStats = async (warehouseId) => {
     const total = querySnapshot.size;
     
     return {
-      today: total, // for simplicity, we use total for all stats, but ideally we should calculate today, this week, etc.
+      today: total, // for simplicity, we use total for all stats, but ideally we should calculate today, this
       week: total,
       total: total,
       camerasOnline: 0,

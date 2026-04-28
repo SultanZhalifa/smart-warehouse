@@ -88,33 +88,34 @@ export function WarehouseProvider({ children, isAuthenticated, userProfile }) {
   const [state, dispatch] = useReducer(warehouseReducer, initialState);
 
   const loadData = useCallback(async () => {
-    // if user is not authenticated or doesn't have warehouseId, we skip loading data and set loading to false
-    if (!isAuthenticated || !userProfile?.warehouseId) {
-      dispatch({ type: 'SET_DATA', payload: { ...initialState, loading: false } });
-      return;
-    }
+  // 1. LOG UNTUK CEK STATUS AUTH
+  console.log("DEBUG AUTH:", { isAuthenticated, userProfile });
 
-    const warehouseId = userProfile.warehouseId;
+  // 2. PAKSA JALANIN TANPA CEK AUTH (UNTUK TESTING DOANG)
+  const warehouseId = userProfile?.warehouseId || "WH-001";
+  console.log("Mencoba narik data buat ID:", warehouseId);
 
-    try {
-      const [zones, cameras, alerts, inventory, activityLog, detectionStats] = await Promise.all([
-        db.fetchZones(warehouseId),
-        db.fetchCameras(warehouseId),
-        db.fetchAlerts(warehouseId),
-        db.fetchInventory(warehouseId),
-        db.fetchActivityLog(warehouseId),
-        db.fetchDetectionStats(warehouseId),
-      ]);
+  try {
+    const [zones, cameras, alerts, inventory, activityLog, detectionStats] = await Promise.all([
+      db.fetchZones(warehouseId),
+      db.fetchCameras(warehouseId),
+      db.fetchAlerts(warehouseId),
+      db.fetchInventory(warehouseId),
+      db.fetchActivityLog(warehouseId),
+      db.fetchDetectionStats(warehouseId),
+    ]);
 
-      dispatch({
-        type: 'SET_DATA',
-        payload: { zones, cameras, alerts, inventory, activityLog, detectionStats },
-      });
-    } catch (err) {
-      console.error('Failed to load warehouse data:', err);
-      dispatch({ type: 'SET_DATA', payload: { loading: false } });
-    }
-  }, [isAuthenticated, userProfile]);
+    console.log("DATA BERHASIL DITARIK:", detectionStats);
+
+    dispatch({
+      type: 'SET_DATA',
+      payload: { zones, cameras, alerts, inventory, activityLog, detectionStats },
+    });
+  } catch (err) {
+    console.error('Failed to load warehouse data:', err);
+    dispatch({ type: 'SET_DATA', payload: { loading: false } });
+  }
+}, [isAuthenticated, userProfile]);
 
   useEffect(() => {
     loadData();
