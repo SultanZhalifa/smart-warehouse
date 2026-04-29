@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useWarehouse } from '../../../context/WarehouseContext';
 import { useAuth } from '../../../context/AuthContext';
@@ -32,35 +32,40 @@ function useTypingAnimation(texts, typingSpeed = 60, deletingSpeed = 35, pauseDu
   const indexRef = useRef(0);
   const charRef = useRef(0);
   const timeoutRef = useRef(null);
-
-  const animate = useCallback(() => {
-    const currentText = texts[indexRef.current];
-
-    if (isTyping) {
-      if (charRef.current < currentText.length) {
-        charRef.current += 1;
-        setDisplayText(currentText.slice(0, charRef.current));
-        timeoutRef.current = setTimeout(animate, typingSpeed + Math.random() * 40);
-      } else {
-        timeoutRef.current = setTimeout(() => setIsTyping(false), pauseDuration);
-      }
-    } else {
-      if (charRef.current > 0) {
-        charRef.current -= 1;
-        setDisplayText(currentText.slice(0, charRef.current));
-        timeoutRef.current = setTimeout(animate, deletingSpeed);
-      } else {
-        indexRef.current = (indexRef.current + 1) % texts.length;
-        setIsTyping(true);
-        timeoutRef.current = setTimeout(animate, 400);
-      }
-    }
-  }, [isTyping, texts, typingSpeed, deletingSpeed, pauseDuration]);
+  const animateRef = useRef(null);
 
   useEffect(() => {
+    const animate = () => {
+      const currentText = texts[indexRef.current];
+
+      if (isTyping) {
+        if (charRef.current < currentText.length) {
+          charRef.current += 1;
+          setDisplayText(currentText.slice(0, charRef.current));
+          timeoutRef.current = setTimeout(animate, typingSpeed + Math.random() * 40);
+        } else {
+          timeoutRef.current = setTimeout(() => setIsTyping(false), pauseDuration);
+        }
+      } else {
+        if (charRef.current > 0) {
+          charRef.current -= 1;
+          setDisplayText(currentText.slice(0, charRef.current));
+          timeoutRef.current = setTimeout(animate, deletingSpeed);
+        } else {
+          indexRef.current = (indexRef.current + 1) % texts.length;
+          setIsTyping(true);
+          timeoutRef.current = setTimeout(animate, 400);
+        }
+      }
+    };
+
+    animateRef.current = animate;
     timeoutRef.current = setTimeout(animate, 500);
-    return () => clearTimeout(timeoutRef.current);
-  }, [animate]);
+    
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, [isTyping, texts, typingSpeed, deletingSpeed, pauseDuration]);
 
   return displayText;
 }

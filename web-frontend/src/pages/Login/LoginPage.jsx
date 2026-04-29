@@ -1,9 +1,18 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { Warehouse, Eye, EyeOff, ArrowRight, Mail, ShieldCheck, Activity, UserCog } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function LoginPage() {
-  const { login, register, resetPassword } = useAuth();
+  const { user, login, register, resetPassword } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard'); // if after login user is set, redirect to dashboard
+    }
+  }, [user, navigate]);
+
   const [mode, setMode] = useState('login'); 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

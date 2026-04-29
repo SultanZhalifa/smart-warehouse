@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useWarehouse } from '../../context/WarehouseContext';
 import * as db from '../../lib/database';
 import {
@@ -14,7 +14,7 @@ const SEVERITY_CONFIG = {
 };
 
 export default function AlertsPage() {
-  const { state, dispatch, refreshData } = useWarehouse();
+  const { state, dispatch } = useWarehouse();
   const zones = state.zones;
   const [filter, setFilter] = useState('all');
   const [showRead, setShowRead] = useState(true);
@@ -37,14 +37,14 @@ export default function AlertsPage() {
     dispatch({ type: 'MARK_ALL_ALERTS_READ' });
   };
 
-  const timeAgo = (ts) => {
+  const timeAgo = useCallback((ts) => {
     const diff = Date.now() - new Date(ts).getTime();
     const mins = Math.floor(diff / 60000);
     if (mins < 60) return `${mins}m ago`;
     const hrs = Math.floor(mins / 60);
     if (hrs < 24) return `${hrs}h ago`;
     return `${Math.floor(hrs / 24)}d ago`;
-  };
+  }, []);
 
   return (
     <div className="page alerts-page">

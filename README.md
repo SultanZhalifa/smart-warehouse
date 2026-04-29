@@ -196,17 +196,20 @@ This page animates bounding boxes for UX and layout testing. It is not a substit
 ### Prerequisites
 - Node.js 18 or newer
 - npm or yarn
+- Python 3.8+ (for the AI backend)
 - A Supabase project (free tier works)
 - A Roboflow account, API key, and deployed model slug (required for AI Pest Detection)
 
 ### Installation
 
+#### Frontend Setup
+
 ```bash
 # Clone the repository
 git clone https://github.com/SultanZhalifa/smart-warehouse.git
 
-# Go to the project folder
-cd smart-warehouse
+# Go to the web frontend folder
+cd smart-warehouse/web-frontend
 
 # Install dependencies
 npm install
@@ -218,14 +221,43 @@ cp .env.example .env
 npm run dev
 ```
 
+#### Backend Setup (AI Engine)
+
+```bash
+# Go to the AI engine folder
+cd smart-warehouse/ai-engine
+
+# Create a Python virtual environment
+python -m venv venv
+
+# Activate the virtual environment
+# On Linux/Mac:
+source venv/bin/activate
+# On Windows:
+venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Start the backend server
+python app.py
+```
+
 ### Environment Variables
 
-Create a `.env` file in the project root with the following:
+Create a `.env` file in the `web-frontend/` folder with the following:
 
 ```
 VITE_SUPABASE_URL=your_supabase_project_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 VITE_BACKEND_URL=http://localhost:8000
+```
+
+Create a `.env` file in the `ai-engine/` folder with:
+
+```
+ROBOFLOW_API_KEY=your_roboflow_api_key
+ROBOFLOW_MODEL=your_model_slug
 ```
 
 ### Backend setup (AI detection)
@@ -259,23 +291,68 @@ Then open **http://localhost:5173** in your browser.
 
 ```
 smart-warehouse/
-├── src/
-│   ├── components/
-│   │   ├── common/           # Toast notifications
-│   │   ├── icons/            # Custom SVG pest icons (Snake, Cat, Gecko)
-│   │   └── layout/           # Sidebar, Header, Layout
-│   ├── context/              # AuthContext, WarehouseContext (Supabase)
-│   ├── lib/                  # Supabase client, database helper functions
-│   ├── pages/                # All 10 page components
-│   ├── utils/                # Export utilities
-│   ├── index.css             # Design system
-│   ├── App.jsx               # Root component with routing
-│   └── main.jsx              # Entry point
-├── scripts/
-│   ├── schema.sql            # Database schema (tables, RLS, triggers)
-│   └── seed-data.sql         # Initial data for demo
-├── docs/                     # Scrum documentation
-└── README.md
+├── ai-engine/                # AI/ML Backend (FastAPI + YOLOv8)
+│   ├── app.py               # FastAPI application
+│   ├── train.py             # Model training script
+│   ├── requirements.txt      # Python dependencies
+│   └── models/              # Trained model files (.pt, .onnx)
+│
+├── web-frontend/            # React Vite Frontend
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── common/      # Toast notifications
+│   │   │   ├── icons/       # Custom SVG pest icons (Snake, Cat, Gecko)
+│   │   │   └── layout/      # Sidebar, Header, Layout
+│   │   ├── context/         # AuthContext, WarehouseContext (Supabase)
+│   │   ├── lib/             # Supabase client, database helper functions
+│   │   ├── pages/           # All 10 page components
+│   │   ├── services/        # Service modules
+│   │   ├── utils/           # Export utilities
+│   │   ├── index.css        # Design system
+│   │   ├── App.jsx          # Root component with routing
+│   │   └── main.jsx         # Entry point
+│   ├── public/              # Static assets
+│   ├── index.html           # HTML entry point
+│   ├── package.json         # Frontend dependencies
+│   ├── vite.config.js       # Vite configuration
+│   ├── eslint.config.js     # ESLint configuration
+│   └── .env                 # Environment variables
+│
+├── docs/                    # Scrum documentation and guides
+├── README.md                # This file
+└── .gitignore               # Git ignore rules
+```
+
+---
+
+## Running the Application
+
+### Development Mode
+
+In two separate terminals:
+
+**Terminal 1 - Frontend:**
+```bash
+cd web-frontend
+npm run dev
+```
+
+**Terminal 2 - Backend:**
+```bash
+cd ai-engine
+source venv/bin/activate  # or venv\Scripts\activate on Windows
+python app.py
+```
+
+The frontend will be available at `http://localhost:5173` and the backend at `http://localhost:8000`.
+
+### Production Build
+
+**Frontend:**
+```bash
+cd web-frontend
+npm run build
+npm run preview
 ```
 
 ---

@@ -1,4 +1,4 @@
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { useWarehouse } from '../../../context/WarehouseContext';
 import { useAuth } from '../../../context/AuthContext';
 import {
@@ -22,7 +22,6 @@ const navItems = [
 export default function Sidebar() {
   const { state, dispatch } = useWarehouse();
   const { user, logout, isAuthenticated } = useAuth();
-  const location = useLocation();
   const collapsed = state.sidebarCollapsed;
   const unreadAlerts = state.alerts.filter((a) => a.status === 'unread').length;
 

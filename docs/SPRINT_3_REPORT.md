@@ -79,13 +79,13 @@ This sprint also included cleanup and documentation updates to meet course submi
 | Auth lock timeout | Custom localStorage adapter with implicit flow type and 3 second fallback timer |
 | Hardcoded analytics | Five new database query functions that aggregate from detection_results and alerts tables |
 | Emoji rendering | Custom PestIcons.jsx component with SVG paths for each species |
-| Model readiness gap | Finalize Roboflow project, train or deploy the model, then set `ROBOFLOW_MODEL` and `ROBOFLOW_API_KEY` in `backend/.env` |
+| Model readiness gap | Finalize Roboflow project, train or deploy the model, then set `ROBOFLOW_MODEL` and `ROBOFLOW_API_KEY` in `ai-engine/.env` |
 
 ---
 
 ## Plan for Final Delivery
 
-1. **Train the Roboflow model.** Collect and annotate snake, cat, and gecko images on Roboflow Universe, then train a YOLOv8 model using Roboflow Train. Deploy the model and set `ROBOFLOW_MODEL` and `ROBOFLOW_API_KEY` in `backend/.env` (the frontend calls the backend only).
+1. **Train the Roboflow model.** Collect and annotate snake, cat, and gecko images on Roboflow Universe, then train a YOLOv8 model using Roboflow Train. Deploy the model and set `ROBOFLOW_MODEL` and `ROBOFLOW_API_KEY` in `ai-engine/.env` (the frontend calls the backend only).
 
 2. **Live demonstration preparation.** Test the full detection workflow end to end with the webcam and uploaded photos. Ensure alert creation, activity logging, and analytics chart updates work in real time during the demo.
 

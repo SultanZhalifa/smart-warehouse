@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { subscribeToDetections } from '../../lib/database';
-import { useAuth } from '../../context/AuthContext';
 import { useWarehouse } from '../../context/WarehouseContext'; // Import the warehouse context
 
 const DetectionPage = () => {

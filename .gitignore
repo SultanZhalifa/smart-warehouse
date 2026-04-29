@@ -1,32 +1,33 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+# Frontend
+web-frontend/node_modules
+web-frontend/dist
+web-frontend/dist-ssr
+web-frontend/.env.local
+web-frontend/.env.*.local
 
-node_modules
-dist
-dist-ssr
-*.local
+# Backend / AI Engine
+ai-engine/__pycache__
+ai-engine/*.pyc
+ai-engine/venv
+ai-engine/env
+ai-engine/.env.local
+ai-engine/models/*.pt
+ai-engine/models/*.onnx
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
+# IDE
+.vscode
 .idea
 .DS_Store
 *.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+*.sln.docstates
 
-# Environment variables
-.env
-.env.local
+# OS
+.DS_Store
+Thumbs.db
 
-# Python
-__pycache__/
-*.py[cod]
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+lerna-debug.log*

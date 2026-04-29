@@ -73,9 +73,9 @@ Hasil predictions kemudian di-render sebagai bounding boxes di atas gambar mengg
 
 | File | Fungsi |
 |------|--------|
-| `src/pages/AIDetectionPage.jsx` | Halaman AI Detection -- upload gambar, panggil API, render bounding boxes |
-| `src/pages/AIDetectionPage.css` | Styling untuk halaman AI Detection |
-| `src/pages/DetectionPage.jsx` | Halaman detection simulasi (canvas animation) |
+| `web-frontend/src/pages/AIDetection/AIDetectionPage.jsx` | Halaman AI Detection -- upload gambar, panggil API, render bounding boxes |
+| `web-frontend/src/pages/AIDetection/AIDetectionPage.css` | Styling untuk halaman AI Detection |
+| `web-frontend/src/pages/Detection/DetectionPage.jsx` | Halaman detection simulasi (canvas animation) |
 
 ---
 

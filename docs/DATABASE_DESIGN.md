@@ -147,8 +147,8 @@ In short:
 ## Current Implementation
 
 - **Supabase PostgreSQL** -- Primary persistence for zones, cameras, inventory, alerts, detections, detection results, activity log, profiles, and settings.
-- **`src/lib/database.js`** -- Client-side helpers that call Supabase (CRUD, analytics queries, real-time subscriptions where used).
-- **`backend/seed.py`** -- Optional reproducible seeding via Supabase REST API (same tables as production).
+- **`web-frontend/src/lib/database.js`** -- Client-side helpers that call Firestore (CRUD, analytics queries, real-time subscriptions where used).
+- **`ai-engine/seed.py`** -- Optional reproducible seeding via Firestore REST API (same tables as production).
 - **`AuthContext.jsx` / `WarehouseContext.jsx`** -- Session and UI state; domain data is loaded from Supabase after login.
 
 ---

@@ -36,7 +36,7 @@ We use React Context API with useReducer for global state. There are two context
 ### WarehouseContext
 - Holds operational data loaded from Supabase after authentication (zones, cameras, inventory, alerts, and related views)
 - Uses a reducer for UI actions such as toasts, sidebar state, and merging refreshed query results into state
-- Page components call `src/lib/database.js` for CRUD and analytics; successful writes refresh context state where needed
+- Page components call `web-frontend/src/lib/database.js` for CRUD and analytics; successful writes refresh context state where needed
 
 ```
 WarehouseContext
@@ -80,7 +80,7 @@ Typical CRUD or alert action:
 User action on a page
        |
        v
-Page calls database helper (src/lib/database.js)
+Page calls database helper (web-frontend/src/lib/database.js)
        |
        v
 Supabase PostgREST (RLS applies per authenticated user)
@@ -109,45 +109,58 @@ Frontend refreshes warehouse data from Supabase
 ## Folder Structure
 
 ```
-src/
- |-- components/
- |    |-- common/
- |    |    |-- ToastContainer.jsx       # Toast notification display
- |    |-- layout/
- |         |-- Header.jsx              # Top bar with search
- |         |-- Layout.jsx              # Main wrapper
- |         |-- Sidebar.jsx             # Side navigation
+web-frontend/
+ |-- src/
+ |    |-- components/
+ |    |    |-- common/
+ |    |    |    |-- ToastContainer.jsx       # Toast notification display
+ |    |    |-- layout/
+ |    |    |    |-- Header.jsx              # Top bar with search
+ |    |    |    |-- Layout.jsx              # Main wrapper
+ |    |    |    |-- Sidebar.jsx             # Side navigation
+ |    |    |-- icons/
+ |    |    |    |-- PestIcons.jsx           # Snake, Cat, Gecko SVG components
+ |    |
+ |    |-- context/
+ |    |    |-- AuthContext.jsx              # User auth state
+ |    |    |-- WarehouseContext.jsx         # App data state
+ |    |
+ |    |-- lib/
+ |    |    |-- firebase.js                  # Firebase client
+ |    |    |-- database.js                  # Firestore queries (CRUD, analytics)
+ |    |
+ |    |-- pages/
+ |    |    |-- Dashboard/
+ |    |    |-- Detection/                   # Canvas visualization (not Roboflow)
+ |    |    |-- AIDetection/                 # Real inference via backend
+ |    |    |-- Inventory/                   # CRUD + export
+ |    |    |-- Alerts/
+ |    |    |-- Analytics/                   # Chart.js
+ |    |    |-- Zones/                       # Floor plan
+ |    |    |-- Activity/                    # Audit log + export
+ |    |    |-- Settings/                    # 4-tab settings
+ |    |    |-- Login/                       # Auth page
+ |    |
+ |    |-- services/
+ |    |    |-- auth.js                      # Auth helpers
+ |    |
+ |    |-- utils/
+ |    |    |-- exportUtils.js               # CSV/JSON/PDF export
+ |    |
+ |    |-- index.css                         # Design system tokens
+ |    |-- App.jsx                           # Router + guards
+ |    |-- main.jsx                          # Entry point
  |
- |-- context/
- |    |-- AuthContext.jsx              # User auth state
- |    |-- WarehouseContext.jsx         # App data state
- |
- |-- lib/
- |    |-- supabase.js                  # Supabase client
- |    |-- database.js                  # Supabase queries (CRUD, analytics)
- |
- |-- pages/
- |    |-- DashboardPage.jsx
- |    |-- DetectionPage.jsx            # Canvas visualization (not Roboflow)
- |    |-- AIDetectionPage.jsx         # Real inference via backend
- |    |-- InventoryPage.jsx            # CRUD + export
- |    |-- AlertsPage.jsx
- |    |-- AnalyticsPage.jsx            # Chart.js
- |    |-- ZonesPage.jsx                # Floor plan
- |    |-- ActivityPage.jsx             # Audit log + export
- |    |-- SettingsPage.jsx             # 4-tab settings
- |
- |-- utils/
- |    |-- exportUtils.js               # CSV/JSON/PDF export
- |
- |-- index.css                         # Design system tokens
- |-- App.jsx                           # Router + guards
- |-- main.jsx                          # Entry point
+ |-- public/                                # Static assets
+ |-- package.json
+ |-- vite.config.js
+ |-- .env
 
-backend/
- |-- app.py                            # FastAPI + /api/detect
- |-- seed.py                           # Database seeding via REST
- |-- requirements.txt
+ai-engine/
+ |-- app.py                            # FastAPI + /api/detect endpoint
+ |-- train.py                          # Model training script
+ |-- requirements.txt                  # Python dependencies
+ |-- models/                           # Directory for trained .pt models
  |-- .env.example
 ```
 
