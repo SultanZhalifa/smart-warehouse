@@ -13,19 +13,23 @@ const navItems = [
   { path: '/ai-detection', icon: Zap, label: 'AI Detection', roles: null },
   { path: '/inventory', icon: Package, label: 'Inventory', roles: null },
   { path: '/alerts', icon: Bell, label: 'Alerts', roles: null },
-  { path: '/analytics', icon: BarChart3, label: 'Analytics', roles: ['admin', 'manager'] },
+  { path: '/analytics', icon: BarChart3, label: 'Analytics', roles: ['admin', 'supervisor'] }, // Updated roles to match LoginPage
   { path: '/zones', icon: Map, label: 'Zones', roles: null },
-  { path: '/activity', icon: ClipboardList, label: 'Activity Log', roles: ['admin', 'manager'] },
+  { path: '/activity', icon: ClipboardList, label: 'Activity Log', roles: ['admin', 'supervisor'] }, // Updated roles to match LoginPage
   { path: '/settings', icon: Settings, label: 'Settings', roles: null },
 ];
 
 export default function Sidebar() {
   const { state, dispatch } = useWarehouse();
-  const { user, logout, isAuthenticated } = useAuth();
+  /** 
+   * Extract user data and logout function. 
+   * Ensure 'user' is checked as the primary condition for showing user actions.
+   */
+  const { user, logout, loading } = useAuth(); 
   const collapsed = state.sidebarCollapsed;
   const unreadAlerts = state.alerts.filter((a) => a.status === 'unread').length;
 
-  // Filter nav items by role
+  // Filter navigation items based on the user's assigned role
   const visibleItems = navItems.filter((item) => {
     if (!item.roles) return true;
     return item.roles.includes(user?.role);
@@ -33,7 +37,7 @@ export default function Sidebar() {
 
   return (
     <aside className={`sidebar ${collapsed ? 'collapsed' : ''}`}>
-      {/* Logo */}
+      {/* Brand Identity Section */}
       <div className="sidebar-logo">
         <div className="sidebar-logo-icon">
           <Warehouse size={24} />
@@ -46,7 +50,7 @@ export default function Sidebar() {
         )}
       </div>
 
-      {/* Nav */}
+      {/* Main Navigation Menu */}
       <nav className="sidebar-nav">
         {visibleItems.map((item) => (
           <NavLink
@@ -70,24 +74,30 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      {/* User & Toggle */}
+      {/* Footer: User Profile, Logout, and Toggle Sidebar */}
       <div className="sidebar-footer">
-        {isAuthenticated && (
+        {/* 
+          Conditional rendering: Show user profile and logout ONLY if user data is available 
+          and the authentication loading state is finished.
+        */}
+        {!loading && user && (
           <div className="sidebar-user">
-            <div className="sidebar-avatar">{user?.avatar ?? '?'}</div>
+            <div className="sidebar-avatar">
+              {user?.name?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || '?'}
+            </div>
             {!collapsed && (
               <div className="sidebar-user-info">
                 <span className="sidebar-user-name">
-                  {user?.name?.split(/\s+/)[0] || user?.email?.split('@')[0] || 'Account'}
+                  {user?.name?.split(/\s+/)[0] || user?.email?.split('@')[0] || 'Staff'}
                 </span>
-                <span className="sidebar-user-role">{user?.role ?? 'user'}</span>
+                <span className="sidebar-user-role">{user?.role ?? 'operator'}</span>
               </div>
             )}
             <button
               type="button"
               className={`sidebar-logout ${!collapsed ? 'sidebar-logout--labeled' : ''}`}
               onClick={logout}
-              title="Logout"
+              title="Logout from System"
               aria-label="Logout"
             >
               <LogOut size={16} />
@@ -95,8 +105,11 @@ export default function Sidebar() {
             </button>
           </div>
         )}
+        
+        {/* Sidebar Collapse Toggle Button */}
         <button
           className="sidebar-toggle"
+          style={{ width: '100%', display: 'flex', justifyContent: 'center', padding: '10px 0' }}
           onClick={() => dispatch({ type: 'TOGGLE_SIDEBAR' })}
         >
           {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}

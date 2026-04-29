@@ -4,15 +4,25 @@ import { Warehouse, Eye, EyeOff, ArrowRight, Mail, ShieldCheck, Activity, UserCo
 import { useNavigate } from 'react-router-dom';
 
 export default function LoginPage() {
-  const { user, login, register, resetPassword } = useAuth();
+  /** 
+   * Destructure authentication methods and states from AuthContext.
+   * Added 'loading' state to prevent infinite redirect loops.
+   */
+  const { user, loading: authLoading, login, register, resetPassword } = useAuth();
   const navigate = useNavigate();
 
+  /** 
+   * Global Redirect Logic:
+   * Monitors 'user' and 'authLoading' states.
+   * Redirects authenticated users to the dashboard automatically.
+   */
   useEffect(() => {
-    if (user) {
-      navigate('/dashboard'); // if after login user is set, redirect to dashboard
+    if (!authLoading && user) {
+      navigate('/dashboard', { replace: true });
     }
-  }, [user, navigate]);
+  }, [user, authLoading, navigate]);
 
+  // UI State management
   const [mode, setMode] = useState('login'); 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -21,13 +31,16 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [formLoading, setFormLoading] = useState(false);
 
+  /** 
+   * Handles Form Submission for Login, Registration, and Password Reset.
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
-    setLoading(true);
+    setFormLoading(true);
 
     try {
       if (mode === 'forgot') {
@@ -35,7 +48,7 @@ export default function LoginPage() {
         if (!result.success) setError(result.error);
         else setSuccess('Reset link sent to security email.');
       } else if (mode === 'register') {
-        // Register dengan Role & Warehouse ID WH-001
+        // Register new staff with a fixed Warehouse ID: WH-001
         const result = await register(email, password, fullName, role, "WH-001");
         if (!result.success) setError(result.error);
         else {
@@ -48,8 +61,9 @@ export default function LoginPage() {
       }
     } catch (err) {
       setError('Internal server authentication error.');
+    } finally {
+      setFormLoading(false);
     }
-    setLoading(false);
   };
 
   return (
@@ -75,6 +89,7 @@ export default function LoginPage() {
           justifyContent: 'space-between',
           position: 'relative'
         }}>
+          {/* Decorative Grid Pattern */}
           <div style={{ position: 'absolute', inset: 0, opacity: 0.05, backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
           
           <div style={{ position: 'relative', zIndex: 2 }}>
@@ -117,6 +132,7 @@ export default function LoginPage() {
             </div>
 
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {/* Feedback Notifications */}
               {error && <div style={{ background: '#fef2f2', color: '#dc2626', padding: '12px', borderRadius: '14px', fontSize: '13px', fontWeight: '600', borderLeft: '4px solid #dc2626' }}>{error}</div>}
               {success && <div style={{ background: '#f0fdf4', color: '#16a34a', padding: '12px', borderRadius: '14px', fontSize: '13px', fontWeight: '600', borderLeft: '4px solid #16a34a' }}>{success}</div>}
 
@@ -124,7 +140,7 @@ export default function LoginPage() {
                 <>
                   <div>
                     <label style={{ display: 'block', fontSize: '11px', fontWeight: '800', color: '#64748b', marginBottom: '6px', textTransform: 'uppercase' }}>Full Name</label>
-                    <input type="text" placeholder="e.g. Username" value={fullName} onChange={(e) => setFullName(e.target.value)} required style={{ width: '100%', padding: '14px 20px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '14px', fontSize: '14px', outline: 'none' }} />
+                    <input type="text" placeholder="e.g. Alex Rivera" value={fullName} onChange={(e) => setFullName(e.target.value)} required style={{ width: '100%', padding: '14px 20px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '14px', fontSize: '14px', outline: 'none' }} />
                   </div>
                   <div>
                     <label style={{ display: 'block', fontSize: '11px', fontWeight: '800', color: '#64748b', marginBottom: '6px', textTransform: 'uppercase' }}>Assigned Role</label>
@@ -144,7 +160,7 @@ export default function LoginPage() {
                 <label style={{ display: 'block', fontSize: '11px', fontWeight: '800', color: '#64748b', marginBottom: '6px', textTransform: 'uppercase' }}>Staff Email</label>
                 <div style={{ position: 'relative' }}>
                   <Mail size={18} style={{ position: 'absolute', right: '20px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
-                  <input type="email" placeholder="name@company.com" value={email} onChange={(e) => setEmail(e.target.value)} required style={{ width: '100%', padding: '14px 20px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '14px', fontSize: '14px', outline: 'none' }} />
+                  <input type="email" placeholder="staff.id@smartwh.com" value={email} onChange={(e) => setEmail(e.target.value)} required style={{ width: '100%', padding: '14px 20px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '14px', fontSize: '14px', outline: 'none' }} />
                 </div>
               </div>
 
@@ -166,7 +182,7 @@ export default function LoginPage() {
                 </div>
               )}
 
-              <button type="submit" disabled={loading} style={{ 
+              <button type="submit" disabled={formLoading} style={{ 
                 width: '100%', 
                 background: '#4f46e5', 
                 color: 'white', 
@@ -183,8 +199,8 @@ export default function LoginPage() {
                 boxShadow: '0 20px 40px -10px rgba(79, 70, 229, 0.4)',
                 marginTop: '10px'
               }}>
-                {loading ? 'Processing...' : (mode === 'login' ? 'Enter System' : 'Initialize Staff Account')}
-                {!loading && <ArrowRight size={20} />}
+                {formLoading ? 'Processing...' : (mode === 'login' ? 'Enter System' : 'Initialize Staff Account')}
+                {!formLoading && <ArrowRight size={20} />}
               </button>
             </form>
 
