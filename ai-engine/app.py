@@ -1,239 +1,117 @@
-"""
-SmartWH Backend - FastAPI Server
-Handles AI pest detection inference via Roboflow YOLOv8 and persists results to Supabase.
-Uses httpx for direct Supabase REST API calls (PostgREST).
-"""
-
-import os
-import time
+import cv2
+import torch
 import base64
-from datetime import datetime, timezone
+import numpy as np
+from ultralytics import YOLO
+from flask import Flask
+from flask_socketio import SocketIO, emit
+from flask_cors import CORS
 
-import httpx
-from dotenv import load_dotenv
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
+app = Flask(__name__)
+CORS(app)
 
-load_dotenv()
+# Initialize SocketIO with CORS allowed for React frontend (usually port 3000 or 5173)
+socketio = SocketIO(app, cors_allowed_origins="*")
 
-SUPABASE_URL = os.getenv("SUPABASE_URL", "")
-SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_KEY", "")
-ROBOFLOW_API_KEY = os.getenv("ROBOFLOW_API_KEY", "")
-ROBOFLOW_MODEL = os.getenv("ROBOFLOW_MODEL", "")
-ROBOFLOW_VERSION = os.getenv("ROBOFLOW_VERSION", "1")
-HOST = os.getenv("HOST", "0.0.0.0")
-PORT = int(os.getenv("PORT", "8000"))
+# 1. LOAD TRAINED MODEL
+# Ensure 'best.pt' is in the same directory as this script
+try:
+    model = YOLO('best.pt')
+    print("Model best.pt loaded successfully! System ready for pest detection.")
+except Exception as e:
+    print(f"Failed to load model: {e}. Ensure 'best.pt' exists in the folder.")
 
-# Supabase REST API headers
-SUPABASE_HEADERS = {
-    "apikey": SUPABASE_KEY,
-    "Authorization": f"Bearer {SUPABASE_KEY}",
-    "Content-Type": "application/json",
-    "Prefer": "return=representation",
-}
+# Control variable to prevent multiple webcam sessions
+is_detecting = False
 
-http_client = httpx.AsyncClient(timeout=30.0)
-
-app = FastAPI(
-    title="SmartWH Pest Detection API",
-    description="AI-powered pest detection backend using YOLOv8 via Roboflow",
-    version="1.0.0",
-)
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173", "*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-SEVERITY_MAP = {
-    "snake": "high", "rat": "high", "mouse": "high", "cockroach": "high",
-    "cat": "medium", "gecko": "medium", "lizard": "medium",
-}
-
-
-def get_severity(class_name: str) -> str:
-    return SEVERITY_MAP.get(class_name.lower(), "low")
-
-
-async def supabase_insert(table: str, data: dict | list) -> list:
-    """Insert data into a Supabase table via REST API."""
-    if not SUPABASE_URL or not SUPABASE_KEY:
-        return []
-    url = f"{SUPABASE_URL}/rest/v1/{table}"
-    resp = await http_client.post(url, json=data, headers=SUPABASE_HEADERS)
-    if resp.status_code in (200, 201):
-        return resp.json()
-    print(f"[DB] Insert to {table} failed: {resp.status_code} {resp.text[:200]}")
-    return []
-
-
-async def supabase_select(table: str, select: str = "*", limit: int = 1) -> list:
-    """Select data from a Supabase table via REST API."""
-    if not SUPABASE_URL or not SUPABASE_KEY:
-        return []
-    url = f"{SUPABASE_URL}/rest/v1/{table}?select={select}&limit={limit}"
-    resp = await http_client.get(url, headers=SUPABASE_HEADERS)
-    if resp.status_code == 200:
-        return resp.json()
-    return []
-
-
-@app.get("/")
-async def root():
-    return {"message": "SmartWH Pest Detection API", "status": "online"}
-
-
-@app.get("/api/health")
-async def health_check():
-    """Returns server health, model info, and database connection status."""
-    db_status = "disconnected"
-    if SUPABASE_URL and SUPABASE_KEY:
-        try:
-            result = await supabase_select("zones", "id", 1)
-            db_status = "connected" if isinstance(result, list) else "error"
-        except Exception:
-            db_status = "error"
-
-    return {
-        "status": "online",
-        "model": ROBOFLOW_MODEL or "not configured",
-        "model_version": ROBOFLOW_VERSION,
-        "roboflow_configured": bool(ROBOFLOW_MODEL and ROBOFLOW_API_KEY),
-        "database": db_status,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-    }
-
-
-@app.post("/api/detect")
-async def detect_pests(
-    image: UploadFile = File(None),
-    image_base64: str = Form(None),
-    user_name: str = Form("System"),
-    zone_id: str = Form(None),
-    confidence_threshold: int = Form(40),
-    overlap_threshold: int = Form(30),
-):
+def apply_clahe(frame):
     """
-    Run YOLOv8 pest detection on an uploaded image.
-    Accepts either a file upload or base64-encoded image.
-    Results are automatically saved to Supabase.
+    Preprocessing to handle low-light or blurry warehouse conditions.
+    Enhances contrast using Contrast Limited Adaptive Histogram Equalization.
     """
-    # Get image as base64
-    if image and image.filename:
-        raw_bytes = await image.read()
-        img_base64 = base64.b64encode(raw_bytes).decode("utf-8")
-    elif image_base64:
-        img_base64 = image_base64.split(",")[1] if "," in image_base64 else image_base64
-    else:
-        raise HTTPException(status_code=400, detail="No image provided.")
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
+    enhanced_gray = clahe.apply(gray)
+    return cv2.cvtColor(enhanced_gray, cv2.COLOR_GRAY2BGR)
 
-    if not ROBOFLOW_MODEL or not ROBOFLOW_API_KEY:
-        raise HTTPException(
-            status_code=503,
-            detail="Roboflow is not configured. Set ROBOFLOW_MODEL and ROBOFLOW_API_KEY in backend/.env",
-        )
+@socketio.on('start_detection')
+def handle_detection():
+    global is_detecting
+    if is_detecting:
+        print("Detection engine is already running.")
+        return
+    
+    # Open laptop webcam (Index 0 is default internal camera)
+    cap = cv2.VideoCapture(0) 
+    
+    if not cap.isOpened():
+        print("Error: Could not open webcam hardware.")
+        socketio.emit('error_message', {'message': 'Webcam not found'})
+        return
 
-    start_time = time.time()
-    roboflow_url = f"https://detect.roboflow.com/{ROBOFLOW_MODEL}/{ROBOFLOW_VERSION}"
-    params = {
-        "api_key": ROBOFLOW_API_KEY,
-        "confidence": confidence_threshold,
-        "overlap": overlap_threshold,
-    }
+    is_detecting = True
+    print("Webcam active. Streaming frames and coordinates to frontend...")
+    
     try:
-        response = await http_client.post(
-            roboflow_url, params=params, content=img_base64,
-            headers={"Content-Type": "application/x-www-form-urlencoded"},
-        )
-        response.raise_for_status()
-    except httpx.HTTPStatusError as e:
-        raise HTTPException(
-            status_code=e.response.status_code,
-            detail=f"Roboflow API error: {e.response.text}",
-        )
-    except httpx.RequestError as e:
-        raise HTTPException(status_code=502, detail=f"Failed to reach Roboflow: {str(e)}")
+        while is_detecting and cap.isOpened():
+            ret, frame = cap.read()
+            if not ret:
+                break
 
-    inference_ms = int((time.time() - start_time) * 1000)
-    data = response.json()
-    predictions = data.get("predictions", [])
+            # --- STEP 1: PREPROCESSING ---
+            processed_frame = apply_clahe(frame)
 
-    # Save to Supabase
-    detection_id = None
-    saved_count = 0
+            # --- STEP 2: INFERENCE ---
+            # stream=True optimizes memory for live video
+            results = model(processed_frame, conf=0.25, iou=0.45, stream=True)
 
-    if predictions:
-        try:
-            # 1. Create detection session
-            det_rows = await supabase_insert("detections", {
-                "total_objects": len(predictions),
-                "inference_time_ms": inference_ms,
-                "model_version": f"YOLOv8 ({ROBOFLOW_MODEL})",
-            })
-
-            if det_rows:
-                detection_id = det_rows[0]["id"]
-
-                # 2. Save individual detection results
-                results = [{
-                    "detection_id": detection_id,
-                    "class_name": p.get("class", "unknown"),
-                    "confidence": p.get("confidence", 0),
-                    "x": p.get("x", 0), "y": p.get("y", 0),
-                    "width": p.get("width", 0), "height": p.get("height", 0),
-                } for p in predictions]
-                saved = await supabase_insert("detection_results", results)
-                saved_count = len(saved)
-
-                # 3. Create alerts
-                for pred in predictions:
-                    cls = pred.get("class", "unknown")
-                    conf = pred.get("confidence", 0)
-                    severity = get_severity(cls)
-                    await supabase_insert("alerts", {
-                        "type": "critical" if severity == "high" else "warning",
-                        "severity": severity,
-                        "title": f"{cls.capitalize()} Detected via AI Scan",
-                        "message": f"AI detected {cls} ({conf * 100:.1f}% confidence).",
-                        "zone_id": zone_id if zone_id else None,
-                        "animal_type": cls.lower(),
-                        "status": "unread",
+            detections = []
+            for r in results:
+                for box in r.boxes:
+                    # Extract bounding box coordinates [x1, y1, x2, y2], class, and confidence
+                    coords = box.xyxy[0].tolist() 
+                    cls_id = int(box.cls[0])
+                    conf = float(box.conf[0])
+                    
+                    detections.append({
+                        "bbox": coords,
+                        "class": model.names[cls_id],
+                        "confidence": round(conf, 2)
                     })
 
-                # 4. Log activity
-                species = ", ".join(set(
-                    p.get("class", "unknown").capitalize() for p in predictions
-                ))
-                await supabase_insert("activity_log", {
-                    "user_name": user_name,
-                    "action": f"AI Pest Scan: {len(predictions)} detection{'s' if len(predictions) != 1 else ''}",
-                    "target": species,
-                    "type": "detection",
-                })
+            # --- STEP 3: VIDEO ENCODING ---
+            # Encode the processed frame to JPEG, then to Base64 string for WebSocket transmission
+            _, buffer = cv2.imencode('.jpg', processed_frame)
+            frame_encoded = base64.b64encode(buffer).decode('utf-8')
+            image_data = f"data:image/jpeg;base64,{frame_encoded}"
 
-        except Exception as e:
-            print(f"[DB] Failed to save results: {e}")
+            # --- STEP 4: EMIT DATA ---
+            # Send both image frame and coordinates in a single synchronized packet
+            socketio.emit('vision_data', {
+                'image': image_data,
+                'detections': detections
+            })
+            
+            # Short sleep to prevent CPU spikes and stabilize socket connection
+            socketio.sleep(0.01)
+            
+    except Exception as e:
+        print(f"Runtime Error: {e}")
+    finally:
+        cap.release()
+        is_detecting = False
+        print("Webcam released and detection stopped.")
 
-    return {
-        "success": True,
-        "detection_id": detection_id,
-        "inference_time_ms": inference_ms,
-        "predictions": predictions,
-        "total_detections": len(predictions),
-        "saved_results": saved_count,
-        "model": ROBOFLOW_MODEL,
-    }
+@socketio.on('stop_detection')
+def handle_stop():
+    global is_detecting
+    is_detecting = False
+    print("Stop request received from frontend.")
 
+@socketio.on('connect')
+def test_connect():
+    print('Frontend client connected to AI Backend.')
 
-if __name__ == "__main__":
-    import uvicorn
-
-    print(f"SmartWH Backend v1.0.0")
-    print(f"Server:   http://{HOST}:{PORT}")
-    print(f"Model:    {ROBOFLOW_MODEL or 'NOT SET -- update backend/.env'}")
-    print(f"Database: {'Configured' if SUPABASE_URL else 'Not configured'}")
-    print()
-    uvicorn.run("app:app", host=HOST, port=PORT, reload=True)
+if __name__ == '__main__':
+    # Run server on all interfaces (0.0.0.0) at port 5000
+    socketio.run(app, host='0.0.0.0', port=5000, debug=True)
