@@ -1,27 +1,80 @@
 import React, { useState, useEffect } from 'react';
+import { socket } from '../../services/socket';
 import { 
   Camera, Activity, Settings2, ShieldAlert, 
   Maximize2, Eye, EyeOff, Zap, RefreshCw 
 } from 'lucide-react';
 import './Visioncontrol.css';
 
+/**
+ * VISION CONTROL COMPONENT
+ * The core monitoring hub connecting the React frontend to the YOLOv8 Python backend.
+ * Now handles synchronized Base64 video streaming and AI bounding boxes.
+ */
 const VisionControl = () => {
-  // CORE STATES
-  const [isAIEnabled, setIsAIEnabled] = useState(true);
-  const [showOverlay, setShowOverlay] = useState(true); // Toggle Bounding Boxes
+  // --- CORE STATES ---
+  const [isAIEnabled, setIsAIEnabled] = useState(false);
+  const [showOverlay, setShowOverlay] = useState(true); 
   const [threshold, setThreshold] = useState(0.5);
-  
-  // MOCK DATA for "Smart Mapping" (Relative coordinates for A+ accuracy)
-  const [detections, setDetections] = useState([
-    { id: 101, label: 'Pest', conf: 0.89, x: 25, y: 30, w: 120, h: 80 },
-    { id: 102, label: 'Pest', conf: 0.72, x: 60, y: 55, w: 100, h: 70 }
-  ]);
+  const [detections, setDetections] = useState([]);
+  const [streamFrame, setStreamFrame] = useState(null); // Stores the Base64 image string
+  const [isConnected, setIsConnected] = useState(false);
 
-  // LOGIC: Responsive UI - Sidebar changes based on AI status
+  // --- SOCKET.IO LOGIC ---
+  useEffect(() => {
+    // 1. Manually connect to the centralized socket service
+    socket.connect();
+
+    socket.on('connect', () => {
+      console.log("Connected to AI Backend Engine");
+      setIsConnected(true);
+    });
+
+    socket.on('disconnect', () => {
+      console.log("Disconnected from AI Backend Engine");
+      setIsConnected(false);
+      setIsAIEnabled(false);
+      setStreamFrame(null);
+    });
+
+    /**
+     * 2. REAL-TIME DATA LISTENER
+     * Receives synchronized image frames and detection coordinates.
+     */
+    socket.on('vision_data', (data) => {
+      if (data.image) setStreamFrame(data.image);
+      if (data.detections) setDetections(data.detections);
+    });
+
+    // 3. CLEANUP: Ensure resources are released when the user leaves the page
+    return () => {
+      socket.emit('stop_detection');
+      socket.disconnect();
+      console.log("Session ended. Connection closed.");
+    };
+  }, []);
+
+  // --- HANDLERS ---
+  const toggleAI = () => {
+    if (!isAIEnabled) {
+      socket.emit('start_detection');
+      setIsAIEnabled(true);
+    } else {
+      socket.emit('stop_detection');
+      setIsAIEnabled(false);
+      setDetections([]);
+      setStreamFrame(null);
+    }
+  };
+
+  // Logic: Filters UI boxes based on the current threshold slider
+  const filteredDetections = detections.filter(d => d.confidence >= threshold);
+
+  // --- SIDEBAR UI ---
   const renderSidebar = () => {
     return (
       <aside className="vision-sidebar">
-        {/* SECTION 1: AI CONTROL (The "Brain" of the system) */}
+        {/* SECTION 1: INFERENCE ENGINE CONTROL */}
         <div className="control-card">
           <div className="card-header">
             <Settings2 size={18} />
@@ -30,16 +83,17 @@ const VisionControl = () => {
           
           <div className="control-group">
             <div className="label-row">
-              <span>AI Detection</span>
-              <span className={`status-pill ${isAIEnabled ? 'online' : 'offline'}`}>
-                {isAIEnabled ? 'RUNNING' : 'STOPPED'}
+              <span>System Status</span>
+              <span className={`status-pill ${isConnected ? 'online' : 'offline'}`}>
+                {isConnected ? 'BACKEND READY' : 'BACKEND DOWN'}
               </span>
             </div>
             <button 
               className={`action-btn-main ${isAIEnabled ? 'stop' : 'start'}`}
-              onClick={() => setIsAIEnabled(!isAIEnabled)}
+              onClick={toggleAI}
+              disabled={!isConnected}
             >
-              {isAIEnabled ? 'Disable Engine' : 'Enable Engine'}
+              {isAIEnabled ? 'Disable AI Engine' : 'Enable AI Engine'}
             </button>
           </div>
 
@@ -51,35 +105,38 @@ const VisionControl = () => {
             <input 
               type="range" min="0.1" max="1.0" step="0.05" 
               value={threshold} 
-              onChange={(e) => setThreshold(e.target.value)} 
+              onChange={(e) => setThreshold(parseFloat(e.target.value))} 
             />
           </div>
         </div>
 
-        {/* SECTION 2: SESSION INSIGHTS (The "Evidence" collector) */}
+        {/* SECTION 2: LIVE SESSION INSIGHTS */}
         <div className="control-card scrollable">
           <div className="card-header">
             <Activity size={18} />
             <h3>Session Insights</h3>
           </div>
           <div className="insight-list">
-            {detections.map(d => (
-              <div key={d.id} className="insight-item">
-                <ShieldAlert size={14} className="alert-icon" />
-                <div className="insight-info">
-                  <p className="item-label">{d.label} Detected</p>
-                  <p className="item-meta">Confidence: {(d.conf * 100).toFixed(0)}%</p>
+            {filteredDetections.length > 0 ? (
+              filteredDetections.map((d, index) => (
+                <div key={index} className="insight-item">
+                  <ShieldAlert size={14} className="alert-icon" />
+                  <div className="insight-info">
+                    <p className="item-label">{d.class} Detected</p>
+                    <p className="item-meta">Confidence: {(d.confidence * 100).toFixed(0)}%</p>
+                  </div>
                 </div>
-                <button className="view-snap">View</button>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p className="no-data">No threats detected.</p>
+            )}
           </div>
         </div>
 
-        {/* NEW FEATURE: System Health (Boosts your project score!) */}
+        {/* SECTION 3: SYSTEM PERFORMANCE */}
         <div className="system-health-card">
           <div className="health-row">
-            <Zap size={14} /> <span>Latency: 24ms</span>
+            <Zap size={14} /> <span>Latency: {isConnected ? '24ms' : 'N/A'}</span>
           </div>
           <div className="health-row">
             <RefreshCw size={14} /> <span>Model: YOLOv8-Pest-v2</span>
@@ -91,7 +148,6 @@ const VisionControl = () => {
 
   return (
     <div className="vision-control-container">
-      {/* 1. TOP HEADER: Navigation & Breadcrumbs */}
       <header className="vision-header">
         <div className="header-left">
           <h2>Vision Control Hub</h2>
@@ -106,32 +162,44 @@ const VisionControl = () => {
       </header>
 
       <div className="vision-main-layout">
-        {/* 2. THE VIEWPORT: This is where the magic happens */}
         <main className="vision-viewport">
           <div className="video-stream-layer">
-            <div className="live-indicator">● LIVE</div>
-            <div className="video-placeholder-content">
-              {/* This is where your actual camera feed will sit */}
-              <p>Camera Feed Grid (Zone B)</p>
+            <div className={`live-indicator ${isAIEnabled ? 'active' : ''}`}>
+              {isAIEnabled ? '● LIVE' : 'OFFLINE'}
             </div>
+
+            {/* LIVE VIDEO FEED */}
+            {isAIEnabled && streamFrame ? (
+              <img 
+                src={streamFrame} 
+                alt="AI Feed" 
+                className="main-video-feed" 
+              />
+            ) : (
+              <div className="video-placeholder-content">
+                <Camera size={48} className="mb-4 opacity-20" />
+                <p>{isAIEnabled ? 'Waiting for Stream...' : 'AI Engine Idle'}</p>
+              </div>
+            )}
           </div>
 
-          {/* 3. THE AI OVERLAY: Independent layer for Bounding Boxes */}
+          {/* AI OVERLAY: Draws Bounding Boxes on top of the live image */}
           {showOverlay && isAIEnabled && (
             <div className="ai-overlay-layer">
-              {detections.map(box => (
+              {filteredDetections.map((box, index) => (
                 <div 
-                  key={box.id}
+                  key={index}
                   className="ai-bounding-box"
                   style={{
-                    left: `${box.x}%`,
-                    top: `${box.y}%`,
-                    width: `${box.w}px`,
-                    height: `${box.h}px`
+                    // Assumes backend 640x480 resolution. Adjust if your camera differs.
+                    left: `${(box.bbox[0] / 640) * 100}%`,
+                    top: `${(box.bbox[1] / 480) * 100}%`,
+                    width: `${((box.bbox[2] - box.bbox[0]) / 640) * 100}%`,
+                    height: `${((box.bbox[3] - box.bbox[1]) / 480) * 100}%`
                   }}
                 >
                   <div className="box-tag">
-                    {box.label} {(box.conf * 100).toFixed(0)}%
+                    {box.class} {(box.confidence * 100).toFixed(0)}%
                   </div>
                 </div>
               ))}
@@ -139,7 +207,6 @@ const VisionControl = () => {
           )}
         </main>
 
-        {/* 4. SIDEBAR: Controls & Logs */}
         {renderSidebar()}
       </div>
     </div>
