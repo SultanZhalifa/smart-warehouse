@@ -12,9 +12,15 @@
 /* 2. HEADER STYLING */
 .vision-header {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
+  gap: 16px;
   padding-bottom: 10px;
+}
+
+.vision-header > .stats-grid {
+  flex: 1 1 420px;
 }
 
 .header-left h2 {
@@ -65,6 +71,54 @@
   min-height: 0;
 }
 
+.tab-navigation {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.tab-button {
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #334155;
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.tab-button.active {
+  background: #7c6cf0;
+  color: #ffffff;
+  border-color: #7c6cf0;
+}
+
+.analytics-main-layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 24px;
+  width: 100%;
+}
+
+.analytics-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.analytics-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.analytics-log-panel {
+  display: flex;
+  flex-direction: column;
+  max-height: 720px;
+}
+
 /* 4. VIEWPORT & VIDEO STREAM */
 .vision-viewport {
   background: #0f172a;
@@ -72,7 +126,11 @@
   position: relative;
   overflow: hidden;
   border: 1px solid #334155;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.12);
+  aspect-ratio: 4 / 3;
+  min-height: 420px;
+  display: flex;
+  flex-direction: column;
 }
 
 .video-stream-layer {
@@ -169,6 +227,32 @@
   flex-direction: column;
   gap: 20px;
   min-height: 0;
+  max-height: calc(100vh - 230px);
+  overflow: hidden;
+}
+
+.support-section {
+  margin-top: auto;
+  padding-top: 20px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.support-spacer {
+  height: 16px;
+}
+
+.support-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  background: #eef2ff;
+  border: 1px solid #dbeafe;
+  border-radius: 16px;
+  padding: 14px;
+  color: #1d4ed8;
+  font-weight: 700;
+  cursor: pointer;
 }
 
 .control-card {
@@ -176,7 +260,7 @@
   border-radius: 20px;
   padding: 20px;
   border: 1px solid #eef2f7;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
 }
 
 .control-card.scrollable {
@@ -271,6 +355,7 @@ input[type="range"] {
   flex: 1;
   overflow-y: auto;
   padding-right: 4px;
+  max-height: 360px;
 }
 
 .insight-item {
@@ -306,6 +391,22 @@ input[type="range"] {
   font-size: 0.7rem;
   color: #94a3b8;
   margin: 0;
+}
+
+/* Tambahkan ini di bagian 8 (Insight Items) */
+.log-indicator.ai_alarm {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ef4444; /* Merah untuk alert hama */
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+}
+
+.log-indicator.system {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #3b82f6; /* Biru untuk sistem */
 }
 
 /* 9. SYSTEM HEALTH BAR */

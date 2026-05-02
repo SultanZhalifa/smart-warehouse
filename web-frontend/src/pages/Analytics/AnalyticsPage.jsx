@@ -6,8 +6,9 @@ import {
 import { Line, Bar, Doughnut } from 'react-chartjs-2';
 import { useWarehouse } from '../../context/WarehouseContext';
 import * as db from '../../lib/database';
+import QuickActionCards from '../../components/QuickActionCards/QuickActionCards';
 import {
-  BarChart3, TrendingUp, PieChart, Download, Loader2, AlertCircle
+  BarChart3, TrendingUp, PieChart, Download, Loader2, AlertCircle, Activity, Clock
 } from 'lucide-react';
 import './AnalyticsPage.css';
 
@@ -50,6 +51,49 @@ export default function AnalyticsPage() {
   const [dateRange, setDateRange] = useState('week');
   const [loading, setLoading] = useState(true);
   const [chartData, setChartData] = useState(null);
+  
+  // Real-time counters
+  const [counters, setCounters] = useState({
+    total: 0,
+    todayCount: 0
+  });
+
+  const handleExportReport = async () => {
+    if (!chartData) return;
+
+    const lines = [
+      ['Metric', 'Value'],
+      ['Total Detections', counters.total],
+      ['Detected Today', counters.todayCount],
+      ['Data Points (Hourly)', chartData.hourly.data.reduce((sum, value) => sum + value, 0)],
+      ['Pest Categories', Object.keys(chartData.pests).join(', ')],
+      ['Zone Categories', chartData.zones.labels.join(', ')],
+      ['Trend Windows', chartData.trend.labels.join(', ')]
+    ];
+
+    const csvContent = lines.map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'analytics-report.csv';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  // Real-time subscription to detection counters
+  useEffect(() => {
+    const unsubscribe = db.subscribeToRealTimeCounters((data) => {
+      setCounters({
+        total: data.total,
+        todayCount: data.todayCount
+      });
+    });
+
+    return () => unsubscribe?.();
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -150,98 +194,180 @@ export default function AnalyticsPage() {
     chartData.zones.labels.length > 0
   );
 
-  return (
-    <div className="page analytics-page">
-      <div className="page-header">
-        <div>
-          <h1>Analytics & Reports</h1>
-          <p>Pest detection insights and risk mitigation data</p>
+  // Ganti HANYA bagian return() — dari line pertama return sampai akhir
+// Logic, state, useEffect, chartData building — JANGAN DIUBAH
+
+return (
+  <div className="page analytics-page">
+    {/* ── Page Header ── */}
+    <div className="page-header">
+      <div>
+        <h1>Analytics & Reports</h1>
+        <p>Pest detection insights and real-time monitoring</p>
+      </div>
+      <div style={{ display: 'flex', gap: 'var(--space-sm)' }}>
+        <div className="analytics-date-tabs">
+          {['day', 'week', 'month', 'year'].map((r) => (
+            <button
+              key={r}
+              className={`analytics-date-btn ${dateRange === r ? 'active' : ''}`}
+              onClick={() => setDateRange(r)}
+            >
+              {r.charAt(0).toUpperCase() + r.slice(1)}
+            </button>
+          ))}
         </div>
-        <div style={{ display: 'flex', gap: 'var(--space-sm)' }}>
-          <div className="analytics-date-tabs">
-            {['day', 'week', 'month', 'year'].map((r) => (
-              <button key={r} className={`analytics-date-btn ${dateRange === r ? 'active' : ''}`} onClick={() => setDateRange(r)}>
-                {r.charAt(0).toUpperCase() + r.slice(1)}
-              </button>
-            ))}
+        <button className="btn btn-secondary" onClick={handleExportReport}>
+          <Download size={16} /> Export
+        </button>
+      </div>
+    </div>
+
+    {/* ── Master Layout: Left Column + Right Sidebar ── */}
+    <div className="analytics-content-wrapper">
+
+      {/* ── LEFT: Main Content Column ── */}
+      <div className="analytics-main-column">
+
+        {/* Counter Cards */}
+        <div className="counters-section">
+          <div className="counter-card">
+            <div className="counter-header">
+              <Activity size={20} />
+              <span className="counter-label">Total Detections</span>
+            </div>
+            <div className="counter-value">{counters.total}</div>
+            <p className="counter-subtitle">All-time</p>
           </div>
-          <button className="btn btn-secondary">
-            <Download size={16} /> Export
-          </button>
+
+          <div className="counter-card highlight">
+            <div className="counter-header">
+              <Clock size={20} />
+              <span className="counter-label">Detected Today</span>
+            </div>
+            <div className="counter-value">{counters.todayCount}</div>
+            <p className="counter-subtitle">Current date</p>
+          </div>
         </div>
+
+        {/* Quick Action Cards */}
+        <QuickActionCards onExport={handleExportReport} />
+
+        {/* ── Charts Area ── */}
+        {loading ? (
+          <div className="empty-state" style={{ padding: 'var(--space-2xl)' }}>
+            <Loader2 size={32} className="spin" />
+            <h3>Loading analytics data...</h3>
+            <p>Querying detection results from database</p>
+          </div>
+        ) : !hasData ? (
+          <div className="empty-state" style={{ padding: 'var(--space-2xl)' }}>
+            <AlertCircle size={32} />
+            <h3>No detection data yet</h3>
+            <p>
+              Run AI Detection scans to populate charts with real data.
+              All analytics are sourced directly from the Firestore database.
+            </p>
+          </div>
+        ) : (
+          <div className="charts-grid">
+            {/* Detection Trend — full width */}
+            <div className="analytics-card analytics-wide">
+              <div className="analytics-card-header">
+                <h3><TrendingUp size={16} /> Pest Detection Trend (Hourly)</h3>
+              </div>
+              <div className="analytics-chart-wrapper" style={{ height: 280 }}>
+                {detectionLineData && <Line data={detectionLineData} options={chartDefaults} />}
+              </div>
+            </div>
+
+            {/* Weekly Distribution */}
+            <div className="analytics-card">
+              <div className="analytics-card-header">
+                <h3><BarChart3 size={16} /> Weekly Distribution</h3>
+              </div>
+              <div className="analytics-chart-wrapper" style={{ height: 260 }}>
+                {weeklyBarData && <Bar data={weeklyBarData} options={chartDefaults} />}
+              </div>
+            </div>
+
+            {/* Pest Species Distribution */}
+            <div className="analytics-card">
+              <div className="analytics-card-header">
+                <h3><PieChart size={16} /> Pest Species Distribution</h3>
+              </div>
+              <div className="analytics-chart-wrapper" style={{ height: 260 }}>
+                {objectDoughnutData && pestLabels.length > 0
+                  ? <Doughnut data={objectDoughnutData} options={doughnutOptions} />
+                  : <div className="empty-state"><p>No pest detections recorded yet</p></div>
+                }
+              </div>
+            </div>
+
+            {/* Zone Activity */}
+            <div className="analytics-card">
+              <div className="analytics-card-header">
+                <h3><BarChart3 size={16} /> Zone Alert Activity</h3>
+              </div>
+              <div className="analytics-chart-wrapper" style={{ height: 260 }}>
+                {zoneBarData && chartData.zones.labels.length > 0
+                  ? <Bar data={zoneBarData} options={chartDefaults} />
+                  : <div className="empty-state"><p>No zone alerts recorded yet</p></div>
+                }
+              </div>
+            </div>
+
+            {/* Threat Trend */}
+            <div className="analytics-card">
+              <div className="analytics-card-header">
+                <h3><TrendingUp size={16} /> Threat Detection & Resolution</h3>
+              </div>
+              <div className="analytics-chart-wrapper" style={{ height: 260 }}>
+                {threatTrendData && <Line data={threatTrendData} options={chartDefaults} />}
+              </div>
+            </div>
+
+            {/* Peak Alert Hours — full width, stays in left column */}
+            <div className="analytics-card analytics-wide">
+              <div className="analytics-card-header">
+                <h3><Clock size={16} /> Peak Alert Hours</h3>
+                <span className="analytics-card-subtitle">Most active detection windows</span>
+              </div>
+              <div className="analytics-chart-wrapper" style={{ height: 220 }}>
+                {chartData?.hourly?.data?.some(v => v > 0)
+                  ? <Bar data={detectionLineData} options={chartDefaults} />
+                  : <div className="empty-state"><p>Waiting for alert events to build hour peaks.</p></div>
+                }
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
-      {loading ? (
-        <div className="empty-state" style={{ padding: 'var(--space-2xl)' }}>
-          <Loader2 size={32} className="spin" />
-          <h3>Loading analytics data...</h3>
-          <p>Querying detection results from database</p>
-        </div>
-      ) : !hasData ? (
-        <div className="empty-state" style={{ padding: 'var(--space-2xl)' }}>
-          <AlertCircle size={32} />
-          <h3>No detection data yet</h3>
-          <p>Run AI Detection scans to populate charts with real data. All analytics are sourced directly from the Supabase database.</p>
-        </div>
-      ) : (
-        <div className="analytics-grid">
-          {/* Detection Trend */}
-          <div className="analytics-card analytics-wide">
-            <div className="analytics-card-header">
-              <h3><TrendingUp size={16} /> Pest Detection Trend (Hourly)</h3>
-            </div>
-            <div className="analytics-chart-wrapper" style={{ height: 280 }}>
-              {detectionLineData && <Line data={detectionLineData} options={chartDefaults} />}
-            </div>
+      {/* ── RIGHT: Sticky Activity Logs Sidebar ── */}
+      <aside className="analytics-sidebar">
+        <div className="analytics-card">
+          <div className="analytics-card-header">
+            <h3><Activity size={16} /> Activity Logs</h3>
           </div>
-
-          {/* Weekly Distribution */}
-          <div className="analytics-card">
-            <div className="analytics-card-header">
-              <h3><BarChart3 size={16} /> Weekly Distribution</h3>
-            </div>
-            <div className="analytics-chart-wrapper" style={{ height: 260 }}>
-              {weeklyBarData && <Bar data={weeklyBarData} options={chartDefaults} />}
-            </div>
-          </div>
-
-          {/* Pest Species Distribution */}
-          <div className="analytics-card">
-            <div className="analytics-card-header">
-              <h3><PieChart size={16} /> Pest Species Distribution</h3>
-            </div>
-            <div className="analytics-chart-wrapper" style={{ height: 260 }}>
-              {objectDoughnutData && pestLabels.length > 0
-                ? <Doughnut data={objectDoughnutData} options={doughnutOptions} />
-                : <div className="empty-state"><p>No pest detections recorded yet</p></div>
-              }
-            </div>
-          </div>
-
-          {/* Zone Activity */}
-          <div className="analytics-card">
-            <div className="analytics-card-header">
-              <h3><BarChart3 size={16} /> Zone Alert Activity</h3>
-            </div>
-            <div className="analytics-chart-wrapper" style={{ height: 260 }}>
-              {zoneBarData && chartData.zones.labels.length > 0
-                ? <Bar data={zoneBarData} options={chartDefaults} />
-                : <div className="empty-state"><p>No zone alerts recorded yet</p></div>
-              }
-            </div>
-          </div>
-
-          {/* Threat Trend */}
-          <div className="analytics-card">
-            <div className="analytics-card-header">
-              <h3><TrendingUp size={16} /> Threat Detection & Resolution</h3>
-            </div>
-            <div className="analytics-chart-wrapper" style={{ height: 260 }}>
-              {threatTrendData && <Line data={threatTrendData} options={chartDefaults} />}
-            </div>
+          <div className="logs-list-container">
+            {state.activityLog && state.activityLog.length > 0 ? (
+              state.activityLog.map((log, i) => (
+                <div key={i} className="log-item">
+                  <span className="log-message">{log.message}</span>
+                  <span className="log-meta">{log.time} • {log.status}</span>
+                </div>
+              ))
+            ) : (
+              <div className="empty-state">
+                <p>No activity logged yet</p>
+              </div>
+            )}
           </div>
         </div>
-      )}
+      </aside>
+
     </div>
-  );
+  </div>
+);
 }

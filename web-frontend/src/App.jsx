@@ -2,6 +2,7 @@ import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { WarehouseProvider } from './context/WarehouseContext';
+import { VisionProvider } from './context/VisionContext';
 import Layout from './components/layout/MainLayout/Layout';
 
 // Page Imports
@@ -154,7 +155,9 @@ function AppInner() {
   
   return (
     <WarehouseProvider isAuthenticated={!!user} userProfile={user} loading={loading}>
-      <AppRoutes />
+      <VisionProvider>
+        <AppRoutes />
+      </VisionProvider>
     </WarehouseProvider>
   );
 }

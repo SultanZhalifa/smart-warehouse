@@ -1,86 +1,114 @@
-.analytics-page .page-header { margin-bottom: var(--space-lg); }
-
-/* Date tabs */
-.analytics-date-tabs {
+/* ── Main Layout Container ── */
+.analytics-page {
+  padding: var(--space-lg);
   display: flex;
-  background: var(--color-bg-tertiary);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-}
-
-.analytics-date-btn {
-  padding: 8px 16px;
-  font-size: var(--font-size-xs);
-  font-weight: 600;
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  background: none;
-  border: none;
-  border-right: 1px solid var(--color-border);
-}
-
-.analytics-date-btn:last-child { border-right: none; }
-
-.analytics-date-btn:hover { color: var(--color-text-primary); background: rgba(255,255,255,0.03); }
-
-.analytics-date-btn.active {
-  background: rgba(74, 144, 217, 0.1);
-  color: var(--color-accent-primary);
-}
-
-/* Grid */
-.analytics-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  flex-direction: column;
   gap: var(--space-lg);
 }
 
+/* 
+   The Master Wrapper: 
+   Separates the main charts area from the sidebar logs.
+*/
+.analytics-content-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 340px; /* Left column takes remaining space, right is fixed */
+  gap: var(--space-lg);
+  align-items: start;
+}
+
+/* ── Left Column: Metrics & Charts ── */
+.analytics-main-column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+/* 3-column grid for the top stats cards */
+.counters-section {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-md);
+}
+
+/* 2-column grid for the mid-section charts */
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr; /* Trend chart is wider than distribution */
+  gap: var(--space-lg);
+}
+
+/* Force specific cards to span full width of the left column */
 .analytics-wide {
   grid-column: 1 / -1;
 }
 
-@media (max-width: 900px) {
-  .analytics-grid { grid-template-columns: 1fr; }
+/* ── Right Column: Persistent Sidebar Logs ── */
+.analytics-sidebar {
+  position: sticky; /* Keeps logs visible while scrolling charts */
+  top: var(--space-lg);
+  height: calc(100vh - 180px); /* Fixed height to enable internal scroll */
+  display: flex;
 }
 
-/* Card */
+.analytics-sidebar .analytics-card {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Scrollable area for the activity logs */
+.logs-list-container {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: var(--space-xs);
+}
+
+/* ── Reusable Card Styling ── */
 .analytics-card {
   background: var(--color-bg-card);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: var(--space-lg);
-  animation: fadeInUp 0.5s ease both;
   transition: all var(--transition-base);
 }
 
-.analytics-card:nth-child(2) { animation-delay: 80ms; }
-.analytics-card:nth-child(3) { animation-delay: 160ms; }
-.analytics-card:nth-child(4) { animation-delay: 240ms; }
-.analytics-card:nth-child(5) { animation-delay: 320ms; }
+/* Responsive: Stack columns on smaller screens */
+@media (max-width: 1100px) {
+  .analytics-content-wrapper {
+    grid-template-columns: 1fr;
+  }
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+} 
 
-.analytics-card:hover {
-  border-color: var(--color-border-hover);
-  box-shadow: var(--glow-primary);
+/* Override: counters di dalam main-column cukup 2 kolom (bukan 3) */
+.analytics-main-column .counters-section {
+  grid-template-columns: repeat(2, 1fr);
 }
 
-.analytics-card-header {
-  margin-bottom: var(--space-md);
-}
-
-.analytics-card-header h3 {
+/* Log item styling */
+.log-item {
   display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  font-size: var(--font-size-md);
-  font-weight: 700;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-sm) 0;
+  border-bottom: 1px solid var(--color-border);
 }
 
-.analytics-card-header h3 svg {
-  color: var(--color-accent-primary);
+.log-item:last-child {
+  border-bottom: none;
 }
 
-.analytics-chart-wrapper {
-  position: relative;
+.log-message {
+  font-size: 13px;
+  color: var(--color-text-primary);
+  font-weight: 500;
+}
+
+.log-meta {
+  font-size: 11px;
+  color: var(--color-text-muted);
 }

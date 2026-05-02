@@ -237,39 +237,56 @@ export const deleteInventoryItem = async (itemId) => {
 export const fetchDetectionsByDay = async (days = 7) => {
   try {
     const q = query(
-      collection(db, 'detections'),
-      orderBy('timestamp', 'desc'),
-      firestoreLimit(100)
+      collection(db, 'activity_logs'),
+      where('category', '==', 'AI_ALARM'),
+      orderBy('createdAt', 'desc'),
+      firestoreLimit(200)
     );
     const snap = await getDocs(q);
     const data = snap.docs.map(d => d.data());
     
-    // Group by day
     const grouped = {};
-    data.forEach(det => {
-      const date = new Date(det.timestamp).toLocaleDateString();
-      grouped[date] = (grouped[date] || 0) + 1;
-    });
+    const now = new Date();
+    for (let i = 0; i < days; i += 1) {
+      const date = new Date(now);
+      date.setDate(now.getDate() - i);
+      const label = date.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short' });
+      grouped[label] = 0;
+    }
     
-    return grouped;
+    data.forEach(log => {
+      const date = log.createdAt?.toDate?.() || new Date(log.createdAt);
+      if (Number.isNaN(date.getTime())) return;
+      const label = date.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short' });
+      if (label in grouped) grouped[label] += 1;
+    });
+
+    return {
+      labels: Object.keys(grouped).reverse(),
+      data: Object.values(grouped).reverse()
+    };
   } catch (error) {
     console.error("[Database Service] Error fetching detections by day:", error);
-    return {};
+    return { labels: [], data: [] };
   }
 };
 
 export const fetchPestDistribution = async () => {
   try {
-    const q = query(collection(db, 'detections'));
+    const q = query(
+      collection(db, 'activity_logs'),
+      where('category', '==', 'AI_ALARM')
+    );
     const snap = await getDocs(q);
     const data = snap.docs.map(d => d.data());
     
-    // Count by pest type
     const distribution = { snake: 0, cat: 0, gecko: 0, other: 0 };
-    data.forEach(det => {
-      const pestType = det.pest_type?.toLowerCase() || 'other';
+    data.forEach(log => {
+      const pestType = log.label?.toLowerCase() || (log.action || '').replace(/^Alert:\s*/i, '').toLowerCase();
       if (pestType in distribution) {
         distribution[pestType]++;
+      } else {
+        distribution.other += 1;
       }
     });
     
@@ -286,42 +303,174 @@ export const fetchAlertsByZone = async () => {
     const snap = await getDocs(q);
     const data = snap.docs.map(d => d.data());
     
-    // Group by zone
     const grouped = {};
     data.forEach(alert => {
-      const zone = alert.zone_name || 'Unknown';
+      const zone = alert.zone_name || alert.zone || 'Unknown';
       grouped[zone] = (grouped[zone] || 0) + 1;
     });
     
-    return grouped;
+    return {
+      labels: Object.keys(grouped),
+      data: Object.values(grouped)
+    };
   } catch (error) {
     console.error("[Database Service] Error fetching alerts by zone:", error);
-    return {};
+    return { labels: [], data: [] };
   }
 };
 
 export const fetchThreatTrend = async (weeks = 4) => {
   try {
     const q = query(
-      collection(db, 'detections'),
-      orderBy('timestamp', 'desc'),
+      collection(db, 'activity_logs'),
+      where('category', '==', 'AI_ALARM'),
+      orderBy('createdAt', 'desc'),
       firestoreLimit(500)
     );
     const snap = await getDocs(q);
     const data = snap.docs.map(d => d.data());
     
-    // Group by week
-    const trend = {};
-    data.forEach(det => {
-      const date = new Date(det.timestamp);
-      const weekStart = new Date(date.setDate(date.getDate() - date.getDay()));
-      const weekKey = weekStart.toLocaleDateString();
-      trend[weekKey] = (trend[weekKey] || 0) + 1;
+    const trendMap = {};
+    data.forEach(log => {
+      const dateObj = log.createdAt?.toDate?.() || new Date(log.createdAt);
+      if (Number.isNaN(dateObj.getTime())) return;
+      const weekStart = new Date(dateObj);
+      weekStart.setHours(0, 0, 0, 0);
+      weekStart.setDate(dateObj.getDate() - dateObj.getDay());
+      const key = weekStart.getTime();
+      const label = weekStart.toLocaleDateString('id-ID', { month: 'short', day: 'numeric' });
+      if (!trendMap[key]) trendMap[key] = { label, count: 0 };
+      trendMap[key].count += 1;
     });
     
-    return trend;
+    const sortedWeeks = Object.keys(trendMap)
+      .map(Number)
+      .sort((a, b) => a - b)
+      .slice(-weeks);
+    
+    const labels = sortedWeeks.map((key) => trendMap[key].label);
+    const detected = sortedWeeks.map((key) => trendMap[key].count);
+    const resolved = sortedWeeks.map(() => 0);
+    
+    return { labels, detected, resolved };
   } catch (error) {
     console.error("[Database Service] Error fetching threat trend:", error);
-    return {};
+    return { labels: [], detected: [], resolved: [] };
   }
+};
+
+// --- 12. REAL-TIME ANALYTICS: COUNTER SYNC ---
+/**
+ * Fetch total detections count (all time)
+ */
+export const fetchTotalDetections = async () => {
+  try {
+    const q = query(
+      collection(db, 'activity_logs'),
+      where('category', '==', 'AI_ALARM')
+    );
+    const snap = await getDocs(q);
+    return snap.size;
+  } catch (error) {
+    console.error("[Database Service] Error fetching total detections:", error);
+    return 0;
+  }
+};
+
+/**
+ * Fetch detections for today only
+ */
+export const fetchDetectionsToday = async () => {
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const q = query(
+      collection(db, 'activity_logs'),
+      where('category', '==', 'AI_ALARM')
+    );
+    const snap = await getDocs(q);
+    
+    let count = 0;
+    snap.forEach(doc => {
+      const data = doc.data();
+      const createdAt = data.createdAt?.toDate?.() || new Date(data.createdAt);
+      if (createdAt >= today) {
+        count++;
+      }
+    });
+    return count;
+  } catch (error) {
+    console.error("[Database Service] Error fetching detections today:", error);
+    return 0;
+  }
+};
+
+/**
+ * Fetch hourly detection data for chart
+ */
+export const fetchDetectionsByHour = async () => {
+  try {
+    const q = query(
+      collection(db, 'activity_logs'),
+      where('category', '==', 'AI_ALARM'),
+      orderBy('createdAt', 'desc'),
+      firestoreLimit(100)
+    );
+    const snap = await getDocs(q);
+    
+    const hourlyData = {};
+    snap.forEach(doc => {
+      const data = doc.data();
+      const createdAt = data.createdAt?.toDate?.() || new Date(data.createdAt);
+      const hour = `${String(createdAt.getHours()).padStart(2, '0')}:00`;
+      hourlyData[hour] = (hourlyData[hour] || 0) + 1;
+    });
+    
+    const labels = Array.from({ length: 24 }, (_, i) => `${String(i).padStart(2, '0')}:00`);
+    const data = labels.map(label => hourlyData[label] || 0);
+    
+    return { labels, data };
+  } catch (error) {
+    console.error("[Database Service] Error fetching hourly data:", error);
+    return { labels: [], data: [] };
+  }
+};
+
+/**
+ * Real-time subscription to detection counters
+ */
+export const subscribeToRealTimeCounters = (callback) => {
+  const q = query(
+    collection(db, 'activity_logs'),
+    where('category', '==', 'AI_ALARM'),
+    orderBy('createdAt', 'desc'),
+    firestoreLimit(1000)
+  );
+  
+  return onSnapshot(q, (snapshot) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    let total = 0;
+    let todayCount = 0;
+    const hourlyData = {};
+    
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const createdAt = data.createdAt?.toDate?.() || new Date(data.createdAt);
+      
+      total++;
+      if (createdAt >= today) {
+        todayCount++;
+      }
+      
+      const hour = `${String(createdAt.getHours()).padStart(2, '0')}:00`;
+      hourlyData[hour] = (hourlyData[hour] || 0) + 1;
+    });
+    
+    callback({ total, todayCount, hourlyData });
+  }, (error) => {
+    console.error("[Database Service] Subscription error:", error);
+  });
 };

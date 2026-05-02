@@ -1,13 +1,16 @@
-/* --- MAIN PAGE CONTAINER --- */
+/* ─────────────────────────────────────────
+   ZONES PAGE — Full Layout
+───────────────────────────────────────── */
 .zones-page {
-  padding: 2rem;
+  padding: var(--space-lg, 1.5rem);
   background-color: var(--color-bg-primary);
   min-height: calc(100vh - 64px);
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: var(--space-lg, 1.5rem);
 }
 
+/* ── Page Header ── */
 .page-header {
   display: flex;
   justify-content: space-between;
@@ -27,7 +30,30 @@
   margin-top: 4px;
 }
 
-/* --- THE MAP BOX --- */
+/* ── Add Zone Button ── */
+.btn-add-zone {
+  background: var(--color-accent-primary, #6366f1);
+  color: #fff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
+}
+
+.btn-add-zone:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+/* ─────────────────────────────────────────
+   MAP CONTAINER
+───────────────────────────────────────── */
 .zone-map-container {
   background: var(--color-bg-card);
   border: 1px solid var(--color-border);
@@ -45,85 +71,316 @@
   border-bottom: 1px solid var(--color-border);
 }
 
+.zone-map-header h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.zone-map-stats {
+  display: flex;
+  gap: 20px;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+.zone-map-stats strong {
+  color: var(--color-text-primary);
+}
+
+/* ── The Map Canvas ── */
 .zone-map {
   position: relative;
   width: 100%;
-  height: 450px;
-  background: #f8fafc; /* Light blueprint gray */
+  height: 420px;
+  background: var(--color-bg-primary, #0f172a);
   border: 1px solid var(--color-border);
   border-radius: 8px;
   overflow: hidden;
 }
 
+/* Dot-grid blueprint effect */
 .zone-map-grid {
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(var(--color-border) 1px, transparent 1px);
-  background-size: 24px 24px;
-  opacity: 0.5;
+  background-image: radial-gradient(circle, rgba(148,163,184,0.25) 1px, transparent 1px);
+  background-size: 28px 28px;
 }
 
+/* Empty map state */
+.zone-map:not(:has(.zone-map-item)) .zone-map-grid::after {
+  content: 'No zones defined yet — click "Define New Zone" to start mapping';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted, #475569);
+  font-size: 13px;
+  text-align: center;
+  padding: 2rem;
+}
+
+/* ── Zone blocks on the map ── */
 .zone-map-item {
   position: absolute;
   border: 2px solid;
-  border-radius: 4px;
+  border-radius: 6px;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.2s;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 6px 8px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: default;
 }
 
-/* --- STANDARDIZED MODAL SYSTEM --- */
+.zone-map-item:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  z-index: 2;
+}
+
+.zone-map-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+
+.zone-map-util {
+  font-size: 11px;
+  font-weight: 600;
+  opacity: 0.85;
+  align-self: flex-end;
+}
+
+/* ─────────────────────────────────────────
+   ZONE CARDS GRID
+───────────────────────────────────────── */
+.zone-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.25rem;
+}
+
+/* ── Empty state card ── */
+.empty-state-card {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 3rem;
+  background: var(--color-bg-card);
+  border: 1px dashed var(--color-border);
+  border-radius: 12px;
+  color: var(--color-text-muted, #64748b);
+  font-size: 14px;
+}
+
+/* ── Individual Zone Card ── */
+.zone-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: var(--shadow-sm);
+  animation: fadeSlideIn 0.3s ease both;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.zone-card:hover {
+  border-color: var(--color-accent-primary, #6366f1);
+  box-shadow: 0 4px 20px rgba(99,102,241,0.08);
+}
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Card Header */
+.zone-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.zone-color-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.zone-card-title {
+  flex: 1;
+  min-width: 0;
+}
+
+.zone-card-title h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0 0 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.zone-card-title p {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* Utilization bar */
+.zone-utilization {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.zone-util-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.zone-util-bar {
+  height: 6px;
+  background: var(--color-border);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.zone-util-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.6s ease;
+}
+
+/* Card Stats */
+.zone-card-stats {
+  display: flex;
+  gap: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-border);
+}
+
+.zone-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.zone-stat-value {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--color-text-primary);
+  line-height: 1;
+}
+
+.zone-stat-label {
+  font-size: 11px;
+  color: var(--color-text-muted, #64748b);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ─────────────────────────────────────────
+   MODAL
+───────────────────────────────────────── */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.75) !important; /* Darker backdrop */
-  backdrop-filter: blur(4px);
+  background: rgba(10, 15, 30, 0.8);
+  backdrop-filter: blur(6px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999 !important; /* Ensure it's on top of everything */
+  z-index: 9999;
+  padding: 1rem;
 }
 
 .modal-card {
-  background: #ffffff !important; /* Force solid white background */
+  background: #ffffff;
   width: 100%;
   max-width: 480px;
-  border-radius: 12px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border-radius: 14px;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.3);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border: 1px solid var(--color-border);
-  animation: modalSlideUp 0.3s ease-out;
+  border: 1px solid #e2e8f0;
+  animation: modalSlideUp 0.25s ease-out;
+}
+
+@keyframes modalSlideUp {
+  from { transform: translateY(24px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
 }
 
 .modal-header {
   padding: 20px 24px;
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid #e2e8f0;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #ffffff;
+}
+
+.modal-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.modal-title-group .icon-accent {
+  color: #6366f1;
 }
 
 .modal-title-group h3 {
   margin: 0;
-  font-size: 18px;
+  font-size: 17px;
+  font-weight: 700;
   color: #1e293b;
 }
 
 .modal-title-group p {
-  margin: 0;
+  margin: 2px 0 0;
   font-size: 12px;
   color: #64748b;
+}
+
+.modal-close {
+  cursor: pointer;
+  color: #94a3b8;
+  transition: color 0.2s;
+}
+
+.modal-close:hover {
+  color: #1e293b;
 }
 
 .modal-body {
   padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
   background: #ffffff;
 }
 
@@ -138,99 +395,122 @@
 }
 
 .modal-field label {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .modal-field input {
   width: 100%;
   padding: 10px 12px;
-  border: 1px solid #cbd5e1;
+  border: 1px solid #e2e8f0;
   border-radius: 8px;
   font-size: 14px;
   color: #1e293b;
-  background: #fdfdfd;
+  background: #f8fafc;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .modal-field input:focus {
   outline: none;
-  border-color: #4f46e5;
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+  border-color: #6366f1;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
 }
 
 .modal-row {
   display: flex;
-  gap: 16px;
+  gap: 14px;
 }
 
 .modal-footer {
   padding: 16px 24px;
   background: #f8fafc;
-  border-top: 1px solid var(--color-border);
+  border-top: 1px solid #e2e8f0;
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
+  gap: 10px;
 }
 
-/* --- BUTTONS --- */
+/* ── Modal Buttons ── */
 .btn-primary {
-  background: #4f46e5;
-  color: white;
-  padding: 10px 20px;
+  background: #6366f1;
+  color: #fff;
+  padding: 10px 22px;
   border-radius: 8px;
   border: none;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   transition: opacity 0.2s;
 }
 
+.btn-primary:hover:not(:disabled) {
+  opacity: 0.88;
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .btn-secondary {
-  background: white;
+  background: #fff;
   color: #475569;
   padding: 10px 20px;
   border-radius: 8px;
   border: 1px solid #e2e8f0;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
+  transition: background 0.2s;
 }
 
-.btn-add-zone {
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  padding: 10px 16px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 600;
-  cursor: pointer;
+.btn-secondary:hover {
+  background: #f1f5f9;
 }
 
-/* --- CARDS GRID --- */
-.zone-cards-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 1.5rem;
-}
-
-.zone-card {
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: var(--shadow-sm);
-}
-
-/* --- ANIMATIONS --- */
-@keyframes modalSlideUp {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-
-/* Color Picker Input Fix */
+/* Color picker */
 .color-picker-input {
-  height: 40px;
+  height: 42px;
   padding: 4px !important;
   cursor: pointer;
+  border-radius: 8px;
+}
+
+/* ─────────────────────────────────────────
+   BADGE (reuse global or define locally)
+───────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.badge-success {
+  background: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+}
+
+.badge-warning {
+  background: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .zones-page { padding: 1rem; }
+  .zone-map { height: 280px; }
+  .zone-cards-grid { grid-template-columns: 1fr; }
+  .modal-row { flex-direction: column; }
+  .modal-card { max-width: 100%; }
 }
