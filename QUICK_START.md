@@ -60,13 +60,13 @@ python app.py
 
 ### Web Frontend (.env already configured)
 ```
-VITE_FIREBASE_API_KEY=AIzaSyB9G9M2nWl_aa2KxaKXI91_jCWKURtoAiM
-VITE_FIREBASE_AUTH_DOMAIN=smart-warehouse-project-51725.firebaseapp.com
-VITE_FIREBASE_PROJECT_ID=smart-warehouse-project-51725
-VITE_FIREBASE_STORAGE_BUCKET=smart-warehouse-project-51725.firebasestorage.app
-VITE_FIREBASE_MESSAGING_SENDER_ID=686923732653
-VITE_FIREBASE_APP_ID=1:686923732653:web:1f6f56511b75d406ab5824
-VITE_FIREBASE_DATABASE_URL=https://smart-warehouse-project-51725.firebaseio.com
+VITE_FIREBASE_API_KEY=AIzaSyB9G9M2nWl_xxxxxxx_xxxxxxx
+VITE_FIREBASE_AUTH_DOMAIN=smart-warehouse-project-xxxxx.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=smart-warehouse-project-xxxxx
+VITE_FIREBASE_STORAGE_BUCKET=smart-warehouse-project-xxxxx.firebasestorage.app
+VITE_FIREBASE_MESSAGING_SENDER_ID=xxxxxxxxxxxx
+VITE_FIREBASE_APP_ID=1:xxxxxxxxx:web:xxxxxxxx
+VITE_FIREBASE_DATABASE_URL=https://smart-warehouse-project-xxxxx.firebaseio.com
 ```
 
 ### AI Backend (.env template provided)
